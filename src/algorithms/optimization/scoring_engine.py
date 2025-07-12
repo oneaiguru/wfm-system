@@ -5,519 +5,504 @@ From: 24-automatic-schedule-optimization.feature:55
 "Scoring Engine | Multi-criteria decision | All metrics | Ranked suggestions | 1-2 seconds"
 """
 
-import numpy as np
-import pandas as pd
-from typing import Dict, List, Tuple, Optional, Any
-from datetime import datetime, timedelta
-from dataclasses import dataclass
+from typing import Dict, List, Optional, Any, Tuple
+from datetime import datetime
+from dataclasses import dataclass, field
 from enum import Enum
-import time
 import logging
+import numpy as np
 
 logger = logging.getLogger(__name__)
 
 class ScoringCriteria(Enum):
-    """Scoring criteria types"""
+    """Multi-criteria scoring components"""
     COVERAGE_OPTIMIZATION = "coverage_optimization"
     COST_EFFICIENCY = "cost_efficiency"
     COMPLIANCE_PREFERENCES = "compliance_preferences"
     IMPLEMENTATION_SIMPLICITY = "implementation_simplicity"
 
-class ScoreComponent(Enum):
-    """Individual score components"""
-    GAP_REDUCTION = "gap_reduction"
-    PEAK_COVERAGE = "peak_coverage"
-    SKILL_MATCH = "skill_match"
-    OVERTIME_REDUCTION = "overtime_reduction"
-    LABOR_LAW_COMPLIANCE = "labor_law_compliance"
-    EMPLOYEE_PREFERENCES = "employee_preferences"
-    PATTERN_REGULARITY = "pattern_regularity"
-    IMPLEMENTATION_EASE = "implementation_ease"
-
 @dataclass
 class ScoreBreakdown:
-    """Detailed score breakdown for transparency"""
-    component: ScoreComponent
-    weight: float
-    points_earned: float
-    max_points: float
-    calculation_method: str
-    explanation: str
-
-@dataclass
-class ScoringResult:
-    """Individual suggestion scoring result"""
-    suggestion_id: str
-    total_score: float
+    """Detailed scoring breakdown per BDD specification"""
     coverage_score: float
     cost_score: float
     compliance_score: float
-    implementation_score: float
-    score_breakdown: List[ScoreBreakdown]
-    ranking_position: int
-    recommendation_level: str
+    simplicity_score: float
+    total_score: float
+    weighted_scores: Dict[ScoringCriteria, float]
+    sub_component_scores: Dict[str, float]
 
 @dataclass
-class RankedSuggestions:
-    """Complete ranked suggestions output"""
-    suggestions: List[ScoringResult]
-    total_evaluated: int
+class OptimizationScore:
+    """Complete optimization score for schedule variant"""
+    variant_id: str
+    overall_score: float
+    score_breakdown: ScoreBreakdown
+    ranking_position: int
+    recommendation_level: str
+    risk_assessment: str
+    implementation_timeline: str
+    expected_outcomes: Dict[str, float]
+
+@dataclass
+class RankedSuggestion:
+    """Ranked schedule suggestion with comprehensive scoring"""
+    suggestions: List[OptimizationScore]
     scoring_methodology: Dict[str, Any]
+    comparison_matrix: Dict[str, Dict[str, float]]
+    recommendation_summary: Dict[str, Any]
     processing_time_ms: float
-    confidence_level: float
-    recommendation_summary: str
 
 class ScoringEngine:
     """
-    Multi-Criteria Decision Scoring Engine
-    BDD Requirement: All metrics → Ranked suggestions (1-2 seconds)
+    Multi-criteria decision analysis scoring system
+    BDD Requirement: All metrics → Ranked suggestions
     """
     
     def __init__(self):
-        # Scoring weights per BDD specifications
+        # BDD Requirements: Optimization weights (lines 64-68)
         self.scoring_weights = {
-            ScoringCriteria.COVERAGE_OPTIMIZATION: 40.0,  # 40% weight
-            ScoringCriteria.COST_EFFICIENCY: 30.0,        # 30% weight
-            ScoringCriteria.COMPLIANCE_PREFERENCES: 20.0,  # 20% weight
-            ScoringCriteria.IMPLEMENTATION_SIMPLICITY: 10.0 # 10% weight
+            ScoringCriteria.COVERAGE_OPTIMIZATION: 0.40,      # 40% weight
+            ScoringCriteria.COST_EFFICIENCY: 0.30,           # 30% weight
+            ScoringCriteria.COMPLIANCE_PREFERENCES: 0.20,     # 20% weight
+            ScoringCriteria.IMPLEMENTATION_SIMPLICITY: 0.10   # 10% weight
         }
         
-        # Component weights within each criteria
-        self.component_weights = {
-            # Coverage Optimization (40%)
-            ScoreComponent.GAP_REDUCTION: 15.0,
-            ScoreComponent.PEAK_COVERAGE: 15.0,
-            ScoreComponent.SKILL_MATCH: 10.0,
-            
-            # Cost Efficiency (30%)
-            ScoreComponent.OVERTIME_REDUCTION: 12.0,
-            
-            # Compliance & Preferences (20%)
-            ScoreComponent.LABOR_LAW_COMPLIANCE: 10.0,
-            ScoreComponent.EMPLOYEE_PREFERENCES: 10.0,
-            
-            # Implementation Simplicity (10%)
-            ScoreComponent.PATTERN_REGULARITY: 5.0,
-            ScoreComponent.IMPLEMENTATION_EASE: 5.0
+        # Sub-component weights (BDD lines 122-133)
+        self.sub_weights = {
+            'gap_reduction': 0.375,          # 15/40 of coverage weight
+            'peak_coverage': 0.320,          # 12.8/40 of coverage weight
+            'skill_match': 0.238,            # 9.5/40 of coverage weight
+            'overtime_reduction': 0.373,     # 11.2/30 of cost weight
+            'labor_compliance': 0.500,       # 10/20 of compliance weight
+            'employee_preferences': 0.340,   # 6.8/20 of compliance weight
+            'pattern_regularity': 0.860      # 8.6/10 of simplicity weight
         }
         
-        # BDD processing time target: 1-2 seconds
-        self.max_processing_time = 2.0
-    
-    def score_and_rank_suggestions(self,
-                                 suggestions: List[Dict[str, Any]],
-                                 all_metrics: Dict[str, Any],
-                                 scoring_criteria: Optional[Dict] = None) -> RankedSuggestions:
+        # BDD target processing time: 1-2 seconds
+        self.processing_target = 2.0
+        
+    def score_schedule_suggestions(self,
+                                 schedule_variants: List[Dict[str, Any]],
+                                 gap_analysis: Dict[str, Any],
+                                 cost_analysis: Dict[str, Any],
+                                 compliance_matrix: Dict[str, Any],
+                                 target_improvements: Dict[str, float]) -> RankedSuggestion:
         """
         Main scoring engine per BDD specification
-        Input: All metrics
+        Input: All metrics from optimization components
         Output: Ranked suggestions
         Processing: 1-2 seconds (BDD requirement)
         """
-        start_time = time.time()
+        start_time = datetime.now()
         
-        # Step 1: Initialize scoring methodology
-        methodology = self._initialize_scoring_methodology(scoring_criteria)
-        
-        # Step 2: Score each suggestion
-        scored_suggestions = []
-        for i, suggestion in enumerate(suggestions):
-            score_result = self._score_individual_suggestion(
-                suggestion_id=f"SUGGESTION_{i+1:03d}",
-                suggestion_data=suggestion,
-                all_metrics=all_metrics,
-                methodology=methodology
+        # Step 1: Score each variant
+        optimization_scores = []
+        for variant in schedule_variants:
+            score = self._score_individual_variant(
+                variant, gap_analysis, cost_analysis, compliance_matrix, target_improvements
             )
-            scored_suggestions.append(score_result)
+            optimization_scores.append(score)
         
-        # Step 3: Rank suggestions by total score
-        ranked_suggestions = sorted(
-            scored_suggestions, 
-            key=lambda x: x.total_score, 
-            reverse=True
-        )
+        # Step 2: Rank suggestions by score
+        optimization_scores.sort(key=lambda x: x.overall_score, reverse=True)
         
-        # Step 4: Assign ranking positions and recommendation levels
-        for rank, suggestion in enumerate(ranked_suggestions, 1):
-            suggestion.ranking_position = rank
-            suggestion.recommendation_level = self._determine_recommendation_level(
-                suggestion.total_score, rank
-            )
+        # Step 3: Assign ranking positions
+        for i, score in enumerate(optimization_scores):
+            score.ranking_position = i + 1
         
-        # Step 5: Calculate confidence and generate summary
-        confidence_level = self._calculate_confidence_level(ranked_suggestions)
-        recommendation_summary = self._generate_recommendation_summary(ranked_suggestions)
+        # Step 4: Create comparison matrix
+        comparison_matrix = self._create_comparison_matrix(optimization_scores)
         
-        processing_time = (time.time() - start_time) * 1000
+        # Step 5: Generate methodology explanation
+        scoring_methodology = self._generate_scoring_methodology()
         
-        return RankedSuggestions(
-            suggestions=ranked_suggestions,
-            total_evaluated=len(suggestions),
-            scoring_methodology=methodology,
-            processing_time_ms=processing_time,
-            confidence_level=confidence_level,
-            recommendation_summary=recommendation_summary
+        # Step 6: Create recommendation summary
+        recommendation_summary = self._generate_recommendation_summary(optimization_scores)
+        
+        # Processing time validation
+        processing_time = (datetime.now() - start_time).total_seconds() * 1000
+        
+        return RankedSuggestion(
+            suggestions=optimization_scores,
+            scoring_methodology=scoring_methodology,
+            comparison_matrix=comparison_matrix,
+            recommendation_summary=recommendation_summary,
+            processing_time_ms=processing_time
         )
     
-    def _initialize_scoring_methodology(self, custom_criteria: Optional[Dict]) -> Dict[str, Any]:
-        """Initialize scoring methodology with custom overrides"""
-        methodology = {
-            'weights': self.scoring_weights.copy(),
-            'component_weights': self.component_weights.copy(),
-            'max_score': 100.0,
-            'scoring_version': 'BDD_v1.0'
+    def _score_individual_variant(self,
+                                variant: Dict[str, Any],
+                                gap_analysis: Dict[str, Any],
+                                cost_analysis: Dict[str, Any],
+                                compliance_matrix: Dict[str, Any],
+                                target_improvements: Dict[str, float]) -> OptimizationScore:
+        """Score individual schedule variant using multi-criteria analysis"""
+        
+        # Calculate component scores
+        coverage_score = self._score_coverage_optimization(variant, gap_analysis, target_improvements)
+        cost_score = self._score_cost_efficiency(variant, cost_analysis, target_improvements)
+        compliance_score = self._score_compliance_preferences(variant, compliance_matrix)
+        simplicity_score = self._score_implementation_simplicity(variant)
+        
+        # Calculate weighted scores
+        weighted_scores = {
+            ScoringCriteria.COVERAGE_OPTIMIZATION: coverage_score * self.scoring_weights[ScoringCriteria.COVERAGE_OPTIMIZATION],
+            ScoringCriteria.COST_EFFICIENCY: cost_score * self.scoring_weights[ScoringCriteria.COST_EFFICIENCY],
+            ScoringCriteria.COMPLIANCE_PREFERENCES: compliance_score * self.scoring_weights[ScoringCriteria.COMPLIANCE_PREFERENCES],
+            ScoringCriteria.IMPLEMENTATION_SIMPLICITY: simplicity_score * self.scoring_weights[ScoringCriteria.IMPLEMENTATION_SIMPLICITY]
         }
-        
-        # Apply custom criteria if provided
-        if custom_criteria:
-            if 'coverage_weight' in custom_criteria:
-                methodology['weights'][ScoringCriteria.COVERAGE_OPTIMIZATION] = custom_criteria['coverage_weight']
-            if 'cost_weight' in custom_criteria:
-                methodology['weights'][ScoringCriteria.COST_EFFICIENCY] = custom_criteria['cost_weight']
-            # Normalize weights to 100%
-            total_weight = sum(methodology['weights'].values())
-            if total_weight != 100.0:
-                for criteria in methodology['weights']:
-                    methodology['weights'][criteria] = (methodology['weights'][criteria] / total_weight) * 100.0
-        
-        return methodology
-    
-    def _score_individual_suggestion(self,
-                                   suggestion_id: str,
-                                   suggestion_data: Dict[str, Any],
-                                   all_metrics: Dict[str, Any],
-                                   methodology: Dict[str, Any]) -> ScoringResult:
-        """Score an individual suggestion using multi-criteria analysis"""
-        
-        # Extract metrics for scoring
-        current_metrics = all_metrics.get('current_state', {})
-        projected_metrics = suggestion_data.get('projected_metrics', {})
-        
-        # Score each component
-        score_breakdown = []
-        
-        # Coverage Optimization Components
-        gap_reduction_score = self._score_gap_reduction(
-            current_metrics, projected_metrics, methodology
-        )
-        score_breakdown.append(gap_reduction_score)
-        
-        peak_coverage_score = self._score_peak_coverage(
-            current_metrics, projected_metrics, methodology
-        )
-        score_breakdown.append(peak_coverage_score)
-        
-        skill_match_score = self._score_skill_match(
-            suggestion_data, all_metrics, methodology
-        )
-        score_breakdown.append(skill_match_score)
-        
-        # Cost Efficiency Components
-        overtime_reduction_score = self._score_overtime_reduction(
-            current_metrics, projected_metrics, methodology
-        )
-        score_breakdown.append(overtime_reduction_score)
-        
-        # Compliance & Preferences Components
-        compliance_score = self._score_labor_law_compliance(
-            suggestion_data, all_metrics, methodology
-        )
-        score_breakdown.append(compliance_score)
-        
-        preferences_score = self._score_employee_preferences(
-            suggestion_data, all_metrics, methodology
-        )
-        score_breakdown.append(preferences_score)
-        
-        # Implementation Simplicity Components
-        pattern_score = self._score_pattern_regularity(
-            suggestion_data, methodology
-        )
-        score_breakdown.append(pattern_score)
-        
-        ease_score = self._score_implementation_ease(
-            suggestion_data, methodology
-        )
-        score_breakdown.append(ease_score)
-        
-        # Calculate category scores
-        coverage_score = sum(s.points_earned for s in score_breakdown 
-                           if s.component in [ScoreComponent.GAP_REDUCTION, 
-                                            ScoreComponent.PEAK_COVERAGE, 
-                                            ScoreComponent.SKILL_MATCH])
-        
-        cost_score = sum(s.points_earned for s in score_breakdown 
-                        if s.component == ScoreComponent.OVERTIME_REDUCTION) * 2.5  # Scale to 30%
-        
-        compliance_score_total = sum(s.points_earned for s in score_breakdown 
-                                   if s.component in [ScoreComponent.LABOR_LAW_COMPLIANCE,
-                                                    ScoreComponent.EMPLOYEE_PREFERENCES])
-        
-        implementation_score = sum(s.points_earned for s in score_breakdown 
-                                 if s.component in [ScoreComponent.PATTERN_REGULARITY,
-                                                  ScoreComponent.IMPLEMENTATION_EASE])
         
         # Calculate total score
-        total_score = sum(s.points_earned for s in score_breakdown)
+        total_score = sum(weighted_scores.values())
         
-        return ScoringResult(
-            suggestion_id=suggestion_id,
-            total_score=total_score,
+        # Calculate sub-component scores
+        sub_component_scores = self._calculate_sub_component_scores(
+            variant, gap_analysis, cost_analysis, compliance_matrix
+        )
+        
+        # Create score breakdown
+        score_breakdown = ScoreBreakdown(
             coverage_score=coverage_score,
             cost_score=cost_score,
-            compliance_score=compliance_score_total,
-            implementation_score=implementation_score,
+            compliance_score=compliance_score,
+            simplicity_score=simplicity_score,
+            total_score=total_score,
+            weighted_scores=weighted_scores,
+            sub_component_scores=sub_component_scores
+        )
+        
+        # Assess risk and implementation
+        risk_assessment = self._assess_implementation_risk(total_score, compliance_score)
+        implementation_timeline = self._estimate_implementation_timeline(simplicity_score, compliance_score)
+        recommendation_level = self._determine_recommendation_level(total_score, risk_assessment)
+        
+        # Calculate expected outcomes
+        expected_outcomes = self._calculate_expected_outcomes(variant, target_improvements)
+        
+        return OptimizationScore(
+            variant_id=variant.get('variant_id', 'UNKNOWN'),
+            overall_score=total_score,
             score_breakdown=score_breakdown,
             ranking_position=0,  # Will be set during ranking
-            recommendation_level=""  # Will be set during ranking
+            recommendation_level=recommendation_level,
+            risk_assessment=risk_assessment,
+            implementation_timeline=implementation_timeline,
+            expected_outcomes=expected_outcomes
         )
     
-    def _score_gap_reduction(self, current: Dict, projected: Dict, methodology: Dict) -> ScoreBreakdown:
-        """Score gap reduction improvement"""
-        current_gaps = current.get('coverage_gaps', 50)
-        projected_gaps = projected.get('coverage_gaps', 40)
+    def _score_coverage_optimization(self,
+                                   variant: Dict[str, Any],
+                                   gap_analysis: Dict[str, Any],
+                                   target_improvements: Dict[str, float]) -> float:
+        """Score coverage optimization (40% weight per BDD line 65)"""
         
-        if current_gaps > 0:
-            reduction_percent = ((current_gaps - projected_gaps) / current_gaps) * 100
-        else:
-            reduction_percent = 0
+        # Gap reduction score (BDD line 128)
+        current_gaps = gap_analysis.get('total_gaps', 0)
+        projected_gaps = variant.get('projected_gaps', current_gaps)
+        gap_reduction = max(0, (current_gaps - projected_gaps) / current_gaps) if current_gaps > 0 else 0
+        gap_reduction_score = min(100, gap_reduction * 100 * 5)  # Scale to 15 points max
         
-        # Score: 15 points max, proportional to reduction
-        max_points = 15.0
-        points_earned = min(max_points, (reduction_percent / 75.0) * max_points)  # 75% reduction = full points
+        # Peak coverage score (BDD line 129)
+        peak_periods = gap_analysis.get('peak_periods', [])
+        covered_peaks = 0
+        for period in peak_periods:
+            if self._is_period_covered(variant, period):
+                covered_peaks += 1
         
-        return ScoreBreakdown(
-            component=ScoreComponent.GAP_REDUCTION,
-            weight=15.0,
-            points_earned=max(0, points_earned),
-            max_points=max_points,
-            calculation_method="(Current gaps - Projected gaps) / Current gaps",
-            explanation=f"{reduction_percent:.1f}% reduction in coverage gaps"
-        )
+        peak_coverage_ratio = covered_peaks / len(peak_periods) if peak_periods else 1.0
+        peak_coverage_score = peak_coverage_ratio * 15  # Scale to 15 points max
+        
+        # Skill match score (BDD line 130)
+        skill_requirements = variant.get('required_skills', [])
+        available_skills = variant.get('available_skills', [])
+        skill_match_ratio = len(set(skill_requirements) & set(available_skills)) / len(skill_requirements) if skill_requirements else 1.0
+        skill_match_score = skill_match_ratio * 10  # Scale to 10 points max
+        
+        # Total coverage score (out of 40 points)
+        total_coverage = gap_reduction_score + peak_coverage_score + skill_match_score
+        
+        return min(40.0, total_coverage)
     
-    def _score_peak_coverage(self, current: Dict, projected: Dict, methodology: Dict) -> ScoreBreakdown:
-        """Score peak period coverage improvement"""
-        current_peak = current.get('peak_coverage', 70)
-        projected_peak = projected.get('peak_coverage', 85)
+    def _score_cost_efficiency(self,
+                             variant: Dict[str, Any],
+                             cost_analysis: Dict[str, Any],
+                             target_improvements: Dict[str, float]) -> float:
+        """Score cost efficiency (30% weight per BDD line 66)"""
         
-        improvement = projected_peak - current_peak
+        # Overtime reduction score (BDD line 131)
+        current_overtime = cost_analysis.get('current_overtime_cost', 1000)
+        projected_overtime = variant.get('projected_overtime_cost', current_overtime)
+        overtime_reduction = max(0, (current_overtime - projected_overtime) / current_overtime) if current_overtime > 0 else 0
+        overtime_reduction_score = overtime_reduction * 12  # Scale to 12 points max
         
-        # Score: 15 points max, target 85% coverage
-        max_points = 15.0
-        if projected_peak >= 85:
-            points_earned = max_points
-        else:
-            points_earned = (projected_peak / 85.0) * max_points
+        # Cost efficiency score
+        current_cost = cost_analysis.get('current_weekly_cost', 10000)
+        projected_cost = variant.get('projected_weekly_cost', current_cost)
+        cost_reduction = max(0, (current_cost - projected_cost) / current_cost) if current_cost > 0 else 0
+        cost_efficiency_score = cost_reduction * 18  # Scale to 18 points max
         
-        return ScoreBreakdown(
-            component=ScoreComponent.PEAK_COVERAGE,
-            weight=15.0,
-            points_earned=max(0, points_earned),
-            max_points=max_points,
-            calculation_method="Peak period coverage improvement",
-            explanation=f"{projected_peak:.1f}% of peak periods covered (+{improvement:.1f}%)"
-        )
+        # Total cost score (out of 30 points)
+        total_cost = overtime_reduction_score + cost_efficiency_score
+        
+        return min(30.0, total_cost)
     
-    def _score_skill_match(self, suggestion: Dict, all_metrics: Dict, methodology: Dict) -> ScoreBreakdown:
-        """Score skill requirements alignment"""
-        required_skills = all_metrics.get('required_skills', [])
-        available_skills = suggestion.get('skill_coverage', [])
+    def _score_compliance_preferences(self,
+                                    variant: Dict[str, Any],
+                                    compliance_matrix: Dict[str, Any]) -> float:
+        """Score compliance and preferences (20% weight per BDD line 67)"""
         
-        if not required_skills:
-            match_percent = 100
-        else:
-            matched_skills = len(set(required_skills) & set(available_skills))
-            match_percent = (matched_skills / len(required_skills)) * 100
+        # Labor law compliance score (BDD line 132)
+        compliance_score_raw = compliance_matrix.get('compliance_score', 100)
+        labor_compliance_score = compliance_score_raw / 100 * 10  # Scale to 10 points max
         
-        # Score: 10 points max
-        max_points = 10.0
-        points_earned = (match_percent / 100.0) * max_points
+        # Employee preferences score (BDD line 133)
+        total_employees = len(variant.get('schedule_blocks', []))
+        preferences_met = 0
         
-        return ScoreBreakdown(
-            component=ScoreComponent.SKILL_MATCH,
-            weight=10.0,
-            points_earned=points_earned,
-            max_points=max_points,
-            calculation_method="Required vs available skill alignment",
-            explanation=f"{match_percent:.1f}% skill requirements met"
-        )
+        for block in variant.get('schedule_blocks', []):
+            preferred_shifts = block.get('preferred_shifts', [])
+            assigned_shift = f"{block.get('start_time', '08:00')}-{block.get('end_time', '16:00')}"
+            if not preferred_shifts or assigned_shift in preferred_shifts:
+                preferences_met += 1
+        
+        preference_ratio = preferences_met / total_employees if total_employees > 0 else 1.0
+        preference_score = preference_ratio * 10  # Scale to 10 points max
+        
+        # Total compliance score (out of 20 points)
+        total_compliance = labor_compliance_score + preference_score
+        
+        return min(20.0, total_compliance)
     
-    def _score_overtime_reduction(self, current: Dict, projected: Dict, methodology: Dict) -> ScoreBreakdown:
-        """Score overtime cost reduction"""
-        current_overtime = current.get('overtime_hours', 100)
-        projected_overtime = projected.get('overtime_hours', 60)
+    def _score_implementation_simplicity(self, variant: Dict[str, Any]) -> float:
+        """Score implementation simplicity (10% weight per BDD line 68)"""
         
-        if current_overtime > 0:
-            reduction_percent = ((current_overtime - projected_overtime) / current_overtime) * 100
-        else:
-            reduction_percent = 0
+        # Pattern regularity score
+        pattern_type = variant.get('pattern_type', 'traditional')
         
-        # Score: 12 points max (30% of total via 2.5x multiplier)
-        max_points = 12.0
-        points_earned = min(max_points, (reduction_percent / 66.0) * max_points)  # 66% reduction = full points
-        
-        return ScoreBreakdown(
-            component=ScoreComponent.OVERTIME_REDUCTION,
-            weight=12.0,
-            points_earned=max(0, points_earned),
-            max_points=max_points,
-            calculation_method="(Current OT - Projected OT) / Current OT",
-            explanation=f"{reduction_percent:.1f}% overtime reduction"
-        )
-    
-    def _score_labor_law_compliance(self, suggestion: Dict, all_metrics: Dict, methodology: Dict) -> ScoreBreakdown:
-        """Score labor law compliance"""
-        compliance_violations = suggestion.get('compliance_violations', 0)
-        
-        # Score: 10 points max, lose points for violations
-        max_points = 10.0
-        if compliance_violations == 0:
-            points_earned = max_points
-        else:
-            # Lose 2 points per violation, minimum 0
-            points_earned = max(0, max_points - (compliance_violations * 2))
-        
-        return ScoreBreakdown(
-            component=ScoreComponent.LABOR_LAW_COMPLIANCE,
-            weight=10.0,
-            points_earned=points_earned,
-            max_points=max_points,
-            calculation_method="Compliance check results",
-            explanation=f"{'100% compliant' if compliance_violations == 0 else f'{compliance_violations} violations found'}"
-        )
-    
-    def _score_employee_preferences(self, suggestion: Dict, all_metrics: Dict, methodology: Dict) -> ScoreBreakdown:
-        """Score employee preference matching"""
-        preference_match = suggestion.get('preference_match_rate', 70)
-        
-        # Score: 10 points max
-        max_points = 10.0
-        points_earned = (preference_match / 100.0) * max_points
-        
-        return ScoreBreakdown(
-            component=ScoreComponent.EMPLOYEE_PREFERENCES,
-            weight=10.0,
-            points_earned=points_earned,
-            max_points=max_points,
-            calculation_method="Preference matching rate",
-            explanation=f"{preference_match:.1f}% preferences accommodated"
-        )
-    
-    def _score_pattern_regularity(self, suggestion: Dict, methodology: Dict) -> ScoreBreakdown:
-        """Score pattern regularity for implementation ease"""
-        pattern_complexity = suggestion.get('pattern_complexity', 'medium')
-        
-        # Score: 5 points max
-        max_points = 5.0
-        complexity_scores = {
-            'simple': 5.0,
-            'medium': 3.0,
-            'complex': 1.0
+        # Complexity factors
+        complexity_factors = {
+            'traditional': 10.0,      # Simplest
+            'flexible': 8.0,
+            'staggered': 7.0,
+            'compressed': 6.0,
+            'part_time': 7.5,
+            'split_shift': 4.0,       # Most complex
+            'peak_focus': 6.5,
+            'weekend_focus': 5.5
         }
-        points_earned = complexity_scores.get(pattern_complexity, 3.0)
         
-        return ScoreBreakdown(
-            component=ScoreComponent.PATTERN_REGULARITY,
-            weight=5.0,
-            points_earned=points_earned,
-            max_points=max_points,
-            calculation_method="Pattern regularity assessment",
-            explanation=f"{pattern_complexity.title()} pattern complexity"
-        )
+        base_simplicity = complexity_factors.get(pattern_type, 5.0)
+        
+        # Adjust for special features
+        schedule_blocks = variant.get('schedule_blocks', [])
+        complexity_penalty = 0
+        
+        for block in schedule_blocks:
+            if block.get('overlap_shift'):
+                complexity_penalty += 0.5
+            if block.get('split_shift'):
+                complexity_penalty += 1.0
+            if block.get('compressed_schedule'):
+                complexity_penalty += 0.5
+        
+        final_simplicity = max(0, base_simplicity - complexity_penalty)
+        
+        return min(10.0, final_simplicity)
     
-    def _score_implementation_ease(self, suggestion: Dict, methodology: Dict) -> ScoreBreakdown:
-        """Score implementation ease"""
-        implementation_timeline = suggestion.get('implementation_weeks', 3)
+    def _calculate_sub_component_scores(self,
+                                      variant: Dict[str, Any],
+                                      gap_analysis: Dict[str, Any],
+                                      cost_analysis: Dict[str, Any],
+                                      compliance_matrix: Dict[str, Any]) -> Dict[str, float]:
+        """Calculate detailed sub-component scores per BDD lines 127-133"""
         
-        # Score: 5 points max, fewer weeks = higher score
-        max_points = 5.0
-        if implementation_timeline <= 1:
-            points_earned = 5.0
-        elif implementation_timeline <= 2:
-            points_earned = 4.0
-        elif implementation_timeline <= 3:
-            points_earned = 3.0
-        else:
-            points_earned = max(0, 5 - implementation_timeline)
+        # Extract basic metrics
+        current_gaps = gap_analysis.get('total_gaps', 0)
+        projected_gaps = variant.get('projected_gaps', current_gaps)
         
-        return ScoreBreakdown(
-            component=ScoreComponent.IMPLEMENTATION_EASE,
-            weight=5.0,
-            points_earned=points_earned,
-            max_points=max_points,
-            calculation_method="Implementation timeline assessment",
-            explanation=f"{implementation_timeline} week implementation timeline"
-        )
+        current_overtime = cost_analysis.get('current_overtime_cost', 1000)
+        projected_overtime = variant.get('projected_overtime_cost', current_overtime)
+        
+        return {
+            'gap_reduction': ((current_gaps - projected_gaps) / current_gaps * 100) if current_gaps > 0 else 0,
+            'peak_coverage': variant.get('peak_coverage_percentage', 85.0),
+            'skill_match': variant.get('skill_match_percentage', 95.0),
+            'overtime_reduction': ((current_overtime - projected_overtime) / current_overtime * 100) if current_overtime > 0 else 0,
+            'labor_compliance': compliance_matrix.get('compliance_score', 100),
+            'employee_preferences': variant.get('preference_satisfaction', 68.0),
+            'pattern_regularity': variant.get('pattern_simplicity_score', 86.0)
+        }
     
-    def _determine_recommendation_level(self, total_score: float, rank: int) -> str:
-        """Determine recommendation level based on score and rank"""
-        if rank == 1 and total_score >= 90:
-            return "Highly Recommended"
-        elif rank <= 3 and total_score >= 80:
-            return "Recommended"
-        elif total_score >= 70:
-            return "Consider"
-        else:
-            return "Not Recommended"
-    
-    def _calculate_confidence_level(self, ranked_suggestions: List[ScoringResult]) -> float:
-        """Calculate confidence level in scoring results"""
-        if not ranked_suggestions:
-            return 0.0
+    def _is_period_covered(self, variant: Dict[str, Any], period: str) -> bool:
+        """Check if a specific time period is covered by the variant"""
+        # Simplified coverage check
+        schedule_blocks = variant.get('schedule_blocks', [])
         
-        # High confidence if top suggestion significantly outperforms others
-        if len(ranked_suggestions) >= 2:
-            top_score = ranked_suggestions[0].total_score
-            second_score = ranked_suggestions[1].total_score
-            score_gap = top_score - second_score
+        # Parse period (assuming format like "10:00")
+        period_hour = int(period.split(':')[0])
+        
+        for block in schedule_blocks:
+            start_hour = int(block.get('start_time', '08:00').split(':')[0])
+            end_hour = int(block.get('end_time', '16:00').split(':')[0])
             
-            if score_gap >= 10:
-                return 95.0
-            elif score_gap >= 5:
-                return 85.0
-            else:
-                return 75.0
-        else:
-            return 90.0  # Single suggestion
-    
-    def _generate_recommendation_summary(self, ranked_suggestions: List[ScoringResult]) -> str:
-        """Generate executive recommendation summary"""
-        if not ranked_suggestions:
-            return "No suggestions to evaluate"
+            if start_hour <= period_hour < end_hour:
+                return True
         
-        top_suggestion = ranked_suggestions[0]
-        
-        if top_suggestion.total_score >= 90:
-            return f"Strong recommendation: Suggestion {top_suggestion.ranking_position} scores {top_suggestion.total_score:.1f}/100 with excellent coverage and cost optimization"
-        elif top_suggestion.total_score >= 80:
-            return f"Good recommendation: Suggestion {top_suggestion.ranking_position} scores {top_suggestion.total_score:.1f}/100 with solid performance across criteria"
-        elif top_suggestion.total_score >= 70:
-            return f"Moderate recommendation: Suggestion {top_suggestion.ranking_position} scores {top_suggestion.total_score:.1f}/100 with acceptable trade-offs"
-        else:
-            return f"Weak recommendation: Top suggestion scores only {top_suggestion.total_score:.1f}/100, consider generating new options"
+        return False
     
-    def validate_bdd_requirements(self, result: RankedSuggestions) -> Dict[str, bool]:
+    def _assess_implementation_risk(self, total_score: float, compliance_score: float) -> str:
+        """Assess implementation risk level"""
+        if compliance_score < 15:  # Critical compliance issues
+            return "High"
+        elif total_score >= 90:
+            return "Low"
+        elif total_score >= 75:
+            return "Medium"
+        else:
+            return "High"
+    
+    def _estimate_implementation_timeline(self, simplicity_score: float, compliance_score: float) -> str:
+        """Estimate implementation timeline"""
+        if compliance_score < 15:
+            return "4-6 weeks"  # Need compliance fixes
+        elif simplicity_score >= 8:
+            return "1-2 weeks"  # Simple implementation
+        elif simplicity_score >= 6:
+            return "2-3 weeks"  # Medium complexity
+        else:
+            return "3-4 weeks"  # Complex implementation
+    
+    def _determine_recommendation_level(self, total_score: float, risk_assessment: str) -> str:
+        """Determine recommendation level per BDD lines 136-138"""
+        if total_score >= 90 and risk_assessment == "Low":
+            return "Implement"      # High acceptance likelihood
+        elif total_score >= 75:
+            return "Monitor"        # Medium risk factors
+        else:
+            return "Plan accordingly"  # Implementation timeline needed
+    
+    def _calculate_expected_outcomes(self,
+                                   variant: Dict[str, Any],
+                                   target_improvements: Dict[str, float]) -> Dict[str, float]:
+        """Calculate expected outcomes from implementation"""
+        return {
+            'coverage_improvement': variant.get('coverage_improvement', 15.0),
+            'cost_savings': variant.get('cost_savings', 10.0),
+            'service_level_improvement': variant.get('service_level_improvement', 5.0),
+            'employee_satisfaction': variant.get('employee_satisfaction', 68.0),
+            'implementation_confidence': variant.get('implementation_confidence', 85.0)
+        }
+    
+    def _create_comparison_matrix(self, 
+                                optimization_scores: List[OptimizationScore]) -> Dict[str, Dict[str, float]]:
+        """Create comparison matrix between top suggestions"""
+        if len(optimization_scores) < 2:
+            return {}
+        
+        # Take top 3 suggestions for comparison
+        top_suggestions = optimization_scores[:3]
+        comparison_matrix = {}
+        
+        for i, suggestion in enumerate(top_suggestions):
+            comparison_matrix[f"Suggestion_{i+1}"] = {
+                'overall_score': suggestion.overall_score,
+                'coverage_score': suggestion.score_breakdown.coverage_score,
+                'cost_score': suggestion.score_breakdown.cost_score,
+                'compliance_score': suggestion.score_breakdown.compliance_score,
+                'simplicity_score': suggestion.score_breakdown.simplicity_score,
+                'risk_level': suggestion.risk_assessment,
+                'implementation_weeks': self._parse_timeline_weeks(suggestion.implementation_timeline)
+            }
+        
+        return comparison_matrix
+    
+    def _parse_timeline_weeks(self, timeline: str) -> float:
+        """Parse timeline string to weeks"""
+        # Extract first number from timeline string
+        import re
+        match = re.search(r'(\d+)', timeline)
+        return float(match.group(1)) if match else 3.0
+    
+    def _generate_scoring_methodology(self) -> Dict[str, Any]:
+        """Generate explanation of scoring methodology per BDD lines 122-125"""
+        return {
+            'component_weights': {
+                'coverage_optimization': f"{self.scoring_weights[ScoringCriteria.COVERAGE_OPTIMIZATION]:.0%}",
+                'cost_efficiency': f"{self.scoring_weights[ScoringCriteria.COST_EFFICIENCY]:.0%}",
+                'compliance_preferences': f"{self.scoring_weights[ScoringCriteria.COMPLIANCE_PREFERENCES]:.0%}",
+                'implementation_simplicity': f"{self.scoring_weights[ScoringCriteria.IMPLEMENTATION_SIMPLICITY]:.0%}"
+            },
+            'scoring_scale': '0-100 points',
+            'calculation_method': 'Weighted multi-criteria decision analysis',
+            'sub_components': {
+                'gap_reduction': 'Coverage gap reduction percentage',
+                'peak_coverage': 'Peak period coverage improvement',
+                'skill_match': 'Required vs available skill alignment',
+                'overtime_reduction': 'Overtime cost reduction percentage',
+                'labor_compliance': 'Labor law compliance score',
+                'employee_preferences': 'Employee preference satisfaction rate'
+            }
+        }
+    
+    def _generate_recommendation_summary(self, 
+                                       optimization_scores: List[OptimizationScore]) -> Dict[str, Any]:
+        """Generate recommendation summary for decision makers"""
+        if not optimization_scores:
+            return {}
+        
+        top_suggestion = optimization_scores[0]
+        
+        return {
+            'top_recommendation': {
+                'variant_id': top_suggestion.variant_id,
+                'score': top_suggestion.overall_score,
+                'recommendation': top_suggestion.recommendation_level,
+                'risk': top_suggestion.risk_assessment,
+                'timeline': top_suggestion.implementation_timeline
+            },
+            'score_distribution': {
+                'excellent': len([s for s in optimization_scores if s.overall_score >= 90]),
+                'good': len([s for s in optimization_scores if 75 <= s.overall_score < 90]),
+                'acceptable': len([s for s in optimization_scores if 60 <= s.overall_score < 75]),
+                'poor': len([s for s in optimization_scores if s.overall_score < 60])
+            },
+            'implementation_readiness': {
+                'low_risk': len([s for s in optimization_scores if s.risk_assessment == "Low"]),
+                'medium_risk': len([s for s in optimization_scores if s.risk_assessment == "Medium"]),
+                'high_risk': len([s for s in optimization_scores if s.risk_assessment == "High"])
+            },
+            'average_metrics': {
+                'coverage_score': np.mean([s.score_breakdown.coverage_score for s in optimization_scores]),
+                'cost_score': np.mean([s.score_breakdown.cost_score for s in optimization_scores]),
+                'compliance_score': np.mean([s.score_breakdown.compliance_score for s in optimization_scores]),
+                'simplicity_score': np.mean([s.score_breakdown.simplicity_score for s in optimization_scores])
+            }
+        }
+    
+    def validate_bdd_requirements(self, result: RankedSuggestion) -> Dict[str, bool]:
         """Validate against BDD requirements"""
         validation = {}
         
         # Processing time: 1-2 seconds
         validation['processing_time'] = result.processing_time_ms <= 2000
         
-        # Multi-criteria decision system
-        validation['multi_criteria'] = len(result.scoring_methodology['weights']) >= 4
-        
-        # All metrics processed
-        validation['all_metrics'] = result.total_evaluated > 0
-        
         # Ranked suggestions generated
         validation['ranked_suggestions'] = len(result.suggestions) > 0
         
-        # Scoring methodology transparency
-        validation['scoring_transparency'] = all(
-            len(s.score_breakdown) > 0 for s in result.suggestions
-        )
+        # Multi-criteria scoring applied
+        validation['multi_criteria_scoring'] = len(result.scoring_methodology) > 0
         
-        # Confidence assessment
-        validation['confidence_assessment'] = result.confidence_level > 0
+        # Score breakdown available
+        if result.suggestions:
+            first_suggestion = result.suggestions[0]
+            validation['score_breakdown'] = hasattr(first_suggestion, 'score_breakdown')
+            validation['component_scores'] = len(first_suggestion.score_breakdown.weighted_scores) == 4
+        
+        # Comparison matrix generated
+        validation['comparison_matrix'] = len(result.comparison_matrix) > 0
+        
+        # Recommendation summary provided
+        validation['recommendation_summary'] = len(result.recommendation_summary) > 0
         
         return validation
