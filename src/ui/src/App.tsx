@@ -23,6 +23,7 @@ import ScheduleOptimizationUI from './modules/schedule-optimization/components/S
 import TimeAttendanceUI from './modules/time-attendance/components/TimeAttendanceUI';
 import IntegrationDashboardUI from './modules/integration-ui/components/IntegrationDashboardUI';
 import { VacancyPlanningModule } from './modules/vacancy-planning';
+import { IntegrationTester } from './components/IntegrationTester';
 import './index.css';
 
 function App() {
@@ -86,6 +87,9 @@ function App() {
           
           {/* Vacancy Planning Module - BDD Feature 27 */}
           <Route path="/vacancy-planning/*" element={<VacancyPlanningModule />} />
+          
+          {/* Integration Tester - For INTEGRATION-OPUS */}
+          <Route path="/integration-tester" element={<IntegrationTester />} />
           
           {/* Default redirect to login */}
           <Route path="/" element={<Navigate to="/login" replace />} />
