@@ -22,6 +22,7 @@ import LoadPlanningUI from './modules/forecasting-ui/components/LoadPlanningUI';
 import ScheduleOptimizationUI from './modules/schedule-optimization/components/ScheduleOptimizationUI';
 import TimeAttendanceUI from './modules/time-attendance/components/TimeAttendanceUI';
 import IntegrationDashboardUI from './modules/integration-ui/components/IntegrationDashboardUI';
+import { VacancyPlanningModule } from './modules/vacancy-planning';
 import './index.css';
 
 function App() {
@@ -82,6 +83,9 @@ function App() {
           
           {/* Integration UI - BDD Feature 21 */}
           <Route path="/integrations/dashboard" element={<IntegrationDashboardUI />} />
+          
+          {/* Vacancy Planning Module - BDD Feature 27 */}
+          <Route path="/vacancy-planning/*" element={<VacancyPlanningModule />} />
           
           {/* Default redirect to login */}
           <Route path="/" element={<Navigate to="/login" replace />} />

@@ -4,16 +4,18 @@ Runs the BDD System Integration endpoints for testing
 """
 
 from fastapi import FastAPI
-from src.api.v1.endpoints.bdd_system_integration import router
+from src.api.v1.endpoints.bdd_system_integration import router as integration_router
+from src.api.v1.endpoints.bdd_personnel_management import router as personnel_router
 
 app = FastAPI(
     title="BDD System Integration API",
     version="1.0.0",
-    description="BDD-compliant API implementation based on 11-system-integration-api-management.feature"
+    description="BDD-compliant API implementation based on multiple BDD feature files"
 )
 
-# Include the BDD integration router
-app.include_router(router, prefix="/api/v1")
+# Include the BDD routers
+app.include_router(integration_router, prefix="/api/v1")
+app.include_router(personnel_router, prefix="/api/v1")
 
 # Health check endpoint
 @app.get("/health")
