@@ -18,6 +18,7 @@ from .endpoints import (
     rbac,
     bdd_system_integration,
     bdd_personnel_management,
+    bdd_employee_requests,
 )
 
 # Import comprehensive forecasting API
@@ -141,3 +142,8 @@ api_router.include_router(bdd_integration_router)
 bdd_personnel_router = APIRouter(tags=["bdd-personnel-management"])
 bdd_personnel_router.include_router(bdd_personnel_management.router)
 api_router.include_router(bdd_personnel_router)
+
+# BDD Employee Requests API endpoints
+bdd_requests_router = APIRouter(tags=["bdd-employee-requests"])
+bdd_requests_router.include_router(bdd_employee_requests.router)
+api_router.include_router(bdd_requests_router)
