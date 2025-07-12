@@ -19,6 +19,7 @@ from .endpoints import (
     bdd_system_integration,
     bdd_personnel_management,
     bdd_employee_requests,
+    forecasting_ui_endpoints,
 )
 
 # Import comprehensive forecasting API
@@ -84,6 +85,9 @@ algorithm_router.include_router(forecasting.router, prefix="/forecast", tags=["f
 
 # Comprehensive Forecasting & Planning API (25 endpoints)
 api_router.include_router(comprehensive_forecasting_router)
+
+# UI Integration Forecasting Endpoints (4 endpoints for LoadPlanningUI.tsx)
+api_router.include_router(forecasting_ui_endpoints.router)
 
 # Include all routers in main API
 api_router.include_router(argus_router)

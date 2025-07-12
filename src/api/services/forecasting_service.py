@@ -35,10 +35,125 @@ class ForecastingService:
     Target: 90%+ accuracy improvement over traditional methods.
     """
     
-    def __init__(self, db: Session):
+    def __init__(self, db: Optional[Session] = None):
         self.db = db
         self.prophet_models = {}
         self.model_accuracy = {}
+        
+    # ============================================================================
+    # NEW UI INTEGRATION METHODS
+    # ============================================================================
+    
+    async def get_forecasts_for_period(
+        self,
+        period_start: date,
+        period_end: date,
+        service_name: Optional[str] = None,
+        group_name: Optional[str] = None,
+        db: Optional[Session] = None
+    ) -> List[Dict[str, Any]]:
+        """Get forecasts for period - UI integration method"""
+        # Use provided db session or fallback to instance db
+        session = db or self.db
+        if not session:
+            return []
+        
+        # TODO: Implement database query for forecasts
+        # For now, return empty list to trigger sample generation
+        return []
+    
+    async def get_historical_data(
+        self,
+        service_name: str,
+        group_name: str,
+        period_start: date,
+        period_end: date,
+        db: Optional[Session] = None
+    ) -> List[Dict[str, Any]]:
+        """Get historical data for forecasting"""
+        session = db or self.db
+        if not session:
+            return []
+        
+        # TODO: Implement database query for historical data
+        # For now, return empty list
+        return []
+    
+    async def save_forecast(
+        self,
+        forecast_id: str,
+        service_name: str,
+        group_name: str,
+        forecast_data: List[Dict[str, Any]],
+        staffing_data: List[Dict[str, Any]],
+        metadata: Dict[str, Any],
+        db: Optional[Session] = None
+    ) -> bool:
+        """Save forecast to database"""
+        session = db or self.db
+        if not session:
+            return False
+        
+        try:
+            # TODO: Implement database save
+            # For now, just log and return success
+            logger.info(f"Saving forecast {forecast_id} for {service_name}/{group_name}")
+            return True
+        except Exception as e:
+            logger.error(f"Error saving forecast: {e}")
+            return False
+    
+    async def save_historical_data(
+        self,
+        import_id: str,
+        service_name: str,
+        group_name: str,
+        data_type: str,
+        data: List[Dict[str, Any]],
+        metadata: Dict[str, Any],
+        db: Optional[Session] = None
+    ) -> bool:
+        """Save imported historical data"""
+        session = db or self.db
+        if not session:
+            return False
+        
+        try:
+            # TODO: Implement database save
+            logger.info(f"Saving {data_type} data {import_id} for {service_name}/{group_name}")
+            return True
+        except Exception as e:
+            logger.error(f"Error saving historical data: {e}")
+            return False
+    
+    async def get_forecast_accuracy(
+        self,
+        forecast_id: str,
+        db: Optional[Session] = None
+    ) -> Optional[Dict[str, Any]]:
+        """Get accuracy metrics for specific forecast"""
+        session = db or self.db
+        if not session:
+            return None
+        
+        # TODO: Implement database query for accuracy
+        return None
+    
+    async def get_accuracy_metrics(
+        self,
+        service_name: Optional[str] = None,
+        group_name: Optional[str] = None,
+        period_start: Optional[date] = None,
+        period_end: Optional[date] = None,
+        db: Optional[Session] = None
+    ) -> Optional[Dict[str, Any]]:
+        """Get accuracy metrics for service/group/period"""
+        session = db or self.db
+        if not session:
+            return None
+        
+        # TODO: Implement database query for accuracy metrics
+        return None
     
     async def apply_growth_factor(
         self, 

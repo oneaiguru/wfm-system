@@ -202,7 +202,16 @@ class GapAnalysisEngine:
             )
         
         # Pattern detection
-        peak_hours = [g for g in gaps if "10:00" <= g.interval <= "16:00" and g.gap_count > 0]
+        peak_hours = []
+        for g in gaps:
+            try:
+                if isinstance(g.interval, str) and ":" in g.interval:
+                    hour = int(g.interval.split(':')[0])
+                    if 10 <= hour <= 16 and g.gap_count > 0:
+                        peak_hours.append(g)
+            except (ValueError, AttributeError):
+                continue
+        
         if len(peak_hours) > 3:
             recommendations.append(
                 "Consider additional peak-hour staffing or shift overlap"

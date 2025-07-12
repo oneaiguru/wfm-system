@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import text, select
 from pydantic import BaseModel, Field
-from typing import Optional, List, Dict
+from typing import Optional, List, Dict, Any
 from datetime import date, datetime, timedelta
 import json
 import uuid
@@ -90,8 +90,8 @@ class SkillSchedulingRule(BaseModel):
     Automated assignment based on skill requirements
     """
     rule_name: str = Field(..., description="Rule identifier")
-    skill_requirements: List[Dict[str, any]] = Field(..., description="Required skills and levels")
-    time_constraints: Dict[str, any] = Field(..., description="Time-based requirements")
+    skill_requirements: List[Dict[str, Any]] = Field(..., description="Required skills and levels")
+    time_constraints: Dict[str, Any] = Field(..., description="Time-based requirements")
     priority: int = Field(..., ge=1, le=10, description="Rule priority (1=highest)")
     enforcement_level: str = Field(..., description="Mandatory, Preferred, Optional")
 
@@ -129,7 +129,7 @@ class SkillGapAnalysisRequest(BaseModel):
     """
     analysis_level: str = Field(..., description="Individual, Team, Department, Organization")
     target_id: str = Field(..., description="UUID of target entity")
-    future_requirements: List[Dict[str, any]] = Field(..., description="Projected skill needs")
+    future_requirements: List[Dict[str, Any]] = Field(..., description="Projected skill needs")
     time_horizon_months: int = Field(default=12, ge=1, le=36, description="Forecast period")
     include_recommendations: bool = Field(default=True, description="Generate action recommendations")
 
@@ -153,11 +153,11 @@ class TeamCompositionRequest(BaseModel):
     BDD Scenario: Optimize team composition based on skills
     Automated team formation recommendations
     """
-    project_requirements: List[Dict[str, any]] = Field(..., description="Required skills and levels")
+    project_requirements: List[Dict[str, Any]] = Field(..., description="Required skills and levels")
     team_size_range: Dict[str, int] = Field(..., description="Min/max team size")
     optimization_criteria: str = Field(..., description="Balanced, Specialized, Cost-Optimized")
-    availability_constraints: Optional[List[Dict[str, any]]] = Field(None, description="Employee availability")
-    diversity_targets: Optional[Dict[str, any]] = Field(None, description="Diversity requirements")
+    availability_constraints: Optional[List[Dict[str, Any]]] = Field(None, description="Employee availability")
+    diversity_targets: Optional[Dict[str, Any]] = Field(None, description="Diversity requirements")
 
 
 @router.post("/certifications", response_model=CertificationResponse)
