@@ -14,8 +14,12 @@ from src.api.v1.endpoints.bdd_reference_data import router as reference_data_rou
 from src.api.v1.endpoints.bdd_reporting_analytics import router as reporting_analytics_router
 from src.api.v1.endpoints.bdd_step_by_step_requests import router as step_requests_router
 
-# TODO: Add load forecasting router when File 08 implementation is complete
-# from src.api.v1.endpoints.bdd_load_forecasting import router as load_forecasting_router
+# Load forecasting UI endpoints for integration  
+try:
+    from src.api.v1.endpoints.forecasting_ui_simple import router as forecasting_ui_router
+    forecasting_ui_available = True
+except ImportError:
+    forecasting_ui_available = False
 
 app = FastAPI(
     title="WFM Multi-Agent Intelligence Framework",
@@ -63,8 +67,9 @@ app.include_router(reference_data_router, prefix="/api/v1", tags=["File 17 - Ref
 app.include_router(reporting_analytics_router, prefix="/api/v1", tags=["File 12 - Reporting & Analytics"])
 app.include_router(step_requests_router, prefix="/api/v1", tags=["File 05 - Step-by-Step Requests"])
 
-# TODO: Register load forecasting router when complete
-# app.include_router(load_forecasting_router, prefix="/api/v1", tags=["File 08 - Load Forecasting"])
+# Register forecasting UI endpoints if available
+if forecasting_ui_available:
+    app.include_router(forecasting_ui_router, tags=["Load Forecasting UI Integration"])
 
 @app.get("/")
 async def root():
@@ -82,7 +87,19 @@ async def root():
             "File 16: Personnel Management ✅",
             "File 17: Reference Data Management ✅"
         ],
-        "next_implementation": "File 08: Load Forecasting and Demand Planning"
+        "next_implementation": "File 09: Work Schedule and Vacation Planning",
+        "forecasting_ui_integration": "✅ Available" if forecasting_ui_available else "❌ Import Error",
+        "algorithm_integration": "✅ AL-OPUS Optimization Orchestrator Connected",
+        "new_endpoints": [
+            "GET /api/v1/forecasting/forecasts - Get forecasts for period",
+            "POST /api/v1/forecasting/forecasts - Create new forecast", 
+            "POST /api/v1/forecasting/import - Import historical data",
+            "GET /api/v1/forecasting/accuracy - Get accuracy metrics",
+            "POST /api/v1/algorithm/optimize - Start optimization job",
+            "GET /api/v1/algorithm/optimize/{job_id} - Get optimization results",
+            "POST /api/v1/algorithm/analyze/quick - Quick algorithm analysis",
+            "GET /api/v1/algorithm/algorithms/status - Algorithm health check"
+        ] if forecasting_ui_available else []
     }
 
 if __name__ == "__main__":

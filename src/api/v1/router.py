@@ -151,3 +151,9 @@ api_router.include_router(bdd_personnel_router)
 bdd_requests_router = APIRouter(tags=["bdd-employee-requests"])
 bdd_requests_router.include_router(bdd_employee_requests.router)
 api_router.include_router(bdd_requests_router)
+
+# AL-OPUS Algorithm Integration Service
+from .endpoints.algorithm_integration_service import router as algorithm_integration_router
+al_opus_router = APIRouter(tags=["al-opus-algorithms"])
+al_opus_router.include_router(algorithm_integration_router)
+api_router.include_router(al_opus_router)
