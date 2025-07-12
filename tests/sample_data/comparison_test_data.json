@@ -1,0 +1,163 @@
+{
+  "accuracyTestCases": {
+    "description": "Accuracy comparison test cases",
+    "erlangC": [
+      {
+        "testId": "acc_test_001",
+        "description": "Standard call center - morning shift",
+        "algorithm": "erlang_c",
+        "inputParameters": {
+          "arrival_rate": 120,
+          "service_time": 3.5,
+          "agents": 15,
+          "target_service_level": 0.8,
+          "target_wait_time": 20
+        },
+        "expectedArgusResult": {
+          "utilization": 0.778,
+          "probability_wait": 0.385,
+          "service_level": 0.792,
+          "average_wait_time": 18.5,
+          "agents_required": 15
+        }
+      },
+      {
+        "testId": "acc_test_002",
+        "description": "High volume scenario - peak hours",
+        "algorithm": "erlang_c",
+        "inputParameters": {
+          "arrival_rate": 500,
+          "service_time": 4.2,
+          "agents": 45,
+          "target_service_level": 0.85,
+          "target_wait_time": 15
+        },
+        "expectedArgusResult": {
+          "utilization": 0.833,
+          "probability_wait": 0.467,
+          "service_level": 0.825,
+          "average_wait_time": 21.3,
+          "agents_required": 48
+        }
+      },
+      {
+        "testId": "acc_test_003",
+        "description": "Low volume - night shift",
+        "algorithm": "erlang_c",
+        "inputParameters": {
+          "arrival_rate": 30,
+          "service_time": 5,
+          "agents": 5,
+          "target_service_level": 0.9,
+          "target_wait_time": 30
+        },
+        "expectedArgusResult": {
+          "utilization": 0.5,
+          "probability_wait": 0.156,
+          "service_level": 0.912,
+          "average_wait_time": 8.7,
+          "agents_required": 5
+        }
+      }
+    ]
+  },
+  "performanceTestData": {
+    "description": "Performance benchmark test data",
+    "small": {
+      "erlang_c": {
+        "arrival_rate": 50,
+        "service_time": 3,
+        "agents": 8,
+        "target_service_level": 0.8
+      }
+    },
+    "medium": {
+      "erlang_c": {
+        "arrival_rate": 200,
+        "service_time": 4,
+        "agents": 25,
+        "target_service_level": 0.85
+      }
+    },
+    "large": {
+      "erlang_c": {
+        "arrival_rate": 1000,
+        "service_time": 5,
+        "agents": 120,
+        "target_service_level": 0.9
+      }
+    }
+  },
+  "comparisonScenarios": {
+    "description": "Side-by-side comparison scenarios",
+    "scenarios": [
+      {
+        "algorithm": "erlang_c",
+        "scenario": "Contact Center Optimization",
+        "input_data": {
+          "arrival_rate": 250,
+          "service_time": 3.8,
+          "agents": 30,
+          "target_service_level": 0.82,
+          "target_wait_time": 18
+        }
+      },
+      {
+        "algorithm": "erlang_c",
+        "scenario": "Peak Hour Staffing",
+        "input_data": {
+          "arrival_rate": 600,
+          "service_time": 4.5,
+          "agents": 55,
+          "target_service_level": 0.88,
+          "target_wait_time": 12
+        }
+      }
+    ]
+  },
+  "expectedImprovements": {
+    "description": "Expected WFM Enterprise improvements over Argus",
+    "accuracy": {
+      "erlang_c": {
+        "service_level_prediction": 15,
+        "wait_time_estimation": 18,
+        "agent_requirement": 12,
+        "utilization_calculation": 10
+      }
+    },
+    "performance": {
+      "erlang_c": {
+        "small_data": 8.5,
+        "medium_data": 10.2,
+        "large_data": 12.8
+      }
+    }
+  },
+  "visualizationPresets": {
+    "description": "Preset data for UI visualization demos",
+    "accuracyChart": {
+      "labels": ["Service Level", "Wait Time", "Utilization", "Agent Count", "Queue Length"],
+      "wfmScores": [85.2, 87.5, 83.8, 86.1, 84.9],
+      "argusScores": [71.3, 69.8, 73.5, 74.2, 72.1]
+    },
+    "performanceChart": {
+      "testSizes": ["10 calls", "100 calls", "1000 calls", "10k calls"],
+      "wfmTimes": [2.3, 5.8, 8.9, 45.2],
+      "argusTimes": [28.5, 65.3, 125.7, 589.4]
+    },
+    "dashboardMetrics": {
+      "wfmEnterprise": {
+        "avgAccuracy": 85.3,
+        "avgResponseTime": 8.7,
+        "errorRate": 0.12,
+        "throughput": 15420
+      },
+      "argus": {
+        "avgAccuracy": 71.8,
+        "avgResponseTime": 95.4,
+        "errorRate": 2.35,
+        "throughput": 3180
+      }
+    }
+  }
+}

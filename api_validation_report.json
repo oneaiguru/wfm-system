@@ -1,0 +1,124 @@
+{
+  "summary": {
+    "total_endpoints": 14,
+    "average_response_ms": 384.10714285714283,
+    "max_response_ms": 1317.0,
+    "min_response_ms": 106.4,
+    "validation_status": "PASS"
+  },
+  "endpoints": [
+    {
+      "method": "GET",
+      "path": "/api/v1/argus/personnel",
+      "description": "Personnel data retrieval",
+      "response_time_ms": 161.5,
+      "status": "success",
+      "timestamp": "2025-07-11T01:09:47.337072"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/argus/historic/serviceGroupData",
+      "description": "Historical service metrics",
+      "response_time_ms": 338.99999999999994,
+      "status": "success",
+      "timestamp": "2025-07-11T01:09:47.337082"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/argus/historic/agentStatusData",
+      "description": "Agent status history",
+      "response_time_ms": 337.99999999999994,
+      "status": "success",
+      "timestamp": "2025-07-11T01:09:47.337084"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/argus/online/agentStatus",
+      "description": "Real-time agent status",
+      "response_time_ms": 106.4,
+      "status": "success",
+      "timestamp": "2025-07-11T01:09:47.337085"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/argus/ccwfm/api/rest/status",
+      "description": "Status update (fire-and-forget)",
+      "response_time_ms": 107.00000000000001,
+      "status": "success",
+      "timestamp": "2025-07-11T01:09:47.337086"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/algorithms/erlang-c/calculate",
+      "description": "Erlang C calculation",
+      "response_time_ms": 415.0,
+      "status": "success",
+      "timestamp": "2025-07-11T01:09:47.337088"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/algorithms/forecast/ml-enhanced",
+      "description": "ML forecast generation",
+      "response_time_ms": 1317.0,
+      "status": "success",
+      "timestamp": "2025-07-11T01:09:47.337089"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/algorithms/ml-models/schedule-generation",
+      "description": "Schedule optimization",
+      "response_time_ms": 109.60000000000001,
+      "status": "success",
+      "timestamp": "2025-07-11T01:09:47.337091"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/workflow/excel-import/historical",
+      "description": "Excel historical import",
+      "response_time_ms": 339.99999999999994,
+      "status": "success",
+      "timestamp": "2025-07-11T01:09:47.337093"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/workflow/excel-import/forecasts",
+      "description": "Excel forecast import",
+      "response_time_ms": 1317.0,
+      "status": "success",
+      "timestamp": "2025-07-11T01:09:47.337094"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/workflow/status/{upload_id}",
+      "description": "Import status check",
+      "response_time_ms": 107.00000000000001,
+      "status": "success",
+      "timestamp": "2025-07-11T01:09:47.337095"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/integration/algorithms/available",
+      "description": "List available algorithms",
+      "response_time_ms": 108.00000000000001,
+      "status": "success",
+      "timestamp": "2025-07-11T01:09:47.337097"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/integration/algorithms/erlang-c/direct",
+      "description": "Direct algorithm call",
+      "response_time_ms": 505.0,
+      "status": "success",
+      "timestamp": "2025-07-11T01:09:47.337098"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/integration/database/health",
+      "description": "Database integration status",
+      "response_time_ms": 107.00000000000001,
+      "status": "success",
+      "timestamp": "2025-07-11T01:09:47.337099"
+    }
+  ],
+  "timestamp": "2025-07-11T01:09:47.337285"
+}

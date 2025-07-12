@@ -1,0 +1,142 @@
+{
+  "growth_factor": {
+    "input": {
+      "historical_calls": 1000,
+      "growth_factor": 5.0,
+      "expected_calls": 5000
+    },
+    "output": {
+      "total_base_calls": 1000.0,
+      "total_scaled_calls": 5000.0,
+      "actual_growth_factor": 5.0,
+      "growth_factor_accuracy": "100.00%",
+      "distribution_preserved": true
+    },
+    "validation": {
+      "growth_factor_correct": true,
+      "distribution_preserved": true,
+      "total_calls_correct": true
+    }
+  },
+  "weighted_average": {
+    "input": {
+      "groups": [
+        {
+          "name": "Group1",
+          "calls": 100,
+          "aht": 300,
+          "post_processing": 30
+        },
+        {
+          "name": "Group2",
+          "calls": 200,
+          "aht": 240,
+          "post_processing": 45
+        },
+        {
+          "name": "Group3",
+          "calls": 150,
+          "aht": 360,
+          "post_processing": 25
+        }
+      ],
+      "total_calls": 450
+    },
+    "output": {
+      "weighted_aht": 293.3333333333333,
+      "expected_aht": 293.33,
+      "aht_accuracy": "100.00%",
+      "weighted_post_proc": 35.0,
+      "expected_post_proc": 35.0,
+      "post_proc_accuracy": "100.00%"
+    },
+    "validation": {
+      "aht_calculation_correct": true,
+      "post_proc_calculation_correct": true
+    }
+  },
+  "service_level": [
+    {
+      "input": {
+        "lambda_rate": 100,
+        "mu_rate": 20,
+        "agents": 10,
+        "target_seconds": 20,
+        "expected_sl": 0.85
+      },
+      "our_result": {
+        "utilization": 0.5,
+        "prob_wait": 0.036105359158320194,
+        "service_level": 0.9819473204208399
+      },
+      "accuracy": "84.48%",
+      "passes": false
+    },
+    {
+      "input": {
+        "lambda_rate": 500,
+        "mu_rate": 30,
+        "agents": 25,
+        "target_seconds": 30,
+        "expected_sl": 0.9
+      },
+      "our_result": {
+        "utilization": 0.6666666666666666,
+        "prob_wait": 0.03908256833248251,
+        "service_level": 0.9804587158337588
+      },
+      "accuracy": "91.06%",
+      "passes": false
+    }
+  ],
+  "erlang_staffing": [
+    {
+      "scenario": "Small Contact Center",
+      "input": {
+        "lambda_rate": 100,
+        "mu_rate": 20,
+        "target_sl": 0.8
+      },
+      "output": {
+        "our_agents": 14,
+        "expected_agents": 7,
+        "achieved_sl": 0.9992662142588761,
+        "agent_difference": 7
+      },
+      "accuracy": "0.00%",
+      "passes": false
+    },
+    {
+      "scenario": "Medium Contact Center",
+      "input": {
+        "lambda_rate": 500,
+        "mu_rate": 30,
+        "target_sl": 0.85
+      },
+      "output": {
+        "our_agents": 40,
+        "expected_agents": 21,
+        "achieved_sl": 0.9999990918726682,
+        "agent_difference": 19
+      },
+      "accuracy": "9.52%",
+      "passes": false
+    },
+    {
+      "scenario": "Large Contact Center",
+      "input": {
+        "lambda_rate": 2000,
+        "mu_rate": 40,
+        "target_sl": 0.9
+      },
+      "output": {
+        "our_agents": 108,
+        "expected_agents": 60,
+        "achieved_sl": 0.9999999999991646,
+        "agent_difference": 48
+      },
+      "accuracy": "20.00%",
+      "passes": false
+    }
+  ]
+}

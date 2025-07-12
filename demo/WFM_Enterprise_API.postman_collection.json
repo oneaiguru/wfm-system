@@ -1,0 +1,394 @@
+{
+  "info": {
+    "name": "WFM Enterprise API - Superiority Demo",
+    "description": "Complete API collection demonstrating WFM Enterprise advantages over Argus CCWFM",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      {
+        "key": "key",
+        "value": "X-API-Key",
+        "type": "string"
+      },
+      {
+        "key": "value",
+        "value": "{{api_key}}",
+        "type": "string"
+      },
+      {
+        "key": "in",
+        "value": "header",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "1. Performance Comparison",
+      "item": [
+        {
+          "name": "Erlang C Speed Test",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Response time is less than 50ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(50);",
+                  "});",
+                  "",
+                  "pm.test(\"Calculation successful\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('agents_required');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"arrival_rate\": 150,\n  \"service_time\": 300,\n  \"target_service_level\": 0.8,\n  \"target_answer_time\": 20,\n  \"shrinkage\": 0.3\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/algorithms/erlang-c/calculate",
+              "host": ["{{base_url}}"],
+              "path": ["algorithms", "erlang-c", "calculate"]
+            }
+          }
+        },
+        {
+          "name": "Performance Comparison",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"WFM Enterprise is faster than Argus\", function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.speed_advantage).to.be.above(10);",
+                  "    console.log(`WFM Enterprise is ${response.speed_advantage}x faster!`);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"algorithm\": \"erlang_c\",\n  \"parameters\": {\n    \"arrival_rate\": 150,\n    \"service_time\": 300,\n    \"target_service_level\": 0.8,\n    \"target_answer_time\": 20\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/comparison/performance",
+              "host": ["{{base_url}}"],
+              "path": ["comparison", "performance"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Accuracy Comparison",
+      "item": [
+        {
+          "name": "Forecast Accuracy Test",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"WFM Enterprise has better accuracy\", function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.accuracy_advantage).to.be.above(10);",
+                  "    console.log(`WFM Enterprise is ${response.accuracy_advantage}% more accurate!`);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"test_mode\": \"quick\",\n  \"forecast_horizon\": 24\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/comparison/accuracy",
+              "host": ["{{base_url}}"],
+              "path": ["comparison", "accuracy"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Multi-Skill Optimization",
+      "item": [
+        {
+          "name": "Multi-Skill Comparison",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"WFM Enterprise has better utilization\", function () {",
+                  "    const response = pm.response.json();",
+                  "    const wfmUtil = response.wfm_enterprise.utilization;",
+                  "    const argusUtil = response.argus.utilization;",
+                  "    pm.expect(wfmUtil).to.be.above(argusUtil);",
+                  "    console.log(`WFM Enterprise achieves ${response.overall_improvement}% better utilization!`);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"scenario\": \"multi_skill_optimization\",\n  \"parameters\": {\n    \"skills\": [\"English\", \"Spanish\", \"Technical\"],\n    \"agents\": 50,\n    \"demand_forecast\": {\n      \"English\": 40,\n      \"Spanish\": 20,\n      \"Technical\": 15\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/comparison/results",
+              "host": ["{{base_url}}"],
+              "path": ["comparison", "results"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Argus API Compatibility",
+      "item": [
+        {
+          "name": "Get Personnel Structure",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/argus/personnel",
+              "host": ["{{base_url}}"],
+              "path": ["argus", "personnel"]
+            }
+          }
+        },
+        {
+          "name": "Historic Service Group Data",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/argus/historic/serviceGroupData?startDate=2024-01-01T00:00:00Z&endDate=2024-01-02T00:00:00Z&step=300000&groupId=1,2",
+              "host": ["{{base_url}}"],
+              "path": ["argus", "historic", "serviceGroupData"],
+              "query": [
+                {
+                  "key": "startDate",
+                  "value": "2024-01-01T00:00:00Z"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2024-01-02T00:00:00Z"
+                },
+                {
+                  "key": "step",
+                  "value": "300000"
+                },
+                {
+                  "key": "groupId",
+                  "value": "1,2"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Online Agent Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/argus/online/agentStatus",
+              "host": ["{{base_url}}"],
+              "path": ["argus", "online", "agentStatus"]
+            }
+          }
+        },
+        {
+          "name": "Post Agent Status Update",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"workerId\": \"123\",\n  \"stateName\": \"Available\",\n  \"stateCode\": \"AVAIL\",\n  \"systemId\": \"WFM_Enterprise\",\n  \"actionTime\": 1704067200,\n  \"action\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/argus/ccwfm/api/rest/status",
+              "host": ["{{base_url}}"],
+              "path": ["argus", "ccwfm", "api", "rest", "status"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Enhanced Features",
+      "item": [
+        {
+          "name": "ML-Enhanced Forecast",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"historical_data\": [],\n  \"forecast_horizon\": 168,\n  \"use_ml\": true,\n  \"confidence_interval\": 0.95\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/algorithms/forecast/ml-enhanced",
+              "host": ["{{base_url}}"],
+              "path": ["algorithms", "forecast", "ml-enhanced"]
+            }
+          }
+        },
+        {
+          "name": "Bulk Historic Upload",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"service_groups\": [\n    {\"id\": \"1\", \"name\": \"Customer Support\"}\n  ],\n  \"agents\": [\n    {\"id\": \"1\", \"name\": \"John Doe\", \"groups\": [\"1\"]}\n  ],\n  \"intervals\": [\n    {\n      \"start_time\": \"2024-01-01T00:00:00Z\",\n      \"end_time\": \"2024-01-01T00:15:00Z\",\n      \"received_calls\": 25,\n      \"answered_calls\": 20,\n      \"aht\": 300\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/argus/enhanced/historic/bulk-upload",
+              "host": ["{{base_url}}"],
+              "path": ["argus", "enhanced", "historic", "bulk-upload"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Real-time Monitoring",
+      "item": [
+        {
+          "name": "Get Performance Metrics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/comparison/metrics",
+              "host": ["{{base_url}}"],
+              "path": ["comparison", "metrics"]
+            }
+          }
+        },
+        {
+          "name": "Run Full Benchmark",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_suite\": true,\n  \"iterations\": 100\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/comparison/benchmark",
+              "host": ["{{base_url}}"],
+              "path": ["comparison", "benchmark"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Global test to ensure API is responding",
+          "pm.test(\"API is responsive\", function () {",
+          "    pm.response.to.have.status('code').oneOf([200, 201, 202, 204]);",
+          "});"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "api_key",
+      "value": "demo-api-key-2024",
+      "type": "string"
+    }
+  ]
+}

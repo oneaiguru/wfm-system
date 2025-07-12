@@ -1,0 +1,133 @@
+{
+  "agentStatusEvents": {
+    "description": "Sample real-time agent status events",
+    "events": [
+      {
+        "workerId": "101",
+        "stateName": "Available",
+        "stateCode": "AVAILABLE",
+        "systemId": "External system",
+        "actionTime": 1704110400,
+        "action": 1
+      },
+      {
+        "workerId": "101",
+        "stateName": "Available",
+        "stateCode": "AVAILABLE",
+        "systemId": "External system",
+        "actionTime": 1704111300,
+        "action": 0
+      },
+      {
+        "workerId": "101",
+        "stateName": "Technical Break",
+        "stateCode": "BREAK_TECH",
+        "systemId": "External system",
+        "actionTime": 1704111300,
+        "action": 1
+      }
+    ]
+  },
+  "currentAgentStatus": {
+    "description": "Sample current agent status response",
+    "response": [
+      {
+        "agentId": "101",
+        "stateCode": "AVAILABLE",
+        "stateName": "Available",
+        "startDate": "2024-01-01T10:30:00Z",
+        "duration": 1800000
+      },
+      {
+        "agentId": "102",
+        "stateCode": "ONCALL",
+        "stateName": "On Call",
+        "startDate": "2024-01-01T10:45:00Z",
+        "duration": 900000
+      },
+      {
+        "agentId": "103",
+        "stateCode": "BREAK_LUNCH",
+        "stateName": "Lunch Break",
+        "startDate": "2024-01-01T11:00:00Z",
+        "duration": 0
+      }
+    ]
+  },
+  "groupsOnlineLoad": {
+    "description": "Sample real-time group metrics",
+    "response": [
+      {
+        "serviceId": "1",
+        "groupId": "1",
+        "callNumber": 12,
+        "operatorNumber": 8,
+        "callReceived": 450,
+        "aht": 185000,
+        "acd": 92.5,
+        "awt": 15000,
+        "callAnswered": 416,
+        "callAnsweredTst": 385,
+        "callProcessing": 6
+      },
+      {
+        "serviceId": "1",
+        "groupId": "2",
+        "callNumber": 8,
+        "operatorNumber": 6,
+        "callReceived": 320,
+        "aht": 210000,
+        "acd": 88.7,
+        "awt": 22000,
+        "callAnswered": 284,
+        "callAnsweredTst": 251,
+        "callProcessing": 4
+      }
+    ]
+  },
+  "queueMetrics": {
+    "description": "Enhanced queue metrics",
+    "response": [
+      {
+        "queueId": "queue_1",
+        "queueDepth": 15,
+        "longestWaitTime": 65000,
+        "estimatedWaitTime": 35000,
+        "serviceLevelNow": 78.5,
+        "abandonmentRate": 3.2
+      },
+      {
+        "queueId": "queue_2",
+        "queueDepth": 5,
+        "longestWaitTime": 25000,
+        "estimatedWaitTime": 18000,
+        "serviceLevelNow": 92.1,
+        "abandonmentRate": 1.5
+      }
+    ]
+  },
+  "websocketMessages": {
+    "description": "Sample WebSocket notification messages",
+    "agentStateChange": {
+      "eventType": "agentStateChange",
+      "timestamp": "2024-01-01T11:15:30Z",
+      "agentId": "101",
+      "previousState": "AVAILABLE",
+      "newState": "ONCALL",
+      "stateName": "On Call",
+      "groupId": "1"
+    },
+    "metricsUpdate": {
+      "eventType": "metricsUpdate",
+      "timestamp": "2024-01-01T11:15:35Z",
+      "data": {
+        "serviceId": "1",
+        "groupId": "1",
+        "callNumber": 14,
+        "operatorNumber": 7,
+        "callProcessing": 7,
+        "awt": 18500
+      }
+    }
+  }
+}

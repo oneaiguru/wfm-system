@@ -1,0 +1,130 @@
+{
+  "serviceGroupData": {
+    "description": "Sample service group historic data for testing",
+    "request": {
+      "startDate": "2024-01-01T00:00:00Z",
+      "endDate": "2024-01-01T23:59:59Z",
+      "step": 900000,
+      "groupId": "1,2,3"
+    },
+    "expectedResponse": [
+      {
+        "serviceId": "1",
+        "groupId": "1",
+        "historicData": [
+          {
+            "startInterval": "2024-01-01T09:00:00Z",
+            "endInterval": "2024-01-01T09:15:00Z",
+            "notUniqueReceived": 45,
+            "notUniqueTreated": 42,
+            "notUniqueMissed": 3,
+            "receivedCalls": 38,
+            "treatedCalls": 36,
+            "missCalls": 2,
+            "aht": 180000,
+            "postProcessing": 30000
+          },
+          {
+            "startInterval": "2024-01-01T09:15:00Z",
+            "endInterval": "2024-01-01T09:30:00Z",
+            "notUniqueReceived": 52,
+            "notUniqueTreated": 48,
+            "notUniqueMissed": 4,
+            "receivedCalls": 45,
+            "treatedCalls": 42,
+            "missCalls": 3,
+            "aht": 175000,
+            "postProcessing": 28000
+          }
+        ]
+      }
+    ]
+  },
+  "agentStatusData": {
+    "description": "Sample agent status tracking data",
+    "request": {
+      "startDate": "2024-01-01T00:00:00Z",
+      "endDate": "2024-01-01T23:59:59Z",
+      "agentId": "101,102,103"
+    },
+    "expectedResponse": [
+      {
+        "agentId": "101",
+        "states": [
+          {
+            "startDate": "2024-01-01T08:00:00Z",
+            "endDate": "2024-01-01T08:15:00Z",
+            "stateCode": "LOGIN",
+            "stateName": "Logged In"
+          },
+          {
+            "startDate": "2024-01-01T08:15:00Z",
+            "endDate": "2024-01-01T09:00:00Z",
+            "stateCode": "AVAILABLE",
+            "stateName": "Available"
+          },
+          {
+            "startDate": "2024-01-01T09:00:00Z",
+            "endDate": "2024-01-01T09:15:00Z",
+            "stateCode": "BREAK_TECH",
+            "stateName": "Technical Break"
+          }
+        ]
+      }
+    ]
+  },
+  "agentLoginData": {
+    "description": "Sample agent login session data",
+    "request": {
+      "startDate": "2024-01-01T00:00:00Z",
+      "endDate": "2024-01-01T23:59:59Z",
+      "agentId": "101,102"
+    },
+    "expectedResponse": [
+      {
+        "agentId": "101",
+        "logins": [
+          {
+            "loginDate": "2024-01-01T08:00:00Z",
+            "logoutDate": "2024-01-01T12:30:00Z",
+            "duration": 16200000
+          },
+          {
+            "loginDate": "2024-01-01T13:00:00Z",
+            "logoutDate": "2024-01-01T17:00:00Z",
+            "duration": 14400000
+          }
+        ]
+      }
+    ]
+  },
+  "bulkUploadData": {
+    "description": "Sample bulk upload data",
+    "serviceGroupMetrics": {
+      "dataType": "serviceGroup",
+      "startDate": "2024-01-01T00:00:00Z",
+      "endDate": "2024-01-01T23:59:59Z",
+      "overwriteExisting": false,
+      "data": [
+        {
+          "serviceId": "1",
+          "groupId": "1",
+          "historicData": [
+            {
+              "startInterval": "2024-01-01T10:00:00Z",
+              "endInterval": "2024-01-01T10:15:00Z",
+              "notUniqueReceived": 65,
+              "notUniqueTreated": 60,
+              "notUniqueMissed": 5,
+              "receivedCalls": 55,
+              "treatedCalls": 52,
+              "missCalls": 3,
+              "aht": 195000,
+              "postProcessing": 35000
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

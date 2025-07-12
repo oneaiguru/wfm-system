@@ -1,0 +1,229 @@
+{
+  "erlang_c_tables": {
+    "test_results": [
+      {
+        "offered_load": 5.0,
+        "target_sl": 0.8,
+        "lambda_rate": 60.0,
+        "mu_rate": 12.0,
+        "our_agents": 12,
+        "argus_agents": 7,
+        "difference": 5,
+        "achieved_sl": 0.9941152859473829,
+        "within_tolerance": false
+      },
+      {
+        "offered_load": 10.0,
+        "target_sl": 0.8,
+        "lambda_rate": 120.0,
+        "mu_rate": 12.0,
+        "our_agents": 20,
+        "argus_agents": 13,
+        "difference": 7,
+        "achieved_sl": 0.9962688739558733,
+        "within_tolerance": false
+      },
+      {
+        "offered_load": 15.0,
+        "target_sl": 0.8,
+        "lambda_rate": 180.0,
+        "mu_rate": 12.0,
+        "our_agents": 27,
+        "argus_agents": 19,
+        "difference": 8,
+        "achieved_sl": 0.9964097459067355,
+        "within_tolerance": false
+      },
+      {
+        "offered_load": 20.0,
+        "target_sl": 0.8,
+        "lambda_rate": 240.0,
+        "mu_rate": 12.0,
+        "our_agents": 34,
+        "argus_agents": 25,
+        "difference": 9,
+        "achieved_sl": 0.9970878144223086,
+        "within_tolerance": false
+      },
+      {
+        "offered_load": 25.0,
+        "target_sl": 0.8,
+        "lambda_rate": 300.0,
+        "mu_rate": 12.0,
+        "our_agents": 40,
+        "argus_agents": 31,
+        "difference": 9,
+        "achieved_sl": 0.9962465821788947,
+        "within_tolerance": false
+      },
+      {
+        "offered_load": 30.0,
+        "target_sl": 0.8,
+        "lambda_rate": 360.0,
+        "mu_rate": 12.0,
+        "our_agents": 46,
+        "argus_agents": 36,
+        "difference": 10,
+        "achieved_sl": 0.995668400478803,
+        "within_tolerance": false
+      },
+      {
+        "offered_load": 40.0,
+        "target_sl": 0.8,
+        "lambda_rate": 480.0,
+        "mu_rate": 12.0,
+        "our_agents": 59,
+        "argus_agents": 48,
+        "difference": 11,
+        "achieved_sl": 0.996839756013719,
+        "within_tolerance": false
+      },
+      {
+        "offered_load": 50.0,
+        "target_sl": 0.8,
+        "lambda_rate": 600.0,
+        "mu_rate": 12.0,
+        "our_agents": 71,
+        "argus_agents": 59,
+        "difference": 12,
+        "achieved_sl": 0.9967536017903585,
+        "within_tolerance": false
+      },
+      {
+        "offered_load": 5.0,
+        "target_sl": 0.85,
+        "lambda_rate": 60.0,
+        "mu_rate": 12.0,
+        "our_agents": 14,
+        "argus_agents": 8,
+        "difference": 6,
+        "achieved_sl": 0.9992662142588761,
+        "within_tolerance": false
+      },
+      {
+        "offered_load": 10.0,
+        "target_sl": 0.85,
+        "lambda_rate": 120.0,
+        "mu_rate": 12.0,
+        "our_agents": 22,
+        "argus_agents": 14,
+        "difference": 8,
+        "achieved_sl": 0.9992595217964821,
+        "within_tolerance": false
+      },
+      {
+        "offered_load": 15.0,
+        "target_sl": 0.85,
+        "lambda_rate": 180.0,
+        "mu_rate": 12.0,
+        "our_agents": 29,
+        "argus_agents": 20,
+        "difference": 9,
+        "achieved_sl": 0.999083913758486,
+        "within_tolerance": false
+      },
+      {
+        "offered_load": 20.0,
+        "target_sl": 0.85,
+        "lambda_rate": 240.0,
+        "mu_rate": 12.0,
+        "our_agents": 37,
+        "argus_agents": 26,
+        "difference": 11,
+        "achieved_sl": 0.999552054428224,
+        "within_tolerance": false
+      },
+      {
+        "offered_load": 16.67,
+        "target_sl": 0.85,
+        "lambda_rate": 200.04000000000002,
+        "mu_rate": 12.0,
+        "our_agents": 32,
+        "argus_agents": 21,
+        "difference": 11,
+        "achieved_sl": 0.9994223404163826,
+        "within_tolerance": false
+      },
+      {
+        "offered_load": 5.0,
+        "target_sl": 0.9,
+        "lambda_rate": 60.0,
+        "mu_rate": 12.0,
+        "our_agents": 15,
+        "argus_agents": 8,
+        "difference": 7,
+        "achieved_sl": 0.9997641341162451,
+        "within_tolerance": false
+      },
+      {
+        "offered_load": 10.0,
+        "target_sl": 0.9,
+        "lambda_rate": 120.0,
+        "mu_rate": 12.0,
+        "our_agents": 25,
+        "argus_agents": 15,
+        "difference": 10,
+        "achieved_sl": 0.999951218241042,
+        "within_tolerance": false
+      },
+      {
+        "offered_load": 20.0,
+        "target_sl": 0.9,
+        "lambda_rate": 240.0,
+        "mu_rate": 12.0,
+        "our_agents": 40,
+        "argus_agents": 28,
+        "difference": 12,
+        "achieved_sl": 0.9999444487167549,
+        "within_tolerance": false
+      },
+      {
+        "offered_load": 30.0,
+        "target_sl": 0.9,
+        "lambda_rate": 360.0,
+        "mu_rate": 12.0,
+        "our_agents": 55,
+        "argus_agents": 41,
+        "difference": 14,
+        "achieved_sl": 0.9999717137081809,
+        "within_tolerance": false
+      },
+      {
+        "offered_load": 40.0,
+        "target_sl": 0.9,
+        "lambda_rate": 480.0,
+        "mu_rate": 12.0,
+        "our_agents": 69,
+        "argus_agents": 53,
+        "difference": 16,
+        "achieved_sl": 0.999979417228302,
+        "within_tolerance": false
+      },
+      {
+        "offered_load": 50.0,
+        "target_sl": 0.9,
+        "lambda_rate": 600.0,
+        "mu_rate": 12.0,
+        "our_agents": 82,
+        "argus_agents": 65,
+        "difference": 17,
+        "achieved_sl": 0.9999784992728162,
+        "within_tolerance": false
+      }
+    ],
+    "passed": 0,
+    "total": 19,
+    "accuracy": 0.0
+  },
+  "service_level_targets": [
+    {
+      "case": "Standard 80% SL",
+      "agents": 13,
+      "utilization": 0.7692307692307693,
+      "prob_wait": 0.285270453036493,
+      "service_level": 0.8584930819841707,
+      "expected_range": [
+        0.78,
+        0.82
+      ],
+      "within_range": 
