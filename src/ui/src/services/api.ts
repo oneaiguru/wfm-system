@@ -1,7 +1,7 @@
 // API Service with progressive enhancement
 // Try real API → Fallback to mock data
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api/v1';
 
 // Mock data fallbacks
 const mockData = {
