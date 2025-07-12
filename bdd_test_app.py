@@ -10,6 +10,7 @@ from src.api.v1.endpoints.bdd_employee_requests import router as requests_router
 from src.api.v1.endpoints.bdd_realtime_monitoring import router as monitoring_router
 from src.api.v1.endpoints.bdd_reference_data import router as reference_router
 from src.api.v1.endpoints.bdd_reporting_analytics import router as reporting_router
+from src.api.v1.endpoints.bdd_step_by_step_requests import router as step_requests_router
 
 app = FastAPI(
     title="BDD System Integration API",
@@ -24,6 +25,7 @@ app.include_router(requests_router, prefix="/api/v1")
 app.include_router(monitoring_router, prefix="/api/v1")
 app.include_router(reference_router, prefix="/api/v1")
 app.include_router(reporting_router, prefix="/api/v1")
+app.include_router(step_requests_router, prefix="/api/v1")
 
 # Health check endpoint
 @app.get("/health")
