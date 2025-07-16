@@ -8,15 +8,19 @@ import {
   Calendar,
   BarChart3,
   FileText,
-  LogOut
+  LogOut,
+  AlertTriangle
 } from 'lucide-react';
-import { metricsAPI } from '../services/api';
+import realDashboardService, { DashboardMetrics } from '../services/realDashboardService';
+import { realAuthService } from '../services/realAuthService';
 
 const Dashboard: React.FC = () => {
   const [lastUpdate, setLastUpdate] = useState(new Date());
   const [isUpdating, setIsUpdating] = useState(false);
-  const [metrics, setMetrics] = useState<any>(null);
+  const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [apiError, setApiError] = useState<string>('');
+  const [isConnecting, setIsConnecting] = useState(false);
   
   // Load initial metrics
   useEffect(() => {
@@ -24,13 +28,33 @@ const Dashboard: React.FC = () => {
   }, []);
   
   const loadMetrics = async () => {
+    setApiError('');
+    setIsConnecting(true);
+    
     try {
-      const data = await metricsAPI.getDashboardMetrics();
-      setMetrics(data);
+      // Check API health first
+      const isApiHealthy = await realDashboardService.checkApiHealth();
+      if (!isApiHealthy) {
+        throw new Error('API server is not available. Please try again later.');
+      }
+
+      // Make real API call
+      const result = await realDashboardService.getDashboardMetrics();
+      
+      if (result.success && result.data) {
+        console.log('[REAL COMPONENT] Dashboard metrics loaded:', result.data);
+        setMetrics(result.data);
+      } else {
+        setApiError(result.error || 'Failed to load dashboard metrics');
+      }
+      
     } catch (error) {
-      console.warn('Using mock metrics');
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      setApiError(errorMessage);
+      console.error('[REAL COMPONENT] Dashboard load error:', errorMessage);
     } finally {
       setIsLoading(false);
+      setIsConnecting(false);
     }
   };
 
@@ -38,7 +62,16 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     const interval = setInterval(async () => {
       setIsUpdating(true);
-      await loadMetrics();
+      
+      try {
+        const result = await realDashboardService.refreshMetrics();
+        if (result.success && result.data) {
+          setMetrics(result.data);
+        }
+      } catch (error) {
+        console.warn('[REAL COMPONENT] Auto-refresh failed:', error);
+      }
+      
       setTimeout(() => {
         setLastUpdate(new Date());
         setIsUpdating(false);
@@ -48,40 +81,44 @@ const Dashboard: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Format metrics for display
+  // Format metrics for display - REAL DATA ONLY
   const displayMetrics = metrics ? [
     {
       title: 'Active Agents',
-      value: metrics.activeAgents?.toString() || '127',
+      value: metrics.activeAgents.toString(),
       icon: Users,
       color: 'text-blue-600',
       bgColor: 'bg-blue-100'
     },
     {
       title: 'Service Level',
-      value: `${metrics.serviceLevel || 94.2}%`,
+      value: `${metrics.serviceLevel}%`,
       icon: TrendingUp,
       color: 'text-green-600',
       bgColor: 'bg-green-100'
     },
     {
       title: 'Calls Handled',
-      value: metrics.callsHandled?.toLocaleString() || '3,847',
+      value: metrics.callsHandled.toLocaleString(),
       icon: Phone,
       color: 'text-purple-600',
       bgColor: 'bg-purple-100'
     },
     {
       title: 'Average Wait Time',
-      value: metrics.avgWaitTime || '0:45',
+      value: metrics.avgWaitTime,
       icon: Clock,
       color: 'text-orange-600',
       bgColor: 'bg-orange-100'
     }
   ] : [];
   
-  const handleLogout = () => {
-    localStorage.removeItem('authToken');
+  const handleLogout = async () => {
+    try {
+      await realAuthService.logout();
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
     window.location.href = '/login';
   };
 

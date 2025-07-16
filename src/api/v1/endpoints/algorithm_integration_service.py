@@ -238,18 +238,40 @@ async def quick_algorithm_analysis(request: QuickAnalysisRequest):
         if request.algorithm_type == AlgorithmType.GAP_ANALYSIS:
             analyzer = GapAnalysisEngine()
             
-            # Convert UI data to algorithm format
+            # Convert UI data to algorithm format with enhanced processing
             forecast_dict = request.forecast_data or {f"{h:02d}:00": 2 for h in range(8, 18)}
-            current_coverage = {f"{h:02d}:00": 1 for h in range(8, 18)}
+            
+            # Calculate current coverage from schedule data
+            current_coverage = {}
+            for hour in range(24):
+                hour_str = f"{hour:02d}:00"
+                coverage = 0
+                for block in request.current_schedule:
+                    start_hour = int(block.get('start_time', '08:00').split(':')[0])
+                    end_hour = int(block.get('end_time', '16:00').split(':')[0])
+                    if start_hour <= hour < end_hour:
+                        coverage += 1
+                current_coverage[hour_str] = coverage
             
             result = analyzer.analyze_coverage_gaps(forecast_dict, current_coverage)
             
+            # Enhanced result for UI with performance metrics
             analysis_result = {
                 "total_gaps": result.total_gaps,
-                "average_gap_percentage": round(result.average_gap_percentage * 100, 1),
+                "average_gap_percentage": round(result.average_gap_percentage, 3),  # Higher precision for UI
                 "critical_intervals": result.critical_intervals,
                 "coverage_score": round(result.coverage_score, 1),
-                "recommendations": result.improvement_recommendations
+                "recommendations": result.improvement_recommendations,
+                "ui_metrics": {
+                    "gap_severity_distribution": {
+                        "critical": len([g for g in result.interval_gaps if g.severity.value == "critical"]),
+                        "high": len([g for g in result.interval_gaps if g.severity.value == "high"]),
+                        "medium": len([g for g in result.interval_gaps if g.severity.value == "medium"]),
+                        "low": len([g for g in result.interval_gaps if g.severity.value == "low"])
+                    },
+                    "peak_impact_hours": [g.interval for g in result.interval_gaps if g.gap_count > 2],
+                    "improvement_potential": min(25.0, result.total_gaps * 3.5)  # Estimated improvement %
+                }
             }
             
         elif request.algorithm_type == AlgorithmType.COST_CALCULATOR:

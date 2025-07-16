@@ -1,0 +1,187 @@
+{
+  "pattern_applied": true,
+  "real_data_integration": true,
+  "performance_target_met": true,
+  "total_processes_triggered": 1,
+  "average_performance_seconds": 0.005159457524617513,
+  "orchestration_results": [
+    {
+      "scenario": "Vacation Request (Mobile App)",
+      "result": {
+        "success": true,
+        "automation_rules_evaluated": 1,
+        "processes_triggered": 0,
+        "triggered_processes": [],
+        "monitoring_stats": {
+          "running_instances": 9,
+          "timeout_processes": 1,
+          "escalated_processes": 0,
+          "stalled_processes": 7,
+          "total_today": 2,
+          "completed_today": 0,
+          "failed_today": 0,
+          "active_today": 2,
+          "success_rate": 0.0,
+          "process_distribution": [
+            {
+              "category": "support",
+              "count": 5,
+              "avg_duration_hours": null
+            },
+            {
+              "category": "schedule_change",
+              "count": 2,
+              "avg_duration_hours": null
+            }
+          ],
+          "monitoring_timestamp": "2025-07-15T10:05:44.437280"
+        },
+        "orchestration_time_seconds": 0.00934600830078125,
+        "performance_target_met": true,
+        "orchestration_timestamp": "2025-07-15T10:05:44.437305"
+      }
+    },
+    {
+      "scenario": "Schedule Change (Manager Approval)",
+      "result": {
+        "success": true,
+        "automation_rules_evaluated": 1,
+        "processes_triggered": 1,
+        "triggered_processes": [
+          {
+            "rule_id": "2",
+            "rule_name": "default_schedule_change",
+            "execution_id": "30e83004-0a70-42f6-8ed6-9ac06945ca51",
+            "process_type": "schedule_change"
+          }
+        ],
+        "monitoring_stats": {
+          "running_instances": 10,
+          "timeout_processes": 1,
+          "escalated_processes": 0,
+          "stalled_processes": 0,
+          "total_today": 3,
+          "completed_today": 0,
+          "failed_today": 0,
+          "active_today": 3,
+          "success_rate": 0.0,
+          "process_distribution": [
+            {
+              "category": "support",
+              "count": 5,
+              "avg_duration_hours": null
+            },
+            {
+              "category": "schedule_change",
+              "count": 3,
+              "avg_duration_hours": null
+            }
+          ],
+          "monitoring_timestamp": "2025-07-15T10:05:44.441269"
+        },
+        "orchestration_time_seconds": 0.003941059112548828,
+        "performance_target_met": true,
+        "orchestration_timestamp": "2025-07-15T10:05:44.441292"
+      }
+    },
+    {
+      "scenario": "Overtime Request (Auto-Approve)",
+      "result": {
+        "success": true,
+        "automation_rules_evaluated": 1,
+        "processes_triggered": 0,
+        "triggered_processes": [],
+        "monitoring_stats": {
+          "running_instances": 10,
+          "timeout_processes": 1,
+          "escalated_processes": 0,
+          "stalled_processes": 0,
+          "total_today": 3,
+          "completed_today": 0,
+          "failed_today": 0,
+          "active_today": 3,
+          "success_rate": 0.0,
+          "process_distribution": [
+            {
+              "category": "support",
+              "count": 5,
+              "avg_duration_hours": null
+            },
+            {
+              "category": "schedule_change",
+              "count": 3,
+              "avg_duration_hours": null
+            }
+          ],
+          "monitoring_timestamp": "2025-07-15T10:05:44.443502"
+        },
+        "orchestration_time_seconds": 0.002191305160522461,
+        "performance_target_met": true,
+        "orchestration_timestamp": "2025-07-15T10:05:44.443523"
+      }
+    }
+  ],
+  "monitoring_stats": {
+    "running_instances": 10,
+    "timeout_processes": 1,
+    "escalated_processes": 0,
+    "stalled_processes": 0,
+    "total_today": 3,
+    "completed_today": 0,
+    "failed_today": 0,
+    "active_today": 3,
+    "success_rate": 0.0,
+    "process_distribution": [
+      {
+        "category": "support",
+        "count": 5,
+        "avg_duration_hours": null
+      },
+      {
+        "category": "schedule_change",
+        "count": 3,
+        "avg_duration_hours": null
+      }
+    ],
+    "monitoring_timestamp": "2025-07-15T10:05:44.445105"
+  },
+  "system_status": {
+    "automation_rules": {
+      "total": 1,
+      "active": 1
+    },
+    "workflow_instances": {
+      "total_today": 14,
+      "running": 9,
+      "completed": 0
+    },
+    "recent_executions": [
+      {
+        "process_type": "optimization_recommendation",
+        "execution_count": 12
+      },
+      {
+        "process_type": "optimization_analysis",
+        "execution_count": 10
+      },
+      {
+        "process_type": "triggered",
+        "execution_count": 3
+      },
+      {
+        "process_type": "scheduled",
+        "execution_count": 3
+      },
+      {
+        "process_type": "schedule_change",
+        "execution_count": 3
+      },
+      {
+        "process_type": "support",
+        "execution_count": 1
+      }
+    ],
+    "status": "operational",
+    "last_updated": "2025-07-15T10:05:44.446011"
+  }
+}

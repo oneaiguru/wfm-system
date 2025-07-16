@@ -13,112 +13,59 @@ import {
   Trash2,
   Eye,
   Copy,
-  RefreshCw
+  RefreshCw,
+  Download,
+  Upload
 } from 'lucide-react';
-import { APIEndpoint } from '../../types/integration';
+import realIntegrationService, { APIEndpoint, IntegrationConfig } from '../../../services/realIntegrationService';
 
 const APISettings: React.FC = () => {
   const [endpoints, setEndpoints] = useState<APIEndpoint[]>([]);
+  const [integrationConfigs, setIntegrationConfigs] = useState<IntegrationConfig[]>([]);
   const [filter, setFilter] = useState<'all' | 'active' | 'inactive' | 'testing'>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedEndpoint, setSelectedEndpoint] = useState<APIEndpoint | null>(null);
   const [showTokens, setShowTokens] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [apiError, setApiError] = useState<string>('');
+  const [isConnecting, setIsConnecting] = useState(false);
 
   useEffect(() => {
-    const mockEndpoints: APIEndpoint[] = [
-      {
-        id: 'api_001',
-        name: '1C ZUP Web Services',
-        method: 'POST',
-        url: 'https://1c-server.company.com/ws/employee',
-        status: 'active',
-        lastTest: new Date(Date.now() - 30 * 60 * 1000),
-        responseTime: 245,
-        successRate: 98.5,
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        authentication: {
-          type: 'basic',
-          token: 'YWRtaW46cGFzc3dvcmQ='
-        }
-      },
-      {
-        id: 'api_002',
-        name: 'Oktell REST API',
-        method: 'GET',
-        url: 'https://api.oktell.ru/v2/agents',
-        status: 'active',
-        lastTest: new Date(Date.now() - 15 * 60 * 1000),
-        responseTime: 186,
-        successRate: 99.2,
-        headers: {
-          'Content-Type': 'application/json',
-          'User-Agent': 'WFM-Integration/1.0'
-        },
-        authentication: {
-          type: 'api-key',
-          token: 'oktell_api_key_12345'
-        }
-      },
-      {
-        id: 'api_003',
-        name: 'LDAP Authentication',
-        method: 'GET',
-        url: 'ldap://corp-ldap.company.com:389',
-        status: 'active',
-        lastTest: new Date(Date.now() - 60 * 60 * 1000),
-        responseTime: 89,
-        successRate: 100,
-        headers: {
-          'LDAP-Version': '3'
-        },
-        authentication: {
-          type: 'basic',
-          token: 'bGRhcF9hZG1pbjpwYXNzd29yZA=='
-        }
-      },
-      {
-        id: 'api_004',
-        name: 'File Transfer API',
-        method: 'PUT',
-        url: 'https://fileserver.company.com/api/upload',
-        status: 'testing',
-        lastTest: new Date(Date.now() - 10 * 60 * 1000),
-        responseTime: 1234,
-        successRate: 87.3,
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          'Accept': 'application/json'
-        },
-        authentication: {
-          type: 'bearer',
-          token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
-        }
-      },
-      {
-        id: 'api_005',
-        name: 'CRM Integration',
-        method: 'POST',
-        url: 'https://crm-api.company.com/v1/contacts',
-        status: 'inactive',
-        lastTest: new Date(Date.now() - 24 * 60 * 60 * 1000),
-        responseTime: 0,
-        successRate: 0,
-        headers: {
-          'Content-Type': 'application/json',
-          'API-Version': '1.0'
-        },
-        authentication: {
-          type: 'api-key',
-          token: 'crm_api_key_inactive'
-        }
-      }
-    ];
-
-    setEndpoints(mockEndpoints);
+    loadIntegrationConfigs();
   }, []);
+
+  const loadIntegrationConfigs = async () => {
+    setLoading(true);
+    setApiError('');
+    
+    try {
+      // Check API health first
+      const isApiHealthy = await realIntegrationService.checkApiHealth();
+      if (!isApiHealthy) {
+        throw new Error('API server is not available. Please try again later.');
+      }
+
+      const result = await realIntegrationService.getIntegrationConfigs();
+      
+      if (result.success && result.data) {
+        console.log('[REAL COMPONENT] Loaded integration configs:', result.data);
+        setIntegrationConfigs(result.data);
+        
+        // Extract all endpoints from configs
+        const allEndpoints = result.data.flatMap(config => config.endpoints || []);
+        setEndpoints(allEndpoints);
+      } else {
+        setApiError(result.error || 'Failed to load integration configurations');
+      }
+      
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      setApiError(errorMessage);
+      console.error('[REAL COMPONENT] Failed to load integration configs:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredEndpoints = endpoints.filter(endpoint => {
     const matchesFilter = filter === 'all' || endpoint.status === filter;
@@ -185,26 +132,123 @@ const APISettings: React.FC = () => {
     return `${minutes}m ago`;
   };
 
-  const handleTestEndpoint = (endpointId: string) => {
+  const handleTestEndpoint = async (endpointId: string) => {
+    setApiError('');
+    setIsConnecting(true);
+    
+    // Update UI to show testing status
     setEndpoints(prev => prev.map(endpoint =>
       endpoint.id === endpointId
         ? { ...endpoint, status: 'testing' as const }
         : endpoint
     ));
 
-    setTimeout(() => {
+    try {
+      const result = await realIntegrationService.testEndpoint(endpointId);
+      
+      if (result.success && result.data) {
+        console.log('[REAL COMPONENT] Test result:', result.data);
+        
+        // Update endpoint with real test results
+        setEndpoints(prev => prev.map(endpoint =>
+          endpoint.id === endpointId
+            ? { 
+                ...endpoint, 
+                status: result.data!.success ? 'active' as const : 'inactive' as const,
+                lastTest: new Date(),
+                responseTime: result.data!.responseTime
+              }
+            : endpoint
+        ));
+        
+        // Also refresh stats
+        await refreshEndpointStats(endpointId);
+      } else {
+        setApiError(result.error || 'Endpoint test failed');
+        // Set status back to inactive on failure
+        setEndpoints(prev => prev.map(endpoint =>
+          endpoint.id === endpointId
+            ? { ...endpoint, status: 'inactive' as const }
+            : endpoint
+        ));
+      }
+      
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Test failed';
+      setApiError(errorMessage);
+      // Set status back to inactive on error
       setEndpoints(prev => prev.map(endpoint =>
         endpoint.id === endpointId
-          ? { 
-              ...endpoint, 
-              status: 'active' as const, 
-              lastTest: new Date(),
-              responseTime: Math.floor(Math.random() * 500) + 100,
-              successRate: Math.random() * 10 + 90
-            }
+          ? { ...endpoint, status: 'inactive' as const }
           : endpoint
       ));
-    }, 2000);
+    } finally {
+      setIsConnecting(false);
+    }
+  };
+
+  const refreshEndpointStats = async (endpointId: string) => {
+    try {
+      const result = await realIntegrationService.getEndpointStats(endpointId);
+      
+      if (result.success && result.data) {
+        setEndpoints(prev => prev.map(endpoint =>
+          endpoint.id === endpointId
+            ? { 
+                ...endpoint, 
+                successRate: result.data!.successRate,
+                responseTime: result.data!.avgResponseTime
+              }
+            : endpoint
+        ));
+      }
+    } catch (error) {
+      console.error('[REAL COMPONENT] Failed to refresh stats:', error);
+    }
+  };
+
+  const handleExportConfiguration = async () => {
+    setApiError('');
+    setIsConnecting(true);
+    
+    try {
+      const result = await realIntegrationService.exportConfiguration();
+      
+      if (result.success && result.data) {
+        // Create download link
+        const blob = new Blob([result.data.configData], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = result.data.filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      } else {
+        setApiError(result.error || 'Export failed');
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Export failed';
+      setApiError(errorMessage);
+    } finally {
+      setIsConnecting(false);
+    }
+  };
+
+  const handleTestAllEndpoints = async () => {
+    setApiError('');
+    setIsConnecting(true);
+    
+    try {
+      const testPromises = endpoints.map(endpoint => handleTestEndpoint(endpoint.id));
+      await Promise.all(testPromises);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to test all endpoints';
+      setApiError(errorMessage);
+    } finally {
+      setIsConnecting(false);
+    }
   };
 
   const copyToClipboard = (text: string) => {
@@ -335,8 +379,41 @@ const APISettings: React.FC = () => {
         </div>
       </div>
 
+      {/* Loading State */}
+      {loading && (
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+          <RefreshCw className="h-8 w-8 text-blue-600 mx-auto mb-4 animate-spin" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">Loading Configuration</h3>
+          <p className="text-gray-600">Fetching integration settings from server...</p>
+        </div>
+      )}
+
+      {/* API Error Display */}
+      {apiError && (
+        <div className="bg-white rounded-lg shadow-sm border border-red-200 mb-6">
+          <div className="px-6 py-4 bg-red-50 border-b border-red-200">
+            <div className="flex items-center gap-2 text-red-800">
+              <AlertCircle className="h-5 w-5 text-red-500" />
+              <div>
+                <div className="font-medium">Integration Configuration Error</div>
+                <div className="text-sm">{apiError}</div>
+              </div>
+            </div>
+          </div>
+          <div className="p-4">
+            <button
+              onClick={loadIntegrationConfigs}
+              className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Endpoints List */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+      {!loading && (
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
         <div className="px-6 py-4 border-b border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900">API Endpoints</h3>
         </div>
@@ -434,10 +511,15 @@ const APISettings: React.FC = () => {
                 <div className="flex items-center space-x-2">
                   <button
                     onClick={() => handleTestEndpoint(endpoint.id)}
-                    className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md"
+                    disabled={isConnecting || endpoint.status === 'testing'}
+                    className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
                     title="Test Endpoint"
                   >
-                    <TestTube className="h-4 w-4" />
+                    {endpoint.status === 'testing' ? (
+                      <RefreshCw className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <TestTube className="h-4 w-4" />
+                    )}
                   </button>
                   
                   <button className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-md" title="View Details">
@@ -457,31 +539,52 @@ const APISettings: React.FC = () => {
           ))}
         </div>
 
-        {filteredEndpoints.length === 0 && (
+        {filteredEndpoints.length === 0 && !loading && (
           <div className="text-center py-12">
             <Globe className="h-12 w-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">No endpoints found</h3>
             <p className="text-gray-600">Try adjusting your search criteria or add a new endpoint.</p>
           </div>
         )}
-      </div>
+        </div>
+      )}
 
       {/* Quick Actions */}
       <div className="mt-8 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <button className="p-4 border border-gray-300 rounded-lg hover:bg-gray-50 text-left">
-            <h4 className="font-medium text-gray-900">Test All Endpoints</h4>
+          <button 
+            onClick={handleTestAllEndpoints}
+            disabled={isConnecting || loading}
+            className="p-4 border border-gray-300 rounded-lg hover:bg-gray-50 text-left disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <div className="flex items-center">
+              <TestTube className="h-5 w-5 text-blue-600 mr-2" />
+              <h4 className="font-medium text-gray-900">Test All Endpoints</h4>
+            </div>
             <p className="text-sm text-gray-600 mt-1">Run connectivity tests for all APIs</p>
           </button>
           
-          <button className="p-4 border border-gray-300 rounded-lg hover:bg-gray-50 text-left">
-            <h4 className="font-medium text-gray-900">Export Configuration</h4>
+          <button 
+            onClick={handleExportConfiguration}
+            disabled={isConnecting || loading}
+            className="p-4 border border-gray-300 rounded-lg hover:bg-gray-50 text-left disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <div className="flex items-center">
+              <Download className="h-5 w-5 text-green-600 mr-2" />
+              <h4 className="font-medium text-gray-900">Export Configuration</h4>
+            </div>
             <p className="text-sm text-gray-600 mt-1">Download API settings as JSON</p>
           </button>
           
-          <button className="p-4 border border-gray-300 rounded-lg hover:bg-gray-50 text-left">
-            <h4 className="font-medium text-gray-900">Import Settings</h4>
+          <button 
+            disabled={isConnecting || loading}
+            className="p-4 border border-gray-300 rounded-lg hover:bg-gray-50 text-left disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <div className="flex items-center">
+              <Upload className="h-5 w-5 text-purple-600 mr-2" />
+              <h4 className="font-medium text-gray-900">Import Settings</h4>
+            </div>
             <p className="text-sm text-gray-600 mt-1">Upload API configuration file</p>
           </button>
         </div>

@@ -1,45 +1,53 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { AlertCircle, RefreshCw } from 'lucide-react';
 import { ShiftTemplate } from '../types/schedule';
+import realShiftTemplateService from '../../../services/realShiftTemplateService';
 
 const ShiftTemplateManager: React.FC = () => {
-  const [templates, setTemplates] = useState<ShiftTemplate[]>([
-    {
-      id: '1',
-      name: 'Day Shift',
-      startTime: '08:00',
-      endTime: '17:00',
-      duration: 480,
-      breakDuration: 60,
-      color: '#74a689',
-      type: 'day',
-      workPattern: '5/2',
-      isActive: true,
-    },
-    {
-      id: '2',
-      name: 'Night Shift',
-      startTime: '20:00',
-      endTime: '09:00',
-      duration: 660,
-      breakDuration: 60,
-      color: '#4f46e5',
-      type: 'night',
-      workPattern: '2/2',
-      isActive: true,
-    },
-    {
-      id: '3',
-      name: 'Short Shift',
-      startTime: '10:00',
-      endTime: '15:00',
-      duration: 240,
-      breakDuration: 30,
-      color: '#f59e0b',
-      type: 'day',
-      workPattern: '6/1',
-      isActive: false,
-    },
-  ]);
+  // Real data state management
+  const [templates, setTemplates] = useState<ShiftTemplate[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [apiHealth, setApiHealth] = useState<{ healthy: boolean; message: string } | null>(null);
+
+  // Load templates on mount
+  useEffect(() => {
+    loadTemplates();
+    checkApiHealth();
+  }, []);
+
+  // Check API health status
+  const checkApiHealth = async () => {
+    try {
+      const health = await realShiftTemplateService.checkApiHealth();
+      setApiHealth(health);
+    } catch (error) {
+      setApiHealth({
+        healthy: false,
+        message: error instanceof Error ? error.message : 'API health check failed'
+      });
+    }
+  };
+
+  // Load shift templates from API
+  const loadTemplates = async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const result = await realShiftTemplateService.getShiftTemplates(true); // Include inactive
+      if (result.success && result.data) {
+        setTemplates(result.data.templates);
+      } else {
+        throw new Error(result.error || 'Failed to load shift templates');
+      }
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Failed to load shift templates');
+      console.error('Shift templates loading error:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const [isCreating, setIsCreating] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<ShiftTemplate | null>(null);
@@ -69,33 +77,63 @@ const ShiftTemplateManager: React.FC = () => {
     return endMinutes - startMinutes;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     const duration = calculateDuration(formData.startTime!, formData.endTime!);
     
-    const template: ShiftTemplate = {
-      id: editingTemplate?.id || Date.now().toString(),
-      name: formData.name!,
-      startTime: formData.startTime!,
-      endTime: formData.endTime!,
-      duration,
-      breakDuration: formData.breakDuration!,
-      color: formData.color!,
-      type: formData.type!,
-      workPattern: formData.workPattern!,
-      isActive: formData.isActive!,
-    };
+    try {
+      if (editingTemplate) {
+        // Update existing template
+        const updateRequest = {
+          id: editingTemplate.id,
+          name: formData.name!,
+          startTime: formData.startTime!,
+          endTime: formData.endTime!,
+          duration,
+          breakDuration: formData.breakDuration!,
+          color: formData.color!,
+          type: formData.type!,
+          workPattern: formData.workPattern!,
+          isActive: formData.isActive!,
+        };
 
-    if (editingTemplate) {
-      setTemplates(prev => prev.map(t => t.id === editingTemplate.id ? template : t));
-      console.log('✏️ Updated template:', template.name);
-    } else {
-      setTemplates(prev => [...prev, template]);
-      console.log('➕ Created new template:', template.name);
+        const result = await realShiftTemplateService.updateShiftTemplate(updateRequest);
+        if (result.success && result.template) {
+          setTemplates(prev => prev.map(t => t.id === editingTemplate.id ? result.template! : t));
+          setError(null);
+          console.log('✏️ Updated template:', result.template.name);
+        } else {
+          throw new Error(result.error || 'Failed to update template');
+        }
+      } else {
+        // Create new template
+        const createRequest = {
+          name: formData.name!,
+          startTime: formData.startTime!,
+          endTime: formData.endTime!,
+          duration,
+          breakDuration: formData.breakDuration!,
+          color: formData.color!,
+          type: formData.type!,
+          workPattern: formData.workPattern!,
+        };
+
+        const result = await realShiftTemplateService.createShiftTemplate(createRequest);
+        if (result.success && result.template) {
+          setTemplates(prev => [...prev, result.template!]);
+          setError(null);
+          console.log('➕ Created new template:', result.template.name);
+        } else {
+          throw new Error(result.error || 'Failed to create template');
+        }
+      }
+
+      handleCancel();
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Failed to save template');
+      console.error('Template save error:', error);
     }
-
-    handleCancel();
   };
 
   const handleEdit = (template: ShiftTemplate) => {
@@ -105,10 +143,22 @@ const ShiftTemplateManager: React.FC = () => {
     console.log('✏️ Editing template:', template.name);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     const template = templates.find(t => t.id === id);
-    setTemplates(prev => prev.filter(t => t.id !== id));
-    console.log('🗑️ Deleted template:', template?.name);
+    
+    try {
+      const result = await realShiftTemplateService.deleteShiftTemplate(id);
+      if (result.success) {
+        setTemplates(prev => prev.filter(t => t.id !== id));
+        setError(null);
+        console.log('🗑️ Deleted template:', template?.name);
+      } else {
+        throw new Error(result.error || 'Failed to delete template');
+      }
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Failed to delete template');
+      console.error('Template deletion error:', error);
+    }
   };
 
   const handleCancel = () => {
@@ -126,10 +176,24 @@ const ShiftTemplateManager: React.FC = () => {
     });
   };
 
-  const toggleStatus = (id: string) => {
-    setTemplates(prev => prev.map(t => 
-      t.id === id ? { ...t, isActive: !t.isActive } : t
-    ));
+  const toggleStatus = async (id: string) => {
+    const template = templates.find(t => t.id === id);
+    if (!template) return;
+
+    try {
+      const result = await realShiftTemplateService.toggleShiftTemplate(id, !template.isActive);
+      if (result.success && result.template) {
+        setTemplates(prev => prev.map(t => 
+          t.id === id ? result.template! : t
+        ));
+        setError(null);
+      } else {
+        throw new Error(result.error || 'Failed to toggle template status');
+      }
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Failed to toggle template status');
+      console.error('Template toggle error:', error);
+    }
   };
 
   const formatDuration = (minutes: number): string => {
@@ -164,7 +228,84 @@ const ShiftTemplateManager: React.FC = () => {
       backgroundColor: 'white',
       padding: '24px'
     }}>
-      {/* Header */}
+      {/* API Health Status */}
+      {apiHealth && !apiHealth.healthy && (
+        <div style={{
+          marginBottom: '16px',
+          backgroundColor: '#fef2f2',
+          border: '1px solid #fecaca',
+          borderRadius: '8px',
+          padding: '16px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <AlertCircle style={{ width: '20px', height: '20px', color: '#dc2626' }} />
+            <div>
+              <div style={{ fontSize: '14px', fontWeight: '500', color: '#991b1b' }}>
+                Shift Template API Connection Issue
+              </div>
+              <div style={{ fontSize: '14px', color: '#dc2626' }}>{apiHealth.message}</div>
+              <div style={{ fontSize: '12px', color: '#b91c1c', marginTop: '4px' }}>
+                Shift template endpoints need INTEGRATION-OPUS implementation
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Error Message */}
+      {error && (
+        <div style={{
+          marginBottom: '16px',
+          backgroundColor: '#fffbeb',
+          border: '1px solid #fed7aa',
+          borderRadius: '8px',
+          padding: '16px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <AlertCircle style={{ width: '20px', height: '20px', color: '#d97706' }} />
+            <div>
+              <div style={{ fontSize: '14px', fontWeight: '500', color: '#92400e' }}>
+                Shift Template Operation Error
+              </div>
+              <div style={{ fontSize: '14px', color: '#d97706' }}>{error}</div>
+              <button 
+                onClick={() => setError(null)}
+                style={{
+                  fontSize: '12px',
+                  color: '#a16207',
+                  marginTop: '4px',
+                  textDecoration: 'underline',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer'
+                }}
+              >
+                Dismiss
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Loading State */}
+      {isLoading && (
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '32px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <RefreshCw style={{ width: '24px', height: '24px', color: '#2563eb' }} className="animate-spin" />
+            <span style={{ color: '#6b7280' }}>Loading shift templates...</span>
+          </div>
+        </div>
+      )}
+
+      {/* Main Content */}
+      {!isLoading && (
+        <>
+          {/* Header */}
       <div style={{ 
         display: 'flex', 
         justifyContent: 'space-between', 
@@ -828,6 +969,8 @@ const ShiftTemplateManager: React.FC = () => {
           Active: <strong>{templates.filter(t => t.isActive).length}</strong>
         </span>
       </div>
+        </>
+      )}
     </div>
   );
 };

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, Download, Upload, Users, Grid, List, RefreshCw } from 'lucide-react';
+import { Search, Filter, Download, Upload, Users, Grid, List, RefreshCw, AlertCircle } from 'lucide-react';
 import { Employee, EmployeeFilters, EmployeeStats } from '../../types/employee';
+import realEmployeeService, { PaginatedResponse } from '../../../../services/realEmployeeService';
 
 interface EmployeeListContainerProps {
   viewMode: 'list' | 'grid' | 'gallery';
@@ -8,7 +9,6 @@ interface EmployeeListContainerProps {
 
 const EmployeeListContainer: React.FC<EmployeeListContainerProps> = ({ viewMode }) => {
   const [employees, setEmployees] = useState<Employee[]>([]);
-  const [filteredEmployees, setFilteredEmployees] = useState<Employee[]>([]);
   const [filters, setFilters] = useState<EmployeeFilters>({
     search: '',
     team: '',
@@ -29,290 +29,97 @@ const EmployeeListContainer: React.FC<EmployeeListContainerProps> = ({ viewMode 
   });
   const [selectedEmployees, setSelectedEmployees] = useState<string[]>([]);
   const [lastUpdate, setLastUpdate] = useState(new Date());
-  const [isUpdating, setIsUpdating] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [apiError, setApiError] = useState<string>('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+  const itemsPerPage = 50;
 
-  // Mock data generation
-  useEffect(() => {
-    const mockEmployees: Employee[] = [
-      {
-        id: 'emp_001',
-        employeeId: 'EMP001',
-        personalInfo: {
-          firstName: 'Anna',
-          lastName: 'Petrov',
-          email: 'anna.petrov@company.com',
-          phone: '+7 495 123 4567',
-          photo: 'https://i.pravatar.cc/150?img=1'
-        },
-        workInfo: {
-          position: 'Senior Operator',
-          team: {
-            id: 't1',
-            name: 'Support Team',
-            color: '#3b82f6',
-            managerId: 'mgr_001',
-            memberCount: 12,
-            targetUtilization: 0.85
-          },
-          manager: 'Ivanov I.I.',
-          hireDate: new Date('2022-03-15'),
-          contractType: 'full-time',
-          workLocation: 'Moscow Office',
-          department: 'Customer Support'
-        },
-        skills: [],
-        status: 'active',
-        preferences: {
-          preferredShifts: ['morning', 'day'],
-          notifications: {
-            email: true,
-            sms: false,
-            push: true,
-            scheduleChanges: true,
-            announcements: true,
-            reminders: true
-          },
-          language: 'ru',
-          workingHours: {
-            start: '09:00',
-            end: '18:00'
-          }
-        },
-        performance: {
-          averageHandleTime: 4.2,
-          callsPerHour: 12,
-          qualityScore: 94.5,
-          adherenceScore: 98.2,
-          customerSatisfaction: 4.7,
-          lastEvaluation: new Date('2024-06-01')
-        },
-        certifications: [],
-        metadata: {
-          createdAt: new Date('2022-03-15'),
-          updatedAt: new Date(),
-          createdBy: 'admin',
-          lastModifiedBy: 'admin',
-          lastLogin: new Date()
-        }
-      },
-      // Add more mock employees...
-      {
-        id: 'emp_002',
-        employeeId: 'EMP002',
-        personalInfo: {
-          firstName: 'Mikhail',
-          lastName: 'Volkov',
-          email: 'mikhail.volkov@company.com',
-          phone: '+7 495 123 4568',
-          photo: 'https://i.pravatar.cc/150?img=2'
-        },
-        workInfo: {
-          position: 'Junior Operator',
-          team: {
-            id: 't2',
-            name: 'Sales Team',
-            color: '#10b981',
-            managerId: 'mgr_002',
-            memberCount: 8,
-            targetUtilization: 0.80
-          },
-          manager: 'Petrov P.P.',
-          hireDate: new Date('2024-01-10'),
-          contractType: 'full-time',
-          workLocation: 'St. Petersburg Office',
-          department: 'Sales'
-        },
-        skills: [],
-        status: 'probation',
-        preferences: {
-          preferredShifts: ['afternoon', 'evening'],
-          notifications: {
-            email: true,
-            sms: true,
-            push: true,
-            scheduleChanges: true,
-            announcements: false,
-            reminders: true
-          },
-          language: 'ru',
-          workingHours: {
-            start: '10:00',
-            end: '19:00'
-          }
-        },
-        performance: {
-          averageHandleTime: 5.8,
-          callsPerHour: 9,
-          qualityScore: 87.3,
-          adherenceScore: 92.1,
-          customerSatisfaction: 4.2,
-          lastEvaluation: new Date('2024-06-15')
-        },
-        certifications: [],
-        metadata: {
-          createdAt: new Date('2024-01-10'),
-          updatedAt: new Date(),
-          createdBy: 'admin',
-          lastModifiedBy: 'admin',
-          lastLogin: new Date()
-        }
+  // Real data loading from API
+  const loadEmployees = async () => {
+    setIsLoading(true);
+    setApiError('');
+    
+    try {
+      // Check API health first
+      const isApiHealthy = await realEmployeeService.checkApiHealth();
+      if (!isApiHealthy) {
+        throw new Error('Employee API server is not available. Please try again later.');
       }
-    ];
 
-    // Generate more mock data
-    for (let i = 3; i <= 50; i++) {
-      const statuses: ('active' | 'inactive' | 'vacation' | 'probation')[] = ['active', 'active', 'active', 'vacation', 'probation'];
-      const positions = ['Senior Operator', 'Junior Operator', 'Team Lead', 'Quality Specialist', 'Training Specialist'];
-      const teams = [
-        { id: 't1', name: 'Support Team', color: '#3b82f6', managerId: 'mgr_001', memberCount: 12, targetUtilization: 0.85 },
-        { id: 't2', name: 'Sales Team', color: '#10b981', managerId: 'mgr_002', memberCount: 8, targetUtilization: 0.80 },
-        { id: 't3', name: 'Quality Team', color: '#f59e0b', managerId: 'mgr_003', memberCount: 5, targetUtilization: 0.75 }
-      ];
-
-      mockEmployees.push({
-        id: `emp_${i.toString().padStart(3, '0')}`,
-        employeeId: `EMP${i.toString().padStart(3, '0')}`,
-        personalInfo: {
-          firstName: `Employee${i}`,
-          lastName: `LastName${i}`,
-          email: `employee${i}@company.com`,
-          phone: `+7 495 123 ${(4000 + i).toString()}`,
-          photo: `https://i.pravatar.cc/150?img=${(i % 70) + 1}`
-        },
-        workInfo: {
-          position: positions[i % positions.length],
-          team: teams[i % teams.length],
-          manager: `Manager ${Math.ceil(i / 10)}`,
-          hireDate: new Date(2020 + (i % 5), (i % 12), (i % 28) + 1),
-          contractType: 'full-time',
-          workLocation: i % 2 === 0 ? 'Moscow Office' : 'St. Petersburg Office',
-          department: i % 3 === 0 ? 'Support' : i % 3 === 1 ? 'Sales' : 'Quality'
-        },
-        skills: [],
-        status: statuses[i % statuses.length],
-        preferences: {
-          preferredShifts: ['morning'],
-          notifications: {
-            email: true,
-            sms: false,
-            push: true,
-            scheduleChanges: true,
-            announcements: true,
-            reminders: true
-          },
-          language: 'ru',
-          workingHours: {
-            start: '09:00',
-            end: '18:00'
-          }
-        },
-        performance: {
-          averageHandleTime: 3 + Math.random() * 4,
-          callsPerHour: 8 + Math.random() * 8,
-          qualityScore: 80 + Math.random() * 20,
-          adherenceScore: 85 + Math.random() * 15,
-          customerSatisfaction: 3.5 + Math.random() * 1.5,
-          lastEvaluation: new Date()
-        },
-        certifications: [],
-        metadata: {
-          createdAt: new Date(2020 + (i % 5), (i % 12), (i % 28) + 1),
-          updatedAt: new Date(),
-          createdBy: 'admin',
-          lastModifiedBy: 'admin',
-          lastLogin: Math.random() > 0.1 ? new Date() : undefined
-        }
-      });
-    }
-
-    setEmployees(mockEmployees);
-    setFilteredEmployees(mockEmployees);
-
-    // Calculate stats
-    const statsData = mockEmployees.reduce((acc, emp) => {
-      acc.total++;
-      acc[emp.status]++;
-      return acc;
-    }, { total: 0, active: 0, vacation: 0, probation: 0, inactive: 0, terminated: 0 });
-
-    setStats(statsData);
-  }, []);
-
-  // Real-time update simulation
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIsUpdating(true);
-      setTimeout(() => {
-        setLastUpdate(new Date());
-        setIsUpdating(false);
-      }, 500);
-    }, 30000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  // Filter employees
-  useEffect(() => {
-    let filtered = [...employees];
-
-    if (filters.search) {
-      filtered = filtered.filter(emp =>
-        emp.personalInfo.firstName.toLowerCase().includes(filters.search.toLowerCase()) ||
-        emp.personalInfo.lastName.toLowerCase().includes(filters.search.toLowerCase()) ||
-        emp.employeeId.toLowerCase().includes(filters.search.toLowerCase())
-      );
-    }
-
-    if (filters.team) {
-      filtered = filtered.filter(emp => emp.workInfo.team.id === filters.team);
-    }
-
-    if (filters.status) {
-      filtered = filtered.filter(emp => emp.status === filters.status);
-    }
-
-    if (!filters.showInactive) {
-      filtered = filtered.filter(emp => emp.status !== 'inactive' && emp.status !== 'terminated');
-    }
-
-    // Sort
-    filtered.sort((a, b) => {
-      let aValue: any, bValue: any;
+      // Load employees with current filters and pagination
+      const employeesResult = await realEmployeeService.getEmployees(filters, currentPage, itemsPerPage);
       
-      switch (filters.sortBy) {
-        case 'name':
-          aValue = `${a.personalInfo.firstName} ${a.personalInfo.lastName}`;
-          bValue = `${b.personalInfo.firstName} ${b.personalInfo.lastName}`;
-          break;
-        case 'position':
-          aValue = a.workInfo.position;
-          bValue = b.workInfo.position;
-          break;
-        case 'team':
-          aValue = a.workInfo.team.name;
-          bValue = b.workInfo.team.name;
-          break;
-        case 'hireDate':
-          aValue = a.workInfo.hireDate;
-          bValue = b.workInfo.hireDate;
-          break;
-        case 'performance':
-          aValue = a.performance.qualityScore;
-          bValue = b.performance.qualityScore;
-          break;
-        default:
-          aValue = a.personalInfo.firstName;
-          bValue = b.personalInfo.firstName;
+      if (employeesResult.success && employeesResult.data) {
+        setEmployees(employeesResult.data.items);
+        setTotalPages(Math.ceil(employeesResult.data.total / itemsPerPage));
+        setHasMore(employeesResult.data.hasMore);
+        console.log('[REAL EMPLOYEE LIST] Loaded employees:', employeesResult.data.items.length);
+      } else {
+        throw new Error(employeesResult.error || 'Failed to load employees');
       }
 
-      if (filters.sortOrder === 'desc') {
-        return aValue > bValue ? -1 : 1;
+      // Load statistics
+      const statsResult = await realEmployeeService.getEmployeeStats();
+      if (statsResult.success && statsResult.data) {
+        setStats(statsResult.data);
+        console.log('[REAL EMPLOYEE LIST] Loaded stats:', statsResult.data);
+      } else {
+        console.warn('[REAL EMPLOYEE LIST] Failed to load stats:', statsResult.error);
       }
-      return aValue < bValue ? -1 : 1;
-    });
 
-    setFilteredEmployees(filtered);
-  }, [employees, filters]);
+      setLastUpdate(new Date());
+      
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      setApiError(errorMessage);
+      console.error('[REAL EMPLOYEE LIST] Error loading employees:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Load employees on mount and when filters/page change
+  useEffect(() => {
+    loadEmployees();
+  }, [filters, currentPage]);
+
+  // Initial load
+  useEffect(() => {
+    loadEmployees();
+  }, []);
+
+  // Real refresh functionality
+  const handleRefresh = async () => {
+    await loadEmployees();
+  };
+
+  // Handle filter changes - reload data from server
+  const handleFilterChange = (newFilters: Partial<EmployeeFilters>) => {
+    setFilters(prev => ({ ...prev, ...newFilters }));
+    setCurrentPage(1); // Reset to first page when filters change
+  };
+
+  // Handle pagination
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
+
+  // Handle export functionality
+  const handleExport = async () => {
+    try {
+      const result = await realEmployeeService.exportEmployees(filters, 'csv');
+      if (result.success && result.data) {
+        // Open download URL in new tab
+        window.open(result.data.downloadUrl, '_blank');
+      } else {
+        setApiError(result.error || 'Export failed');
+      }
+    } catch (error) {
+      setApiError('Export failed');
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -347,9 +154,9 @@ const EmployeeListContainer: React.FC<EmployeeListContainerProps> = ({ viewMode 
 
   const handleSelectAll = () => {
     setSelectedEmployees(
-      selectedEmployees.length === filteredEmployees.length
+      selectedEmployees.length === employees.length
         ? []
-        : filteredEmployees.map(emp => emp.id)
+        : employees.map(emp => emp.id)
     );
   };
 
@@ -359,9 +166,19 @@ const EmployeeListContainer: React.FC<EmployeeListContainerProps> = ({ viewMode 
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-bold text-gray-900">Employee Directory</h2>
-          <div className={`flex items-center space-x-2 text-sm ${isUpdating ? 'text-blue-600' : 'text-gray-500'}`}>
-            <RefreshCw className={`h-4 w-4 ${isUpdating ? 'animate-spin' : ''}`} />
-            <span>Last updated: {lastUpdate.toLocaleTimeString()}</span>
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={handleRefresh}
+              disabled={isLoading}
+              className={`flex items-center space-x-2 text-sm px-3 py-1 rounded-md transition-colors ${
+                isLoading 
+                  ? 'text-blue-600 bg-blue-50 cursor-not-allowed' 
+                  : 'text-gray-500 hover:text-blue-600 hover:bg-blue-50'
+              }`}
+            >
+              <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+              <span>{isLoading ? 'Updating...' : `Updated: ${lastUpdate.toLocaleTimeString()}`}</span>
+            </button>
           </div>
         </div>
 
@@ -404,14 +221,14 @@ const EmployeeListContainer: React.FC<EmployeeListContainerProps> = ({ viewMode 
                 type="text"
                 placeholder="Search employees..."
                 value={filters.search}
-                onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+                onChange={(e) => handleFilterChange({ search: e.target.value })}
                 className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
             <select
               value={filters.status}
-              onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value }))}
+              onChange={(e) => handleFilterChange({ status: e.target.value })}
               className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">All Statuses</option>
@@ -423,7 +240,7 @@ const EmployeeListContainer: React.FC<EmployeeListContainerProps> = ({ viewMode 
 
             <select
               value={filters.sortBy}
-              onChange={(e) => setFilters(prev => ({ ...prev, sortBy: e.target.value as any }))}
+              onChange={(e) => handleFilterChange({ sortBy: e.target.value as any })}
               className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="name">Sort by Name</option>
@@ -440,152 +257,210 @@ const EmployeeListContainer: React.FC<EmployeeListContainerProps> = ({ viewMode 
                 {selectedEmployees.length} selected
               </span>
             )}
-            <button className="flex items-center px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
+            <button 
+              onClick={handleExport}
+              disabled={isLoading}
+              className="flex items-center px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
+            >
               <Download className="h-4 w-4 mr-2" />
               Export
-            </button>
-            <button className="flex items-center px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
-              <Upload className="h-4 w-4 mr-2" />
-              Import
             </button>
           </div>
         </div>
       </div>
 
+      {/* API Error Display */}
+      {apiError && (
+        <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className="flex items-center gap-2 text-red-800">
+            <AlertCircle className="h-5 w-5 text-red-500" />
+            <div>
+              <div className="font-medium">Error Loading Employees</div>
+              <div className="text-sm">{apiError}</div>
+              <button
+                onClick={handleRefresh}
+                className="mt-2 text-sm text-red-600 hover:text-red-800 underline"
+              >
+                Try Again
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Loading State */}
+      {isLoading && employees.length === 0 && (
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+          <div className="flex items-center justify-center">
+            <RefreshCw className="h-6 w-6 animate-spin text-blue-600 mr-3" />
+            <span className="text-gray-600">Loading employees...</span>
+          </div>
+        </div>
+      )}
+
       {/* Employee List */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        {viewMode === 'list' ? (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left">
-                    <input
-                      type="checkbox"
-                      checked={selectedEmployees.length === filteredEmployees.length}
-                      onChange={handleSelectAll}
-                      className="rounded"
-                    />
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Employee
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Position
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Team
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Performance
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Last Login
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {filteredEmployees.map((employee) => (
-                  <tr key={employee.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4">
+      {!isLoading || employees.length > 0 ? (
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+          {viewMode === 'list' ? (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left">
                       <input
                         type="checkbox"
-                        checked={selectedEmployees.includes(employee.id)}
-                        onChange={() => handleSelectEmployee(employee.id)}
+                        checked={selectedEmployees.length === employees.length && employees.length > 0}
+                        onChange={handleSelectAll}
                         className="rounded"
                       />
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <img
-                          className="h-10 w-10 rounded-full"
-                          src={employee.personalInfo.photo}
-                          alt=""
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Employee
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Position
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Team
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Performance
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Last Login
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {employees.map((employee) => (
+                    <tr key={employee.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4">
+                        <input
+                          type="checkbox"
+                          checked={selectedEmployees.includes(employee.id)}
+                          onChange={() => handleSelectEmployee(employee.id)}
+                          className="rounded"
                         />
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">
-                            {employee.personalInfo.firstName} {employee.personalInfo.lastName}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <img
+                            className="h-10 w-10 rounded-full"
+                            src={employee.personalInfo.photo || `https://ui-avatars.com/api/?name=${employee.personalInfo.firstName}+${employee.personalInfo.lastName}&background=3b82f6&color=fff`}
+                            alt=""
+                          />
+                          <div className="ml-4">
+                            <div className="text-sm font-medium text-gray-900">
+                              {employee.personalInfo.firstName} {employee.personalInfo.lastName}
+                            </div>
+                            <div className="text-sm text-gray-500">{employee.employeeId}</div>
                           </div>
-                          <div className="text-sm text-gray-500">{employee.employeeId}</div>
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{employee.workInfo.position}</div>
-                      <div className="text-sm text-gray-500">{employee.workInfo.department}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span 
-                        className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                        style={{ backgroundColor: employee.workInfo.team.color + '20', color: employee.workInfo.team.color }}
-                      >
-                        {employee.workInfo.team.name}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(employee.status)}`}>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">{employee.workInfo.position}</div>
+                        <div className="text-sm text-gray-500">{employee.workInfo.department}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span 
+                          className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                          style={{ backgroundColor: employee.workInfo.team.color + '20', color: employee.workInfo.team.color }}
+                        >
+                          {employee.workInfo.team.name}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(employee.status)}`}>
+                          {employee.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className={`text-sm font-medium ${getPerformanceColor(employee.performance.qualityScore)}`}>
+                          {employee.performance.qualityScore.toFixed(1)}%
+                        </div>
+                        <div className="text-xs text-gray-500">Quality Score</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {employee.metadata.lastLogin ? 
+                          employee.metadata.lastLogin.toLocaleDateString() : 
+                          'Never'
+                        }
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-6">
+              {employees.map((employee) => (
+                <div key={employee.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <img
+                      className="h-12 w-12 rounded-full"
+                      src={employee.personalInfo.photo || `https://ui-avatars.com/api/?name=${employee.personalInfo.firstName}+${employee.personalInfo.lastName}&background=3b82f6&color=fff`}
+                      alt=""
+                    />
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-900">
+                        {employee.personalInfo.firstName} {employee.personalInfo.lastName}
+                      </h3>
+                      <p className="text-xs text-gray-500">{employee.employeeId}</p>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="text-sm text-gray-900">{employee.workInfo.position}</div>
+                    <span 
+                      className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
+                      style={{ backgroundColor: employee.workInfo.team.color + '20', color: employee.workInfo.team.color }}
+                    >
+                      {employee.workInfo.team.name}
+                    </span>
+                    <div className="flex justify-between items-center">
+                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(employee.status)}`}>
                         {employee.status}
                       </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className={`text-sm font-medium ${getPerformanceColor(employee.performance.qualityScore)}`}>
+                      <span className={`text-sm font-medium ${getPerformanceColor(employee.performance.qualityScore)}`}>
                         {employee.performance.qualityScore.toFixed(1)}%
-                      </div>
-                      <div className="text-xs text-gray-500">Quality Score</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {employee.metadata.lastLogin ? 
-                        employee.metadata.lastLogin.toLocaleDateString() : 
-                        'Never'
-                      }
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-6">
-            {filteredEmployees.map((employee) => (
-              <div key={employee.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                <div className="flex items-center space-x-3 mb-3">
-                  <img
-                    className="h-12 w-12 rounded-full"
-                    src={employee.personalInfo.photo}
-                    alt=""
-                  />
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-900">
-                      {employee.personalInfo.firstName} {employee.personalInfo.lastName}
-                    </h3>
-                    <p className="text-xs text-gray-500">{employee.employeeId}</p>
+                      </span>
+                    </div>
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <div className="text-sm text-gray-900">{employee.workInfo.position}</div>
-                  <span 
-                    className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
-                    style={{ backgroundColor: employee.workInfo.team.color + '20', color: employee.workInfo.team.color }}
+              ))}
+            </div>
+          )}
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="px-6 py-4 border-t border-gray-200">
+              <div className="flex items-center justify-between">
+                <div className="text-sm text-gray-700">
+                  Page {currentPage} of {totalPages} - {stats.total} total employees
+                </div>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1 || isLoading}
+                    className="px-3 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {employee.workInfo.team.name}
-                  </span>
-                  <div className="flex justify-between items-center">
-                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(employee.status)}`}>
-                      {employee.status}
-                    </span>
-                    <span className={`text-sm font-medium ${getPerformanceColor(employee.performance.qualityScore)}`}>
-                      {employee.performance.qualityScore.toFixed(1)}%
-                    </span>
-                  </div>
+                    Previous
+                  </button>
+                  <button
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages || isLoading}
+                    className="px-3 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Next
+                  </button>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
+            </div>
+          )}
+        </div>
+      ) : null}
     </div>
   );
 };

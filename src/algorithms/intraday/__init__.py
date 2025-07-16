@@ -51,12 +51,13 @@ from .compliance_validator import (
 )
 
 from .statistics_engine import (
-    StatisticsEngine,
+    MobileWorkforceStatisticsEngine as StatisticsEngine,  # Alias for backward compatibility
     WorkingDaysCalculation,
     PlannedHoursCalculation,
     OvertimeAnalysis,
     AbsenceAnalysis,
     ProductivityMetrics,
+    MobileWorkforceMetrics,
     CalculationMethod
 )
 
@@ -104,11 +105,13 @@ __all__ = [
     'ViolationSeverity',
     
     # Statistics Engine
-    'StatisticsEngine',
+    'MobileWorkforceStatisticsEngine',
+    'StatisticsEngine',  # Backward compatibility
     'WorkingDaysCalculation',
     'PlannedHoursCalculation',
     'OvertimeAnalysis',
     'AbsenceAnalysis',
     'ProductivityMetrics',
+    'MobileWorkforceMetrics',
     'CalculationMethod'
 ]

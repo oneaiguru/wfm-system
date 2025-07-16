@@ -1,193 +1,70 @@
 import React, { useState, useEffect } from 'react';
 import { Activity, Users, TrendingUp, Clock, AlertTriangle, CheckCircle, XCircle, Zap } from 'lucide-react';
+import realOperationalService, { OperationalData, OperationalMetric, AgentStatus } from '../../../services/realOperationalService';
 
 // BDD: Real-time operational dashboards - Adapted from EmployeeStatusManager
 // Based on: 15-real-time-monitoring-operational-control.feature
 
-interface OperationalMetric {
-  id: string;
-  name: string;
-  value: number;
-  target: number;
-  unit: string;
-  status: 'excellent' | 'good' | 'warning' | 'critical';
-  trend: 'up' | 'down' | 'stable';
-  changePercent: number;
-  lastUpdated: Date;
-  description: string;
-}
-
-interface AgentStatus {
-  id: string;
-  name: string;
-  status: 'online' | 'offline' | 'break' | 'lunch' | 'training';
-  currentCall: boolean;
-  queue: string;
-  loginTime: string;
-  callsHandled: number;
-  avgHandleTime: number;
-  lastActivity: Date;
-}
-
 const OperationalControlDashboard: React.FC = () => {
-  const [metrics, setMetrics] = useState<OperationalMetric[]>([]);
-  const [agents, setAgents] = useState<AgentStatus[]>([]);
+  const [operationalData, setOperationalData] = useState<OperationalData | null>(null);
   const [selectedQueue, setSelectedQueue] = useState<string>('all');
   const [lastUpdate, setLastUpdate] = useState(new Date());
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [apiError, setApiError] = useState<string>('');
+  const [isConnecting, setIsConnecting] = useState(false);
 
-  // BDD: Six key real-time metrics with traffic light indicators
+  // Load initial operational data
   useEffect(() => {
-    const loadMetrics = () => {
-      const now = new Date();
-      const mockMetrics: OperationalMetric[] = [
-        {
-          id: 'metric_001',
-          name: 'Операторы онлайн',
-          value: 92.3,
-          target: 85.0,
-          unit: '%',
-          status: 'excellent',
-          trend: 'up',
-          changePercent: 2.1,
-          lastUpdated: now,
-          description: 'Процент операторов, находящихся в сети'
-        },
-        {
-          id: 'metric_002',
-          name: 'Отклонение нагрузки',
-          value: 7.4,
-          target: 10.0,
-          unit: '%',
-          status: 'good',
-          trend: 'down',
-          changePercent: -1.8,
-          lastUpdated: now,
-          description: 'Отклонение фактической нагрузки от прогноза'
-        },
-        {
-          id: 'metric_003',
-          name: 'Потребность в операторах',
-          value: 47,
-          target: 50,
-          unit: 'agents',
-          status: 'warning',
-          trend: 'up',
-          changePercent: 4.4,
-          lastUpdated: now,
-          description: 'Количество операторов, необходимых для текущей нагрузки'
-        },
-        {
-          id: 'metric_004',
-          name: 'Выполнение SLA',
-          value: 94.7,
-          target: 90.0,
-          unit: '%',
-          status: 'excellent',
-          trend: 'stable',
-          changePercent: 0.3,
-          lastUpdated: now,
-          description: 'Процент звонков, отвеченных в соответствии с SLA'
-        },
-        {
-          id: 'metric_005',
-          name: 'Коэффициент ACD',
-          value: 89.2,
-          target: 85.0,
-          unit: '%',
-          status: 'excellent',
-          trend: 'up',
-          changePercent: 1.5,
-          lastUpdated: now,
-          description: 'Процент звонков, обработанных автоматическим распределителем'
-        },
-        {
-          id: 'metric_006',
-          name: 'Тренд AHT',
-          value: 245,
-          target: 300,
-          unit: 'sec',
-          status: 'good',
-          trend: 'down',
-          changePercent: -8.2,
-          lastUpdated: now,
-          description: 'Среднее время обработки звонка'
-        }
-      ];
-
-      setMetrics(mockMetrics);
-    };
-
-    const loadAgents = () => {
-      const mockAgents: AgentStatus[] = [
-        {
-          id: 'agent_001',
-          name: 'Анна Петрова',
-          status: 'online',
-          currentCall: true,
-          queue: 'Техподдержка',
-          loginTime: '09:00',
-          callsHandled: 23,
-          avgHandleTime: 245,
-          lastActivity: new Date(Date.now() - 2 * 60 * 1000)
-        },
-        {
-          id: 'agent_002',
-          name: 'Михаил Волков',
-          status: 'online',
-          currentCall: false,
-          queue: 'Продажи',
-          loginTime: '09:15',
-          callsHandled: 18,
-          avgHandleTime: 290,
-          lastActivity: new Date(Date.now() - 30 * 1000)
-        },
-        {
-          id: 'agent_003',
-          name: 'Елена Козлова',
-          status: 'break',
-          currentCall: false,
-          queue: 'Техподдержка',
-          loginTime: '08:45',
-          callsHandled: 31,
-          avgHandleTime: 198,
-          lastActivity: new Date(Date.now() - 5 * 60 * 1000)
-        },
-        {
-          id: 'agent_004',
-          name: 'Павел Орлов',
-          status: 'lunch',
-          currentCall: false,
-          queue: 'Продажи',
-          loginTime: '10:00',
-          callsHandled: 12,
-          avgHandleTime: 312,
-          lastActivity: new Date(Date.now() - 15 * 60 * 1000)
-        },
-        {
-          id: 'agent_005',
-          name: 'София Иванова',
-          status: 'training',
-          currentCall: false,
-          queue: 'Обучение',
-          loginTime: '09:30',
-          callsHandled: 0,
-          avgHandleTime: 0,
-          lastActivity: new Date(Date.now() - 45 * 60 * 1000)
-        }
-      ];
-
-      setAgents(mockAgents);
-    };
-
-    loadMetrics();
-    loadAgents();
+    loadOperationalData();
   }, []);
+  
+  const loadOperationalData = async () => {
+    setApiError('');
+    setIsConnecting(true);
+    
+    try {
+      // Check API health first
+      const isApiHealthy = await realOperationalService.checkApiHealth();
+      if (!isApiHealthy) {
+        throw new Error('API server is not available. Please try again later.');
+      }
+
+      // Make real API call
+      const result = await realOperationalService.getOperationalData();
+      
+      if (result.success && result.data) {
+        console.log('[REAL COMPONENT] Operational data loaded:', result.data);
+        setOperationalData(result.data);
+        setLastUpdate(new Date());
+      } else {
+        setApiError(result.error || 'Failed to load operational data');
+      }
+      
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      setApiError(errorMessage);
+      console.error('[REAL COMPONENT] Operational load error:', errorMessage);
+    } finally {
+      setIsLoading(false);
+      setIsConnecting(false);
+    }
+  };
 
   // BDD: Real-time updates every 30 seconds
   useEffect(() => {
-    const interval = setInterval(() => {
+    const interval = setInterval(async () => {
       setIsUpdating(true);
+      
+      try {
+        const result = await realOperationalService.refreshOperationalData();
+        if (result.success && result.data) {
+          setOperationalData(result.data);
+        }
+      } catch (error) {
+        console.warn('[REAL COMPONENT] Auto-refresh failed:', error);
+      }
+      
       setTimeout(() => {
         setLastUpdate(new Date());
         setIsUpdating(false);
@@ -255,22 +132,65 @@ const OperationalControlDashboard: React.FC = () => {
     return value.toFixed(1);
   };
 
+  // Extract data from operationalData
+  const metrics = operationalData?.metrics || [];
+  const agents = operationalData?.agents || [];
+  
   const filteredAgents = selectedQueue === 'all' 
     ? agents 
     : agents.filter(agent => agent.queue === selectedQueue);
 
   const agentStats = {
-    total: agents.length,
-    online: agents.filter(a => a.status === 'online').length,
-    onCall: agents.filter(a => a.currentCall).length,
-    break: agents.filter(a => a.status === 'break' || a.status === 'lunch').length,
-    training: agents.filter(a => a.status === 'training').length
+    total: operationalData?.totalAgents || 0,
+    online: operationalData?.agentsOnline || 0,
+    onCall: operationalData?.agentsOnCall || 0,
+    break: operationalData?.agentsOnBreak || 0,
+    training: operationalData?.agentsInTraining || 0
   };
 
   const uniqueQueues = [...new Set(agents.map(a => a.queue))];
 
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="p-6 space-y-6">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
+            <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1,2,3,4,5,6].map((i) => (
+            <div key={i} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 animate-pulse">
+              <div className="h-24 bg-gray-200 rounded"></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6 space-y-6">
+      {/* API Error Display */}
+      {apiError && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className="flex items-center gap-2 text-red-800">
+            <AlertTriangle className="h-5 w-5 text-red-500" />
+            <div>
+              <div className="font-medium">Operation Failed</div>
+              <div className="text-sm">{apiError}</div>
+            </div>
+            <button
+              onClick={loadOperationalData}
+              className="ml-auto px-3 py-1 bg-red-100 text-red-700 rounded text-sm hover:bg-red-200"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      )}
       {/* Header - BDD: Main monitoring dashboard */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <div className="flex items-center justify-between">
@@ -446,7 +366,7 @@ const OperationalControlDashboard: React.FC = () => {
                 </div>
 
                 <div className="text-right text-sm text-gray-500">
-                  Активность: {Math.round((Date.now() - agent.lastActivity.getTime()) / (1000 * 60))}м назад
+                  Активность: {Math.round((Date.now() - new Date(agent.lastActivity).getTime()) / (1000 * 60))}м назад
                 </div>
               </div>
             </div>

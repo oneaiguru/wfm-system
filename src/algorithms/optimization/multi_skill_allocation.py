@@ -7,8 +7,9 @@ import logging
 from typing import Dict, List, Any, Optional, Tuple
 import numpy as np
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 import asyncio
+from .database_connector import DatabaseConnector
 
 logger = logging.getLogger(__name__)
 
@@ -25,143 +26,239 @@ class AllocationResult:
 
 
 class MultiSkillAllocator:
-    """Multi-skill agent allocation optimizer."""
+    """Multi-skill agent allocation optimizer with real database integration."""
     
     def __init__(self):
+        self.db_connector = DatabaseConnector()
         self.optimization_methods = {
             'greedy': self._greedy_allocation,
             'genetic_algorithm': self._genetic_algorithm_allocation,
             'linear_programming': self._linear_programming_allocation,
             'simulated_annealing': self._simulated_annealing_allocation
         }
+        self._initialized = False
     
-    async def optimize_allocation(self, optimization_data: Dict[str, Any]) -> AllocationResult:
+    async def initialize(self):
+        """Initialize database connections."""
+        if not self._initialized:
+            await self.db_connector.initialize()
+            self._initialized = True
+            logger.info("MultiSkillAllocator initialized with database connection")
+    
+    async def close(self):
+        """Close database connections."""
+        if self._initialized:
+            await self.db_connector.close()
+            self._initialized = False
+    
+    async def optimize_allocation(self, optimization_params: Dict[str, Any] = None) -> AllocationResult:
         """
-        Optimize multi-skill agent allocation.
+        Optimize multi-skill agent allocation using real database data.
         
         Args:
-            optimization_data: Dictionary containing:
-                - forecast_data: List of forecast periods
-                - skill_matrix: Agent skills mapping
-                - service_level_targets: Target service levels per skill
-                - max_wait_times: Maximum wait times per skill
+            optimization_params: Optional parameters containing:
+                - organization_id: Organization to optimize for
+                - service_ids: List of service IDs to include
                 - optimization_method: Method to use for optimization
+                - forecast_days: Number of days to forecast (default: 7)
         
         Returns:
             AllocationResult with optimized allocations
         """
         try:
-            method = optimization_data.get('optimization_method', 'greedy')
+            if not self._initialized:
+                await self.initialize()
+            
+            params = optimization_params or {}
+            method = params.get('optimization_method', 'greedy')
+            organization_id = params.get('organization_id')
+            service_ids = params.get('service_ids')
             
             if method not in self.optimization_methods:
                 raise ValueError(f"Unknown optimization method: {method}")
             
-            # Prepare data for optimization
-            prepared_data = self._prepare_optimization_data(optimization_data)
+            # Load real data from database
+            optimization_data = await self._load_real_data(organization_id, service_ids)
             
             # Run optimization
             optimization_func = self.optimization_methods[method]
-            result = await optimization_func(prepared_data)
+            result = await optimization_func(optimization_data)
             
-            # Validate and post-process results
-            validated_result = self._validate_allocation_result(result, optimization_data)
+            # Save results to database
+            allocation_id = await self.db_connector.save_allocation_results({
+                'efficiency_score': result.efficiency_score,
+                'total_cost': result.total_cost,
+                'service_level_achieved': result.service_level_achieved,
+                'agent_allocations': result.agent_allocations
+            })
             
-            return validated_result
+            # Add database ID to metadata
+            result.optimization_metadata['allocation_id'] = allocation_id
+            
+            logger.info(f"Optimization completed successfully. Allocation ID: {allocation_id}")
+            return result
             
         except Exception as e:
             logger.error(f"Error in multi-skill allocation optimization: {str(e)}")
             raise
     
-    def _prepare_optimization_data(self, optimization_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Prepare data for optimization algorithms."""
+    async def _load_real_data(self, organization_id: Optional[str], service_ids: Optional[List[int]]) -> Dict[str, Any]:
+        """Load real optimization data from database."""
         try:
-            forecast_data = optimization_data['forecast_data']
-            skill_matrix = optimization_data['skill_matrix']
-            service_level_targets = optimization_data['service_level_targets']
-            max_wait_times = optimization_data['max_wait_times']
+            # Load employee skills from database
+            employee_skills_data = await self.db_connector.get_employee_skills(organization_id)
             
-            # Extract unique skills
-            all_skills = set()
-            for agent_skills in skill_matrix.values():
-                all_skills.update(agent_skills)
+            # Load skill requirements from forecast data
+            skill_requirements = await self.db_connector.get_skill_requirements(service_ids)
             
-            # Calculate demand per skill from forecast data
-            skill_demand = {}
-            for skill in all_skills:
-                skill_demand[skill] = sum(
-                    period.get(skill, 0) for period in forecast_data
-                )
+            # Load allocation constraints
+            employee_ids = list(employee_skills_data.keys())
+            allocation_constraints = await self.db_connector.get_allocation_constraints(employee_ids)
             
-            # Calculate agent efficiency matrix
+            # Process employee skills into optimization format
+            skill_matrix = {}
             agent_efficiency = {}
-            for agent_id, skills in skill_matrix.items():
-                agent_efficiency[agent_id] = {}
+            all_skills = set()
+            
+            for employee_id, emp_data in employee_skills_data.items():
+                skills = list(emp_data['skills'].keys())
+                skill_matrix[employee_id] = skills
+                all_skills.update(skills)
+                
+                # Calculate efficiency based on proficiency level and certification
+                agent_efficiency[employee_id] = {}
+                for skill_name, skill_data in emp_data['skills'].items():
+                    # Efficiency = (proficiency_level / 5) * certification_bonus
+                    base_efficiency = skill_data['proficiency_level'] / 5.0
+                    certification_bonus = 1.2 if skill_data['certified'] else 1.0
+                    efficiency = base_efficiency * certification_bonus
+                    agent_efficiency[employee_id][skill_name] = min(efficiency, 1.5)  # Cap at 150%
+            
+            # Fill missing skills with 0 efficiency
+            for employee_id in agent_efficiency:
                 for skill in all_skills:
-                    # Base efficiency: 1.0 if agent has skill, 0.0 if not
-                    # Could be enhanced with actual efficiency data
-                    agent_efficiency[agent_id][skill] = 1.0 if skill in skills else 0.0
+                    if skill not in agent_efficiency[employee_id]:
+                        agent_efficiency[employee_id][skill] = 0.0
+            
+            # Extract service level targets and skill demand
+            service_level_targets = {}
+            skill_demand = {}
+            
+            for skill_name, req_data in skill_requirements.items():
+                service_level_targets[skill_name] = req_data['service_level_target']
+                skill_demand[skill_name] = req_data['required_hours']
+            
+            # Ensure all skills have targets and demand
+            for skill in all_skills:
+                if skill not in service_level_targets:
+                    service_level_targets[skill] = 0.8  # Default 80%
+                if skill not in skill_demand:
+                    skill_demand[skill] = 0
+            
+            logger.info(f"Loaded real data: {len(employee_skills_data)} employees, {len(all_skills)} skills")
             
             return {
-                'forecast_data': forecast_data,
                 'skill_matrix': skill_matrix,
-                'service_level_targets': service_level_targets,
-                'max_wait_times': max_wait_times,
-                'all_skills': list(all_skills),
-                'skill_demand': skill_demand,
                 'agent_efficiency': agent_efficiency,
+                'service_level_targets': service_level_targets,
+                'skill_demand': skill_demand,
+                'skill_requirements': skill_requirements,
+                'allocation_constraints': allocation_constraints,
+                'all_skills': list(all_skills),
                 'num_agents': len(skill_matrix),
-                'num_skills': len(all_skills)
+                'num_skills': len(all_skills),
+                'employee_data': employee_skills_data
             }
             
         except Exception as e:
-            logger.error(f"Error preparing optimization data: {str(e)}")
+            logger.error(f"Error loading real data: {str(e)}")
             raise
     
     async def _greedy_allocation(self, data: Dict[str, Any]) -> AllocationResult:
-        """Greedy allocation algorithm - fast but not optimal."""
+        """Greedy allocation algorithm using real efficiency and constraints."""
         try:
             skill_demand = data['skill_demand']
             skill_matrix = data['skill_matrix']
             service_level_targets = data['service_level_targets']
             agent_efficiency = data['agent_efficiency']
+            allocation_constraints = data['allocation_constraints']
             
             # Initialize allocations
             agent_allocations = {agent_id: {} for agent_id in skill_matrix.keys()}
             remaining_demand = skill_demand.copy()
+            agent_hours_used = {agent_id: 0 for agent_id in skill_matrix.keys()}
             
-            # Sort skills by demand (highest first)
-            sorted_skills = sorted(skill_demand.items(), key=lambda x: x[1], reverse=True)
-            
-            # Allocate agents to skills greedily
-            for skill, demand in sorted_skills:
+            # Sort skills by priority (high demand and low agent count)
+            skill_priority = []
+            for skill, demand in skill_demand.items():
                 if demand <= 0:
+                    continue
+                
+                # Count available agents for this skill
+                available_agents = len([
+                    agent_id for agent_id in skill_matrix.keys()
+                    if skill in skill_matrix[agent_id] and agent_efficiency[agent_id][skill] > 0
+                ])
+                
+                # Priority score: demand / available_agents (higher = more urgent)
+                priority_score = demand / max(available_agents, 1)
+                skill_priority.append((skill, demand, priority_score))
+            
+            # Sort by priority score (highest first)
+            skill_priority.sort(key=lambda x: x[2], reverse=True)
+            
+            # Allocate agents to skills based on priority
+            for skill, demand, _ in skill_priority:
+                if remaining_demand[skill] <= 0:
                     continue
                 
                 # Find agents with this skill, sorted by efficiency
                 skilled_agents = [
                     (agent_id, agent_efficiency[agent_id][skill])
                     for agent_id in skill_matrix.keys()
-                    if skill in skill_matrix[agent_id]
+                    if skill in skill_matrix[agent_id] and agent_efficiency[agent_id][skill] > 0
                 ]
                 
                 skilled_agents.sort(key=lambda x: x[1], reverse=True)
                 
-                # Allocate hours to skilled agents
+                # Allocate hours to skilled agents considering constraints
                 for agent_id, efficiency in skilled_agents:
                     if remaining_demand[skill] <= 0:
                         break
                     
-                    # Calculate allocation (simplified)
-                    allocated_hours = min(remaining_demand[skill], 8)  # Max 8 hours per agent
+                    # Get agent constraints
+                    constraints = allocation_constraints.get(agent_id, {})
+                    max_daily_hours = constraints.get('max_daily_hours', 8)
+                    work_rate = constraints.get('work_rate', 1.0)
                     
-                    agent_allocations[agent_id][skill] = allocated_hours
-                    remaining_demand[skill] -= allocated_hours
+                    # Calculate available hours for this agent
+                    available_hours = max_daily_hours - agent_hours_used[agent_id]
+                    if available_hours <= 0:
+                        continue
+                    
+                    # Calculate optimal allocation considering efficiency
+                    effective_hours = available_hours * efficiency * work_rate
+                    allocated_hours = min(remaining_demand[skill], effective_hours, available_hours)
+                    
+                    if allocated_hours > 0:
+                        agent_allocations[agent_id][skill] = allocated_hours
+                        remaining_demand[skill] -= allocated_hours
+                        agent_hours_used[agent_id] += allocated_hours
             
-            # Calculate results
-            total_cost = self._calculate_total_cost(agent_allocations)
+            # Calculate results with real data
+            total_cost = self._calculate_total_cost(agent_allocations, allocation_constraints)
             service_level_achieved = self._calculate_service_levels(agent_allocations, data)
             efficiency_score = self._calculate_efficiency_score(agent_allocations, data)
             skill_coverage = self._calculate_skill_coverage(agent_allocations, skill_demand)
+            
+            # Log allocation summary
+            total_allocated_hours = sum(
+                sum(skills.values()) for skills in agent_allocations.values()
+            )
+            total_demand_hours = sum(skill_demand.values())
+            
+            logger.info(f"Allocation completed: {total_allocated_hours:.1f}h allocated vs {total_demand_hours:.1f}h demand")
+            logger.info(f"Coverage: {[f'{s}: {c:.1%}' for s, c in skill_coverage.items()]}")
             
             return AllocationResult(
                 agent_allocations=agent_allocations,
@@ -172,7 +269,10 @@ class MultiSkillAllocator:
                 optimization_metadata={
                     'method': 'greedy',
                     'iterations': 1,
-                    'convergence_time': 0.1
+                    'convergence_time': 0.1,
+                    'total_allocated_hours': total_allocated_hours,
+                    'total_demand_hours': total_demand_hours,
+                    'demand_coverage': total_allocated_hours / max(total_demand_hours, 1)
                 }
             )
             
@@ -228,15 +328,30 @@ class MultiSkillAllocator:
             logger.error(f"Error in simulated annealing allocation: {str(e)}")
             raise
     
-    def _calculate_total_cost(self, agent_allocations: Dict[str, Dict[str, int]]) -> float:
-        """Calculate total cost of allocation."""
+    def _calculate_total_cost(self, agent_allocations: Dict[str, Dict[str, float]], 
+                             allocation_constraints: Dict[str, Dict[str, Any]]) -> float:
+        """Calculate total cost of allocation considering work rates and employment types."""
         try:
             total_cost = 0.0
-            hourly_rate = 25.0  # Default hourly rate
+            
+            # Cost rates by employment type
+            hourly_rates = {
+                'full-time': 25.0,
+                'part-time': 20.0,
+                'contract': 30.0,
+                'temporary': 22.0
+            }
             
             for agent_id, skills in agent_allocations.items():
+                constraints = allocation_constraints.get(agent_id, {})
+                employment_type = constraints.get('employment_type', 'full-time')
+                work_rate = constraints.get('work_rate', 1.0)
+                
+                base_rate = hourly_rates.get(employment_type, 25.0)
+                effective_rate = base_rate * work_rate
+                
                 agent_hours = sum(skills.values())
-                total_cost += agent_hours * hourly_rate
+                total_cost += agent_hours * effective_rate
             
             return total_cost
             
@@ -260,7 +375,10 @@ class MultiSkillAllocator:
                 
                 # Calculate service level (simplified)
                 demand = skill_demand.get(skill, 1)
-                service_level = min(1.0, allocated_hours / demand)
+                if demand > 0:
+                    service_level = min(1.0, allocated_hours / demand)
+                else:
+                    service_level = 1.0 if allocated_hours > 0 else 0.0
                 service_levels[skill] = service_level
             
             return service_levels
@@ -319,12 +437,10 @@ class MultiSkillAllocator:
             return {}
     
     def _validate_allocation_result(self, result: AllocationResult, 
-                                   original_data: Dict[str, Any]) -> AllocationResult:
+                                   service_level_targets: Dict[str, float]) -> AllocationResult:
         """Validate and adjust allocation result if needed."""
         try:
             # Check if all required skills are covered
-            service_level_targets = original_data['service_level_targets']
-            
             for skill, target in service_level_targets.items():
                 achieved = result.service_level_achieved.get(skill, 0.0)
                 if achieved < target * 0.8:  # 80% of target minimum
@@ -344,11 +460,26 @@ class MultiSkillAllocator:
             return result
     
     async def calculate_cost_impact(self, optimization_result: AllocationResult, 
-                                   skill_matrix: Dict[str, List[str]]) -> Dict[str, Any]:
-        """Calculate cost impact of optimization."""
+                                   allocation_constraints: Dict[str, Dict[str, Any]]) -> Dict[str, Any]:
+        """Calculate cost impact of optimization using real cost data."""
         try:
-            # Calculate baseline cost (everyone working full time)
-            baseline_cost = len(skill_matrix) * 8 * 25.0  # 8 hours * $25/hour
+            # Calculate baseline cost (everyone working full time at their rates)
+            baseline_cost = 0.0
+            hourly_rates = {
+                'full-time': 25.0,
+                'part-time': 20.0,
+                'contract': 30.0,
+                'temporary': 22.0
+            }
+            
+            for agent_id, constraints in allocation_constraints.items():
+                employment_type = constraints.get('employment_type', 'full-time')
+                work_rate = constraints.get('work_rate', 1.0)
+                max_daily_hours = constraints.get('max_daily_hours', 8)
+                
+                base_rate = hourly_rates.get(employment_type, 25.0)
+                effective_rate = base_rate * work_rate
+                baseline_cost += max_daily_hours * effective_rate
             
             optimized_cost = optimization_result.total_cost
             cost_savings = baseline_cost - optimized_cost
@@ -359,6 +490,7 @@ class MultiSkillAllocator:
                 'optimized_cost': optimized_cost,
                 'cost_savings': cost_savings,
                 'savings_percentage': savings_percentage,
+                'efficiency_gain': optimization_result.efficiency_score,
                 'roi_analysis': {
                     'implementation_cost': 5000,  # Estimated implementation cost
                     'annual_savings': cost_savings * 250,  # 250 working days

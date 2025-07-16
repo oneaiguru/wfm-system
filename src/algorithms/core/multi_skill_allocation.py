@@ -10,6 +10,10 @@ from dataclasses import dataclass
 from enum import Enum
 import time
 import logging
+import psycopg2
+import psycopg2.extras
+from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -55,6 +59,217 @@ class MultiSkillAllocator:
             'queue_wait_times': [],
             'solution_times': []
         }
+        # Database connection parameters
+        self.db_params = {
+            'host': os.getenv('DB_HOST', 'localhost'),
+            'port': os.getenv('DB_PORT', '5432'),
+            'dbname': 'wfm_enterprise',
+            'user': 'postgres',
+            'password': os.getenv('DB_PASSWORD', '')
+        }
+    
+    def get_db_connection(self):
+        """Create database connection"""
+        return psycopg2.connect(**self.db_params)
+    
+    def load_agents_from_db(self) -> List[Agent]:
+        """Load real agent data from database"""
+        agents = []
+        
+        with self.get_db_connection() as conn:
+            with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
+                # Get employees with their skills
+                cur.execute("""
+                    SELECT 
+                        e.id,
+                        e.first_name,
+                        e.last_name,
+                        e.is_active,
+                        COALESCE(e.work_rate, 1.0) as work_rate,
+                        array_agg(
+                            json_build_object(
+                                'skill_id', es.skill_id,
+                                'skill_name', s.name,
+                                'proficiency', es.proficiency_level
+                            )
+                        ) FILTER (WHERE es.skill_id IS NOT NULL) as skills
+                    FROM employees e
+                    LEFT JOIN employee_skills es ON e.id = es.employee_id
+                    LEFT JOIN skills s ON es.skill_id = s.id
+                    WHERE e.is_active = true
+                    GROUP BY e.id, e.first_name, e.last_name, e.is_active, e.work_rate
+                    LIMIT 100
+                """)
+                
+                for row in cur.fetchall():
+                    # Convert skills to dictionary
+                    skills_dict = {}
+                    if row['skills']:
+                        for skill in row['skills']:
+                            # Normalize proficiency level from 1-5 to 0-1
+                            skills_dict[skill['skill_name']] = skill['proficiency'] / 5.0
+                    
+                    agent = Agent(
+                        id=str(row['id']),
+                        skills=skills_dict,
+                        availability=row['is_active'],
+                        idle_time=0.0,  # Would need real-time data
+                        max_concurrent_tasks=int(row['work_rate'] * 3),  # Assume 3 tasks at full rate
+                        current_tasks=0
+                    )
+                    agents.append(agent)
+        
+        logger.info(f"Loaded {len(agents)} agents from database")
+        return agents
+    
+    def load_queues_from_db(self) -> List[Queue]:
+        """Load real queue/service data from database"""
+        queues = []
+        
+        with self.get_db_connection() as conn:
+            with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
+                # Get services as queues
+                cur.execute("""
+                    SELECT 
+                        s.id,
+                        s.service_name,
+                        s.service_code,
+                        s.priority_level,
+                        s.target_answer_time,
+                        s.target_service_level,
+                        s.max_wait_time,
+                        COALESCE(qm.avg_wait_time_last_15min, 0) as current_wait_time,
+                        COALESCE(qm.calls_handled_last_15min * 4, 40) as arrival_rate,
+                        COALESCE(qm.calls_waiting, 0) as call_volume
+                    FROM services s
+                    LEFT JOIN queue_current_metrics qm ON s.id = qm.service_id
+                    WHERE s.is_active = true
+                    LIMIT 50
+                """)
+                
+                service_rows = cur.fetchall()
+                
+                # Get skill requirements from multiskill distribution
+                cur.execute("""
+                    SELECT DISTINCT 
+                        primary_skill,
+                        secondary_skills
+                    FROM multiskill_operator_distribution
+                    WHERE primary_skill IS NOT NULL
+                """)
+                
+                skill_data = cur.fetchall()
+                all_skills = set()
+                for row in skill_data:
+                    all_skills.add(row['primary_skill'])
+                    if row['secondary_skills']:
+                        all_skills.update(row['secondary_skills'])
+                
+                # Create queues from services
+                for idx, service in enumerate(service_rows):
+                    # Assign skills based on service type (simplified logic)
+                    required_skills = {}
+                    
+                    # Map skills to services based on patterns and available skills
+                    if 'support' in service['service_name'].lower():
+                        required_skills['Technical Support'] = 0.6
+                        required_skills['Customer Service'] = 0.4
+                    elif 'sales' in service['service_name'].lower():
+                        required_skills['Sales'] = 0.8
+                        required_skills['Customer Service'] = 0.4
+                    elif 'billing' in service['service_name'].lower():
+                        required_skills['Billing Support'] = 0.7  # Fixed skill name
+                        required_skills['Customer Service'] = 0.5
+                    elif 'chat' in service['service_name'].lower():
+                        required_skills['Chat Support'] = 0.8
+                        required_skills['Customer Service'] = 0.3
+                    else:
+                        # Default skills
+                        required_skills['Customer Service'] = 0.5
+                    
+                    # Map priority levels
+                    priority_map = {1: SkillPriority.LOW, 2: SkillPriority.MEDIUM, 
+                                   3: SkillPriority.HIGH, 4: SkillPriority.CRITICAL}
+                    
+                    queue = Queue(
+                        id=str(service['id']),
+                        required_skills=required_skills,
+                        priority=priority_map.get(service['priority_level'], SkillPriority.MEDIUM),
+                        current_wait_time=float(service['current_wait_time']),
+                        target_wait_time=float(service['target_answer_time']),
+                        call_volume=float(service['call_volume']),
+                        arrival_rate=float(service['arrival_rate'])
+                    )
+                    queues.append(queue)
+        
+        logger.info(f"Loaded {len(queues)} queues from database")
+        return queues
+    
+    def save_allocation_results(self, allocations: List[AllocationResult]):
+        """Save allocation results to database"""
+        if not allocations:
+            return
+        
+        with self.get_db_connection() as conn:
+            with conn.cursor() as cur:
+                # Create allocation results table if not exists
+                cur.execute("""
+                    CREATE TABLE IF NOT EXISTS allocation_results (
+                        id SERIAL PRIMARY KEY,
+                        agent_id UUID,
+                        queue_id INTEGER,
+                        skill_score FLOAT,
+                        urgency_score FLOAT,
+                        allocated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    )
+                """)
+                
+                # Insert allocation results
+                for allocation in allocations:
+                    cur.execute("""
+                        INSERT INTO allocation_results 
+                        (agent_id, queue_id, skill_score, urgency_score)
+                        VALUES (%s, %s, %s, %s)
+                    """, (
+                        allocation.agent_id,
+                        int(allocation.queue_id),
+                        allocation.skill_score,
+                        allocation.urgency_score
+                    ))
+                
+                conn.commit()
+                logger.info(f"Saved {len(allocations)} allocation results to database")
+    
+    def allocate_resources(self) -> List[AllocationResult]:
+        """Main allocation method using real database data"""
+        # Load real data
+        agents = self.load_agents_from_db()
+        queues = self.load_queues_from_db()
+        
+        if not agents:
+            logger.warning("No agents found in database")
+            return []
+        
+        if not queues:
+            logger.warning("No queues found in database")
+            return []
+        
+        # Calculate urgency scores
+        urgency_scores = self.calculate_urgency_scores(queues)
+        
+        # Sort queues by priority
+        sorted_queues = self.sort_queues_by_priority(queues, urgency_scores)
+        
+        # Allocate agents to queues
+        allocations = self.allocate_agents_to_queues(sorted_queues, agents.copy())
+        
+        # Apply fairness constraints
+        allocations = self.apply_fairness_constraints(allocations, queues)
+        
+        # Save results to database
+        self.save_allocation_results(allocations)
+        
+        return allocations
     
     def formulate_lp_problem(self, agents: List[Agent], queues: List[Queue], 
                            constraints: Dict, targets: Dict) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:

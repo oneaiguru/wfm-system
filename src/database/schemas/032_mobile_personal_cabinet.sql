@@ -352,7 +352,56 @@ CREATE TABLE interface_customization (
 );
 
 -- =============================================================================
--- 10. CALENDAR EXPORT FUNCTIONALITY
+-- 10. EMPLOYEE AVAILABILITY SETTINGS
+-- =============================================================================
+
+-- General availability settings for employees
+CREATE TABLE employee_availability_settings (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    employee_tab_n VARCHAR(50) NOT NULL REFERENCES zup_agent_data(tab_n),
+    
+    -- General availability parameters
+    max_weekly_hours INTEGER DEFAULT 40,
+    min_hours_between_shifts INTEGER DEFAULT 11,
+    preferred_shift_length INTEGER DEFAULT 8,
+    overtime_availability BOOLEAN DEFAULT true,
+    weekend_availability BOOLEAN DEFAULT true,
+    
+    -- Flexibility settings
+    flexible_start_time BOOLEAN DEFAULT false,
+    earliest_start_time TIME DEFAULT '06:00',
+    latest_end_time TIME DEFAULT '22:00',
+    
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    
+    CONSTRAINT unique_employee_availability UNIQUE(employee_tab_n)
+);
+
+-- Employee annual vacation entitlements
+CREATE TABLE employee_annual_entitlements (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    employee_tab_n VARCHAR(50) NOT NULL REFERENCES zup_agent_data(tab_n),
+    vacation_year INTEGER NOT NULL,
+    
+    vacation_days_entitled INTEGER NOT NULL DEFAULT 28,
+    vacation_days_used INTEGER DEFAULT 0,
+    vacation_days_remaining INTEGER GENERATED ALWAYS AS (vacation_days_entitled - vacation_days_used) STORED,
+    
+    sick_days_entitled INTEGER DEFAULT 30,
+    sick_days_used INTEGER DEFAULT 0,
+    
+    personal_days_entitled INTEGER DEFAULT 5,
+    personal_days_used INTEGER DEFAULT 0,
+    
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    
+    CONSTRAINT unique_employee_entitlement_year UNIQUE(employee_tab_n, vacation_year)
+);
+
+-- =============================================================================
+-- 11. CALENDAR EXPORT FUNCTIONALITY
 -- =============================================================================
 
 -- Calendar export tracking
@@ -523,6 +572,12 @@ CREATE INDEX idx_mobile_requests_status ON mobile_employee_requests(status);
 -- Acknowledgment indexes
 CREATE INDEX idx_acknowledgments_employee ON schedule_acknowledgments(employee_tab_n);
 CREATE INDEX idx_acknowledgments_required ON schedule_acknowledgments(requires_acknowledgment, is_acknowledged);
+
+-- Availability settings indexes
+CREATE INDEX idx_availability_settings_employee ON employee_availability_settings(employee_tab_n);
+
+-- Annual entitlements indexes
+CREATE INDEX idx_annual_entitlements_employee_year ON employee_annual_entitlements(employee_tab_n, vacation_year);
 
 -- =============================================================================
 -- SAMPLE DATA

@@ -120,11 +120,96 @@ ws.send(JSON.stringify({
 }));
 ```
 
-### 4. Schedule Management (Features 24, 09)
+### 4. Schedule Management (Feature 09 - Work Schedule Planning) ✅ NEW
+**UI Components**:
+- `ScheduleGridContainer.tsx`
+- `AdminLayout.tsx` 
+- `ShiftTemplateManager.tsx`
+**Routes**: `/schedule-grid/*`, `/admin/schedules`
+
+**Required API Endpoints**:
+```
+GET    /api/v1/schedules/health                                 # Health check
+GET    /api/v1/schedules/work-rules                            # List work rules
+POST   /api/v1/schedules/work-rules                            # Create work rule
+PUT    /api/v1/schedules/work-rules/{id}                       # Update work rule
+DELETE /api/v1/schedules/work-rules/{id}                       # Delete work rule
+POST   /api/v1/schedules/work-rules/{id}/assign                # Mass assignment
+GET    /api/v1/schedules/vacation-schemes                      # List vacation schemes
+POST   /api/v1/schedules/vacation-schemes                      # Create vacation scheme
+POST   /api/v1/schedules/vacation-schemes/{id}/assign          # Assign to employees
+POST   /api/v1/schedules/vacations                             # Create vacation
+PUT    /api/v1/schedules/vacations/{id}                        # Update vacation
+DELETE /api/v1/schedules/vacations/{id}                        # Delete vacation
+GET    /api/v1/schedules/planning-templates                    # List templates
+POST   /api/v1/schedules/planning-templates                    # Create template
+POST   /api/v1/schedules/variants                              # Create schedule variant
+GET    /api/v1/schedules/variants/{id}                         # Get variant details
+POST   /api/v1/schedules/variants/{id}/apply                   # Apply schedule
+POST   /api/v1/schedules/variants/{id}/corrections             # Make corrections
+POST   /api/v1/schedules/performance-standards                 # Assign standards
+GET    /api/v1/schedules/performance-standards/{employee_id}   # Get standards
+```
+
+**Test Commands**:
+```bash
+# Health check
+curl -X GET http://localhost:8000/api/v1/schedules/health
+
+# Get work rules
+curl -X GET http://localhost:8000/api/v1/schedules/work-rules
+
+# Create work rule with rotation
+curl -X POST http://localhost:8000/api/v1/schedules/work-rules \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "5/2 Standard Week",
+    "mode": "with_rotation",
+    "consider_holidays": true,
+    "timezone": "Europe/Moscow",
+    "shifts": [
+      {"name": "Day Shift", "start_time": "09:00", "duration": "08:00", "type": "Standard"}
+    ],
+    "rotation_pattern": "WWWWWRR",
+    "constraints": {
+      "min_hours_between_shifts": 11,
+      "max_consecutive_work_days": 5
+    }
+  }'
+
+# Create vacation scheme
+curl -X POST http://localhost:8000/api/v1/schedules/vacation-schemes \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Standard Annual",
+    "duration_days": 28,
+    "type": "calendar_year",
+    "rules": {
+      "min_vacation_block": 7,
+      "max_vacation_block": 21,
+      "notice_period": 14
+    }
+  }'
+
+# Create schedule variant
+curl -X POST http://localhost:8000/api/v1/schedules/variants \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Q2 2025 Schedule",
+    "year": 2025,
+    "performance_type": "monthly",
+    "consider_preferences": true,
+    "include_vacation_planning": true
+  }'
+
+# Test schedule planning endpoints
+python test_schedule_planning_endpoints.py
+```
+
+### 5. Schedule Optimization (Feature 24)
 **UI Components**:
 - `ScheduleOptimizationUI.tsx`
-- `ScheduleGridContainer.tsx`
-**Routes**: `/scheduling/optimization`, `/schedule`
+**Routes**: `/scheduling/optimization`
 
 **Required API Endpoints**:
 ```
@@ -176,6 +261,114 @@ GET    /api/v1/reports/{id}/export?format={format}        # Export report (TODO)
 
 **✅ Implementation Status**: Core forecasting endpoints complete (4/4)
 **📊 Test Results**: All endpoints return 200 OK with realistic data
+
+### 6.5. Work Schedule & Vacation Planning (Feature 09) ✅ NEW
+**UI Components**:
+- `ScheduleGridContainer.tsx` (Main schedule grid)
+- `SchemaBuilder.tsx` (Work rule configuration)
+- `AdminLayout.tsx` (Admin interface with schedule tabs)
+- `ShiftTemplateManager.tsx` (Shift template CRUD)
+- `MultiSkillPlanningManager.tsx` (Multi-skill workforce planning)
+- `RequestManager.tsx` (Vacation/time-off requests)
+- `PersonalSchedule.tsx` (Employee personal schedule)
+
+**Routes**: `/admin/schedule-grid`, `/admin/schemas`, `/planning/multi-skill`, `/employee/requests`
+
+**Required API Endpoints**:
+```
+POST   /api/v1/work-rules                              # ✅ Create work rules with rotation
+GET    /api/v1/work-rules                              # ✅ Get all work rules for assignment
+POST   /api/v1/vacation-schemes                        # ✅ Create vacation schemes
+GET    /api/v1/vacation-schemes                        # ✅ Get vacation schemes for assignment
+POST   /api/v1/multi-skill-templates                   # ✅ Create multi-skill planning templates
+GET    /api/v1/multi-skill-templates                   # ✅ Get multi-skill templates
+POST   /api/v1/performance-standards                   # ✅ Assign employee performance standards
+GET    /api/v1/performance-standards                   # ✅ Get performance standards
+POST   /api/v1/schedule-planning                       # ✅ Create comprehensive schedule planning
+POST   /api/v1/vacation-assignment                     # ✅ Assign desired vacations to employees
+GET    /api/v1/schedule-planning/health                # ✅ Health check
+```
+
+**Test Commands**:
+```bash
+# Test work rule creation with rotation
+curl -X POST http://localhost:8000/api/v1/work-rules \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "5/2 Standard Week",
+    "mode": "with_rotation",
+    "consider_holidays": true,
+    "timezone": "Europe/Moscow",
+    "rotation_pattern": "WWWWWRR",
+    "min_hours_between_shifts": 11,
+    "max_consecutive_work_hours": 40,
+    "max_consecutive_work_days": 5
+  }'
+
+# Test vacation scheme creation
+curl -X POST http://localhost:8000/api/v1/vacation-schemes \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Standard Annual",
+    "duration": 28,
+    "scheme_type": "calendar_year",
+    "rules": "Must use by Dec 31",
+    "min_vacation_block": 7,
+    "max_vacation_block": 21,
+    "notice_period": 14,
+    "blackout_periods": "Dec 15-31, Jun 1-15"
+  }'
+
+# Test multi-skill template creation
+curl -X POST http://localhost:8000/api/v1/multi-skill-templates \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Technical Support Teams",
+    "description": "Combined Level 1, Level 2, and Email Support",
+    "service": "Technical Support",
+    "groups": [
+      {"name": "Level 1 Support", "priority": "Primary"},
+      {"name": "Level 2 Support", "priority": "Secondary"}
+    ]
+  }'
+
+# Test comprehensive schedule planning
+curl -X POST http://localhost:8000/api/v1/schedule-planning \
+  -H "Content-Type: application/json" \
+  -d '{
+    "schedule_name": "Q1 2025 Complete Schedule",
+    "year": 2025,
+    "performance_type": "monthly",
+    "consider_preferences": true,
+    "include_vacation_planning": true
+  }'
+
+# Test vacation assignment
+curl -X POST http://localhost:8000/api/v1/vacation-assignment \
+  -H "Content-Type: application/json" \
+  -d '[{
+    "employee_name": "Иванов И.И.",
+    "vacation_period": "15.07.2025-29.07.2025",
+    "vacation_type": "desired_period",
+    "priority": "normal"
+  }]'
+
+# Get work rules for UI dropdown
+curl http://localhost:8000/api/v1/work-rules
+
+# Get vacation schemes for RequestManager
+curl http://localhost:8000/api/v1/vacation-schemes
+
+# Get multi-skill templates for planning
+curl http://localhost:8000/api/v1/multi-skill-templates
+
+# Health check
+curl http://localhost:8000/api/v1/schedule-planning/health
+```
+
+**✅ Implementation Status**: All schedule planning endpoints complete (10/10)
+**📊 Test Results**: All 11 endpoints return 200 OK with BDD-compliant data
+**🎯 BDD Scenarios**: 18 scenarios from File 09 implemented with UI integration focus
 
 ### 7. System Administration (Feature 18)
 **UI Components**:

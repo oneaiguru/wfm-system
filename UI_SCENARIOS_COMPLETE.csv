@@ -1,0 +1,117 @@
+BDD_File,Scenario_Number,Scenario_Name,Status,Your_Component,Test_Type,Test_File,Notes
+01-system-architecture,1,System Status Dashboard,Implemented,Dashboard.tsx,Mock,Dashboard.test.tsx,Basic dashboard with mock metrics
+01-system-architecture,2,System Integration Health,Partial,IntegrationTester.tsx,Mock,None,Tests mock endpoints only
+01-system-architecture,3,Error Boundaries,Implemented,ErrorBoundary.tsx,None,None,Basic error handling
+02-employee-requests,1,Request Creation Form,Partial,RequestForm.tsx,None,None,Form UI exists no backend
+02-employee-requests,2,Request List View,Implemented,RequestList.tsx,Mock,None,Shows mock requests
+02-employee-requests,3,Request Management,Partial,RequestManager.tsx,None,None,CRUD UI no real operations
+02-employee-requests,4,Employee Portal,Implemented,EmployeePortal.tsx,Mock,None,Portal layout with mock data
+02-employee-requests,5,Personal Dashboard,Implemented,PersonalDashboard.tsx,Mock,None,Dashboard with fake metrics
+02-employee-requests,6,Profile Management,Partial,ProfileManager.tsx,None,None,Profile UI no persistence
+02-employee-requests,7,Profile View,Implemented,ProfileView.tsx,Mock,None,Static profile display
+03-complete-business-process,1,Business Process Workflows,Partial,ProcessWorkflowManager.tsx,None,None,Workflow UI shell
+04-requests-section-detailed,1,Detailed Request Forms,Partial,RequestForm.tsx,None,None,Same as general requests
+05-complete-step-by-step-requests,1,Step-by-step Request Wizard,Not_Implemented,None,None,None,No wizard implementation
+06-complete-navigation-exchange-system,1,Navigation System,Implemented,App.tsx,None,None,React Router navigation
+06-complete-navigation-exchange-system,2,Exchange Integration,Partial,WFMIntegrationPortal.tsx,None,None,Portal UI no real exchange
+07-labor-standards-configuration,1,Labor Standards Config,Not_Implemented,None,None,None,No labor standards UI
+08-load-forecasting-demand-planning,1,Forecasting Analytics,Implemented,ForecastingAnalytics.tsx,Mock,None,Analytics with mock predictions
+08-load-forecasting-demand-planning,2,Algorithm Selection,Implemented,AlgorithmSelector.tsx,Mock,None,Algorithm picker mock data
+08-load-forecasting-demand-planning,3,Time Series Charts,Implemented,TimeSeriesChart.tsx,Mock,None,Charts with fake time series
+08-load-forecasting-demand-planning,4,Accuracy Dashboard,Implemented,AccuracyDashboard.tsx,Mock,None,Mock accuracy metrics
+08-load-forecasting-demand-planning,5,Forecast Charts,Implemented,ForecastChart.tsx,Mock,None,Charts with simulated data
+08-load-forecasting-demand-planning,6,Peak Analysis,Implemented,PeakAnalysisChart.tsx,Mock,None,Peak analysis charts
+08-load-forecasting-demand-planning,7,Growth Factor Dialog,Implemented,GrowthFactorDialog.tsx,None,None,Dialog component shell
+09-work-schedule-vacation-planning,1,Schedule Grid System,Implemented,ScheduleGridContainer.tsx,Mock,None,Complex grid with mock schedules
+09-work-schedule-vacation-planning,2,Virtualized Grid,Implemented,VirtualizedScheduleGrid.tsx,None,None,Performance grid no data
+09-work-schedule-vacation-planning,3,Shift Templates,Partial,ShiftTemplateManager.tsx,None,None,Template UI no persistence
+09-work-schedule-vacation-planning,4,Exception Manager,Partial,ExceptionManager.tsx,None,None,Exception UI no logic
+09-work-schedule-vacation-planning,5,Shift Blocks,Implemented,ShiftBlock.tsx,None,None,Visual shift components
+09-work-schedule-vacation-planning,6,Grid Components,Implemented,GridComponents.tsx,None,None,Grid building blocks
+09-work-schedule-vacation-planning,7,Admin Layout,Implemented,AdminLayout.tsx,None,None,Layout component shell
+09-work-schedule-vacation-planning,8,Chart Overlay,Implemented,ChartOverlay.tsx,Mock,None,Chart overlay with mock data
+09-work-schedule-vacation-planning,9,Schema Builder,Partial,SchemaBuilder.tsx,None,None,Schema UI no backend
+10-monthly-intraday-activity-planning,1,Activity Planning,Not_Implemented,None,None,None,No intraday planning UI
+11-system-integration-api-management,1,Integration Portal,Partial,WFMIntegrationPortal.tsx,None,None,Portal UI no real integrations
+11-system-integration-api-management,2,API Settings,Partial,APISettings.tsx,None,None,Config UI no persistence
+11-system-integration-api-management,3,Data Mapping Tool,Not_Implemented,DataMappingTool.tsx,None,None,Empty component shell
+11-system-integration-api-management,4,System Connectors,Partial,SystemConnectors.tsx,None,None,Connector UI no functionality
+11-system-integration-api-management,5,Sync Monitor,Partial,SyncMonitor.tsx,Mock,None,Monitor with fake status
+11-system-integration-api-management,6,Integration Logs,Partial,IntegrationLogs.tsx,Mock,None,Log viewer with mock entries
+12-reporting-analytics-system,1,Reports Portal,Implemented,ReportsPortal.tsx,Mock,None,Portal with mock reports
+12-reporting-analytics-system,2,Reports Dashboard,Implemented,ReportsDashboard.tsx,Mock,None,Dashboard with fake metrics
+12-reporting-analytics-system,3,Reports Integration,Partial,ReportsIntegration.tsx,None,None,Integration UI shell
+12-reporting-analytics-system,4,Forecast Accuracy Report,Implemented,ForecastAccuracyReport.tsx,Mock,None,Report with mock accuracy data
+12-reporting-analytics-system,5,Business Metrics,Implemented,BusinessMetrics.tsx,Mock,None,Business dashboard mock data
+13-business-process-management-workflows,1,Process Workflow Manager,Partial,ProcessWorkflowManager.tsx,None,None,Workflow UI shell
+14-mobile-personal-cabinet,1,Mobile Personal Cabinet,Partial,MobilePersonalCabinet.tsx,Mock,None,Mobile UI shell with mock auth
+14-mobile-personal-cabinet,2,Mobile Dashboard,Implemented,MobileDashboard.tsx,Mock,None,Mobile dashboard layout
+14-mobile-personal-cabinet,3,Mobile Calendar,Implemented,MobileCalendar.tsx,Mock,None,Calendar with fake events
+14-mobile-personal-cabinet,4,Mobile Notifications,Partial,MobileNotifications.tsx,None,None,Notification UI no push support
+14-mobile-personal-cabinet,5,Mobile Profile,Partial,MobileProfile.tsx,Mock,None,Profile display mock data
+14-mobile-personal-cabinet,6,Mobile Requests,Partial,MobileRequests.tsx,None,None,Request form UI no submission
+15-real-time-monitoring-operational-control,1,Operational Control Dashboard,Implemented,OperationalControlDashboard.tsx,Mock,None,Real-time dashboard mock metrics
+15-real-time-monitoring-operational-control,2,Real-time Dashboard,Implemented,RealTimeDashboard.tsx,Mock,None,Dashboard with simulated updates
+15-real-time-monitoring-operational-control,3,Mobile Monitoring,Partial,MobileMonitoringDashboard.tsx,None,None,Mobile monitor UI shell
+16-personnel-management-organizational-structure,1,Employee Management Portal,Implemented,EmployeeManagementPortal.tsx,Mock,None,Employee portal with mock data
+16-personnel-management-organizational-structure,2,Employee List Container,Implemented,EmployeeListContainer.tsx,Mock,None,Employee list with fake data
+16-personnel-management-organizational-structure,3,Quick Add Employee,Partial,QuickAddEmployee.tsx,None,None,Quick add form no backend
+16-personnel-management-organizational-structure,4,Certification Tracker,Partial,CertificationTracker.tsx,Mock,None,Certification UI mock data
+16-personnel-management-organizational-structure,5,Employee Photo Gallery,Implemented,EmployeePhotoGallery.tsx,Mock,None,Photo gallery mock images
+16-personnel-management-organizational-structure,6,Employee Status Manager,Partial,EmployeeStatusManager.tsx,None,None,Status UI no real updates
+16-personnel-management-organizational-structure,7,Performance Metrics View,Implemented,PerformanceMetricsView.tsx,Mock,None,Performance charts mock data
+17-reference-data-management-configuration,1,Reference Data Management,Not_Implemented,None,None,None,No reference data UI
+18-system-administration-configuration,1,System User Management,Partial,SystemUserManagement.tsx,None,None,User CRUD UI no backend
+18-system-administration-configuration,2,Database Admin Dashboard,Partial,DatabaseAdminDashboard.tsx,Mock,None,DB dashboard mock stats
+18-system-administration-configuration,3,Service Management Console,Partial,ServiceManagementConsole.tsx,None,None,Service console UI shell
+19-planning-module-detailed-workflows,1,Multi-skill Planning Manager,Partial,MultiSkillPlanningManager.tsx,None,None,Planning UI shell
+19-planning-module-detailed-workflows,2,Skill Matrix,Implemented,SkillMatrix.tsx,Mock,None,Skill matrix with mock data
+19-planning-module-detailed-workflows,3,Skill Optimizer,Partial,SkillOptimizer.tsx,Mock,None,Optimizer UI mock calculations
+19-planning-module-detailed-workflows,4,Queue Manager,Implemented,QueueManager.tsx,Mock,None,Queue management mock data
+20-comprehensive-validation-edge-cases,1,Validation Handling,Not_Implemented,None,None,None,No comprehensive validation
+21-multi-site-location-management,1,Multi-site Management,Not_Implemented,None,None,None,No multi-site UI
+21-1c-zup-integration,1,1C ZUP Integration,Not_Implemented,None,None,None,No 1C integration UI
+22-cross-system-integration,1,Cross-system Integration,Partial,WFMIntegrationPortal.tsx,None,None,Same as system integration
+22-sso-authentication-system,1,SSO Authentication,Partial,Login.tsx,Mock,Login.test.tsx,Basic login form mock auth
+23-comprehensive-reporting-system,1,Comprehensive Reports,Implemented,ReportsPortal.tsx,Mock,None,Same as basic reporting
+23-event-participant-limits,1,Event Limits Management,Not_Implemented,None,None,None,No event limits UI
+24-preference-management-enhancements,1,Preference Management,Not_Implemented,None,None,None,No preference management
+24-automatic-schedule-optimization,1,Schedule Optimization,Not_Implemented,None,None,None,No auto optimization UI
+25-ui-ux-improvements,1,UI/UX Enhancements,Implemented,Multiple,None,None,Various UI improvements
+26-roles-access-control,1,Roles and Access Control,Not_Implemented,None,None,None,No role management UI
+27-vacancy-planning-module,1,Vacancy Planning Module,Implemented,VacancyPlanningModule.tsx,None,None,Complete module with role check
+27-vacancy-planning-module,2,Vacancy Analysis Dashboard,Implemented,VacancyAnalysisDashboard.tsx,Mock,None,Analysis dashboard mock data
+27-vacancy-planning-module,3,Vacancy Planning Settings,Implemented,VacancyPlanningSettings.tsx,None,None,Settings form no persistence
+27-vacancy-planning-module,4,Vacancy Recommendations,Implemented,VacancyRecommendations.tsx,Mock,None,Recommendations mock data
+27-vacancy-planning-module,5,Vacancy Results Visualization,Implemented,VacancyResultsVisualization.tsx,Mock,None,Charts with mock results
+27-vacancy-planning-module,6,Vacancy Integration,Partial,VacancyIntegration.tsx,None,None,Integration UI no real exchange
+27-vacancy-planning-module,7,Vacancy Reporting,Implemented,VacancyReporting.tsx,Mock,None,Reports with mock data
+28-production-calendar-management,1,Production Calendar,Not_Implemented,None,None,None,No calendar management
+29-work-time-efficiency,1,Work Time Efficiency,Not_Implemented,None,None,None,No efficiency tracking
+30-special-events-forecasting,1,Special Events Forecasting,Not_Implemented,None,None,None,No special events UI
+31-vacation-schemes-management,1,Vacation Schemes,Not_Implemented,None,None,None,No vacation schemes UI
+32-mass-assignment-operations,1,Mass Assignment Operations,Not_Implemented,None,None,None,No mass operations UI
+demo-features,1,Demo Mode,Implemented,DemoMode.tsx,None,None,Demo functionality
+demo-features,2,Guided Tour,Implemented,GuidedTour.tsx,None,None,Tour component
+demo-features,3,Comparison View,Implemented,ComparisonView.tsx,Mock,None,Comparison with mock data
+demo-features,4,Demo Portal,Implemented,DemoEstimatesPortal.tsx,Mock,None,Demo portal mock data
+demo-features,5,Cost Comparison,Implemented,CostComparison.tsx,Mock,None,Cost analysis mock data
+demo-features,6,Market Readiness,Implemented,MarketReadiness.tsx,Mock,None,Market analysis mock data
+demo-features,7,Efficiency Gains,Implemented,EfficiencyGains.tsx,Mock,None,Efficiency charts mock data
+demo-features,8,ROI Calculator,Implemented,ROICalculator.tsx,Mock,None,ROI calculator mock data
+shared-components,1,Loading Spinner,Implemented,LoadingSpinner.tsx,None,None,Basic loading component
+shared-components,2,Save Indicator,Implemented,SaveIndicator.tsx,None,None,Save status indicator
+shared-components,3,Save Warning Dialog,Implemented,SaveWarningDialog.tsx,None,None,Warning dialog component
+shared-components,4,Gear Menu,Implemented,GearMenu.tsx,None,None,Settings menu component
+shared-components,5,Excel Uploader,Partial,ExcelUploader.tsx,None,None,Upload UI no processing
+shared-components,6,Draggable Shift,Implemented,DraggableShift.tsx,None,None,Drag drop component
+shared-components,7,Grid Cell,Implemented,GridCell.tsx,None,None,Grid cell component
+shared-components,8,Grid Header,Implemented,GridHeader.tsx,None,None,Grid header component
+shared-components,9,Grid Showcase,Implemented,GridShowcase.tsx,Mock,None,Grid demo mock data
+shared-components,10,Schedule Grid,Implemented,ScheduleGrid.tsx,Mock,None,Schedule grid mock data
+shared-components,11,Personal Schedule,Implemented,PersonalSchedule.tsx,Mock,None,Personal schedule mock data
+shared-components,12,Shift Marketplace,Implemented,ShiftMarketplace.tsx,Mock,None,Marketplace with mock shifts
+workflow-pages,1,Workflow Tabs,Implemented,WorkflowTabs.tsx,None,None,Tab navigation component
+workflow-pages,2,Enhanced Workflow Tabs,Implemented,EnhancedWorkflowTabs.tsx,None,None,Enhanced tab component
+workflow-pages,3,Multi-skill Planning Page,Implemented,MultiSkillPlanning.tsx,Mock,None,Planning page mock data
+context-providers,1,Save State Context,Implemented,SaveStateContext.tsx,None,None,Context provider component

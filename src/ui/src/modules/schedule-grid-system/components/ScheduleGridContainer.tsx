@@ -13,32 +13,19 @@ import {
 import {
   sortableKeyboardCoordinates,
 } from '@dnd-kit/sortable';
+import { AlertCircle, RefreshCw } from 'lucide-react';
 import { Employee, Shift } from '../types/schedule';
 import ForecastChart from './ForecastChart';
 import VirtualizedScheduleGrid from './VirtualizedScheduleGrid';
 import { DraggableShiftBlock, DroppableGridCell } from './GridComponents';
-// @ts-ignore - mock data stub location
-import { UIMockDataStub } from '/Users/m/Documents/wfm/main/project/DAY1_STUBS/ui-mock-data-stub';
+import realScheduleService from '../../../services/realScheduleService';
 
 const ScheduleGridContainer: React.FC = () => {
-  // Use mock data instead of hardcoded employees
-  const mockDataService = new UIMockDataStub();
-  const mockAgents = mockDataService.generateAgents(5); // Start with 5 for testing
-  
-  // Convert mock agents to Employee format
-  const employees: Employee[] = mockAgents.map((agent, index) => ({
-    id: agent.id,
-    employeeId: `EMP${String(index + 1).padStart(3, '0')}`,
-    firstName: agent.name.split(' ')[0],
-    lastName: agent.name.split(' ')[1] || '',
-    fullName: agent.name,
-    role: 'Operator',
-    scheduledHours: Math.floor(Math.random() * 40) + 140,
-    plannedHours: Math.floor(Math.random() * 40) + 130,
-    photo: agent.name.charAt(0),
-    skills: agent.skills,
-    isActive: agent.currentStatus !== 'offline'
-  }));
+  // State management for real data
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [apiHealth, setApiHealth] = useState<{ healthy: boolean; message: string } | null>(null);
 
   const [selectedCells, setSelectedCells] = useState<Set<string>>(new Set());
   const [shifts, setShifts] = useState<Map<string, Shift>>(new Map());
@@ -64,38 +51,69 @@ const ScheduleGridContainer: React.FC = () => {
     });
   }
 
-  // Initialize shifts using mock schedule data
+  // Load real data from API
   useEffect(() => {
-    const initialShifts = new Map<string, Shift>();
-    
-    // Generate schedule data using mock service
-    employees.forEach(employee => {
-      const scheduleData = mockDataService.generateScheduleData([employee], new Date())[0];
-      
-      scheduleData.shifts.forEach((shift, shiftIndex) => {
-        if (shift.type === 'work') {
-          const dateIndex = Math.floor(shiftIndex / 2); // Assuming 2 shifts per day max
-          if (dateIndex < dates.length) {
-            const cellKey = `${employee.id}-${dateIndex}`;
-            
-            initialShifts.set(cellKey, {
-              id: `shift-${employee.id}-${dateIndex}`,
-              employeeId: employee.id,
-              date: dates[dateIndex].dateString,
-              startTime: shift.start,
-              endTime: shift.end,
-              shiftTypeId: shift.start.includes('20:') ? 'night' : 'day',
-              status: 'scheduled',
-              duration: 480, // 8 hours default
-              color: shift.start.includes('20:') ? '#4f46e5' : '#74a689'
-            });
-          }
-        }
+    loadEmployeesAndShifts();
+    checkApiHealth();
+  }, []);
+
+  // Check API health status
+  const checkApiHealth = async () => {
+    try {
+      const health = await realScheduleService.checkApiHealth();
+      setApiHealth(health);
+    } catch (error) {
+      setApiHealth({
+        healthy: false,
+        message: error instanceof Error ? error.message : 'API health check failed'
       });
-    });
-    
-    setShifts(initialShifts);
-  }, [employees.length]);
+    }
+  };
+
+  // Load employees and their shifts
+  const loadEmployeesAndShifts = async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      // Load employees first
+      const employeeResult = await realScheduleService.getEmployees();
+      if (!employeeResult.success) {
+        throw new Error(employeeResult.error || 'Failed to load employees');
+      }
+
+      if (employeeResult.employees) {
+        setEmployees(employeeResult.employees);
+
+        // Load shifts for current month
+        const today = new Date();
+        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+        const shiftsResult = await realScheduleService.getShifts(
+          startOfMonth.toISOString().split('T')[0],
+          endOfMonth.toISOString().split('T')[0],
+          employeeResult.employees.map(emp => emp.id)
+        );
+
+        if (shiftsResult.success && shiftsResult.shifts) {
+          const shiftsMap = new Map<string, Shift>();
+          shiftsResult.shifts.forEach(shift => {
+            const date = new Date(shift.date);
+            const dateIndex = date.getDate() - 1; // Convert to 0-based index
+            const cellKey = `${shift.employeeId}-${dateIndex}`;
+            shiftsMap.set(cellKey, shift);
+          });
+          setShifts(shiftsMap);
+        }
+      }
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Failed to load schedule data');
+      console.error('Schedule loading error:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Get shift for specific cell
   const getShiftForCell = (employeeId: string, dateIndex: number): Shift | null => {
@@ -118,8 +136,8 @@ const ScheduleGridContainer: React.FC = () => {
     setActiveShift(shiftData);
   };
 
-  // Handle drag end
-  const handleDragEnd = (event: DragEndEvent) => {
+  // Handle drag end with real API call
+  const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
     setActiveShift(null);
 
@@ -135,28 +153,37 @@ const ScheduleGridContainer: React.FC = () => {
 
     if (sourceKey === targetKey) return;
 
-    setShifts(prev => {
-      const newShifts = new Map(prev);
-      
-      // Remove shift from source
-      newShifts.delete(sourceKey);
-      
-      // Add shift to target (if target is empty)
-      if (!newShifts.has(targetKey)) {
-        const newShift: Shift = {
-          ...sourceShift,
-          id: `shift-${targetCell.employeeId}-${targetCell.dateIndex}`,
-          employeeId: targetCell.employeeId,
-          date: dates[targetCell.dateIndex].dateString,
-        };
-        newShifts.set(targetKey, newShift);
+    // Check if target cell is occupied
+    if (shifts.has(targetKey)) {
+      setError('Target cell is already occupied');
+      return;
+    }
+
+    try {
+      // Make real API call to move shift
+      const result = await realScheduleService.moveShift(
+        sourceShift.id,
+        targetCell.employeeId,
+        sourceShift.startTime,
+        sourceShift.endTime
+      );
+
+      if (result.success && result.shift) {
+        // Update local state with API response
+        setShifts(prev => {
+          const newShifts = new Map(prev);
+          newShifts.delete(sourceKey);
+          newShifts.set(targetKey, result.shift!);
+          return newShifts;
+        });
+        setError(null);
       } else {
-        // Target cell occupied, return shift to source
-        newShifts.set(sourceKey, sourceShift);
+        throw new Error(result.error || 'Failed to move shift');
       }
-      
-      return newShifts;
-    });
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Failed to move shift');
+      console.error('Shift move error:', error);
+    }
   };
 
   // Event handlers
@@ -175,9 +202,57 @@ const ScheduleGridContainer: React.FC = () => {
 
   return (
     <>
-      {isVirtualized ? (
-        <VirtualizedScheduleGrid employeeCount={500} />
-      ) : (
+      {/* API Health Status */}
+      {apiHealth && !apiHealth.healthy && (
+        <div className="mb-4 bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className="flex items-center gap-3">
+            <AlertCircle className="w-5 h-5 text-red-600" />
+            <div>
+              <div className="text-sm font-medium text-red-800">Schedule API Connection Issue</div>
+              <div className="text-sm text-red-600">{apiHealth.message}</div>
+              <div className="text-xs text-red-500 mt-1">
+                Schedule endpoints need INTEGRATION-OPUS implementation
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Error Message */}
+      {error && (
+        <div className="mb-4 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+          <div className="flex items-center gap-3">
+            <AlertCircle className="w-5 h-5 text-yellow-600" />
+            <div>
+              <div className="text-sm font-medium text-yellow-800">Schedule Operation Error</div>
+              <div className="text-sm text-yellow-600">{error}</div>
+              <button 
+                onClick={() => setError(null)}
+                className="text-xs text-yellow-500 mt-1 underline"
+              >
+                Dismiss
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Loading State */}
+      {isLoading && (
+        <div className="flex items-center justify-center py-8">
+          <div className="flex items-center gap-3">
+            <RefreshCw className="w-6 h-6 text-blue-600 animate-spin" />
+            <span className="text-gray-600">Loading schedule data...</span>
+          </div>
+        </div>
+      )}
+
+      {/* Main Content */}
+      {!isLoading && (
+        <>
+          {isVirtualized ? (
+            <VirtualizedScheduleGrid employeeCount={500} />
+          ) : (
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
@@ -382,6 +457,8 @@ const ScheduleGridContainer: React.FC = () => {
             </DragOverlay>
           </div>
         </DndContext>
+          )}
+        </>
       )}
     </>
   );

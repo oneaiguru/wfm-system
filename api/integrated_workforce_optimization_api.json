@@ -1,0 +1,1572 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Integrated Workforce Optimization API",
+    "description": "Comprehensive API for Russian workforce management with holiday integration, employee preferences, schedule optimization, and resource allocation",
+    "version": "1.0.0",
+    "contact": {
+      "name": "WFM Integration Team",
+      "email": "api@technoservice.ru"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.technoservice.ru/v1",
+      "description": "Production API Server"
+    },
+    {
+      "url": "https://staging-api.technoservice.ru/v1", 
+      "description": "Staging API Server"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/vacation/comprehensive-status/{employeeId}": {
+      "get": {
+        "summary": "Получить комплексный статус отпуска сотрудника",
+        "description": "Возвращает полную информацию об отпуске сотрудника с учетом российских праздников и оптимизации",
+        "tags": ["Vacation Management"],
+        "parameters": [
+          {
+            "name": "employeeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Уникальный идентификатор сотрудника"
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 2020,
+              "maximum": 2030,
+              "default": 2025
+            },
+            "description": "Календарный год для расчета"
+          },
+          {
+            "name": "includeOptimization",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": true
+            },
+            "description": "Включить предложения по оптимизации отпуска"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Успешный ответ с данными отпуска",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComprehensiveVacationStatus"
+                },
+                "example": {
+                  "employee_id": "550e8400-e29b-41d4-a716-446655440000",
+                  "employee_name": "Иванов Иван Иванович",
+                  "department": "Служба поддержки клиентов",
+                  "vacation_scheme": {
+                    "scheme_id": "standard_ru",
+                    "scheme_name": "Стандартная схема отпусков",
+                    "annual_entitlement": 28,
+                    "max_periods": 2,
+                    "labor_code_compliant": true
+                  },
+                  "current_year_status": {
+                    "year": 2025,
+                    "total_entitlement_days": 28.0,
+                    "taken_days": 8.0,
+                    "pending_days": 0.0,
+                    "remaining_days": 20.0,
+                    "carried_over_days": 2.0,
+                    "periods_used": 1,
+                    "periods_remaining": 1,
+                    "continuous_period_satisfied": true
+                  },
+                  "holiday_integration": {
+                    "holiday_extensions_used": 2,
+                    "bridge_days_added": 1,
+                    "weekend_optimizations": 3,
+                    "potential_savings": 6
+                  },
+                  "optimization_suggestions": [
+                    {
+                      "period_start": "2025-05-06",
+                      "period_end": "2025-05-16",
+                      "work_days_used": 8,
+                      "total_calendar_days": 11,
+                      "holiday_benefits": 2,
+                      "score": 9.2,
+                      "reason": "Оптимальное использование майских праздников"
+                    },
+                    {
+                      "period_start": "2025-08-18",
+                      "period_end": "2025-08-29",
+                      "work_days_used": 10,
+                      "total_calendar_days": 12,
+                      "holiday_benefits": 0,
+                      "score": 7.5,
+                      "reason": "Стандартный летний период"
+                    }
+                  ],
+                  "compliance_status": {
+                    "russian_labor_code_compliant": true,
+                    "minimum_continuous_period_satisfied": true,
+                    "advance_notice_requirements": "fulfilled",
+                    "blackout_period_conflicts": []
+                  },
+                  "last_updated": "2025-07-15T12:00:00Z"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Сотрудник не найден",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vacation/optimal-periods": {
+      "post": {
+        "summary": "Получить оптимальные периоды отпуска",
+        "description": "Рассчитывает оптимальные периоды отпуска с учетом российских праздников и предпочтений",
+        "tags": ["Vacation Management"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OptimalPeriodsRequest"
+              },
+              "example": {
+                "employee_id": "550e8400-e29b-41d4-a716-446655440000",
+                "target_year": 2025,
+                "vacation_days_needed": 14,
+                "preferences": {
+                  "preferred_months": ["06", "07", "08"],
+                  "avoid_holidays": false,
+                  "flexible_dates": true,
+                  "max_suggestions": 5
+                },
+                "constraints": {
+                  "blackout_periods": ["2025-12-25", "2025-12-31"],
+                  "team_coverage_required": true,
+                  "advance_notice_days": 30
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Список оптимальных периодов отпуска",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OptimalPeriodsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/preferences/employee/{employeeId}": {
+      "get": {
+        "summary": "Получить предпочтения сотрудника",
+        "description": "Возвращает все активные предпочтения сотрудника с метриками удовлетворенности",
+        "tags": ["Employee Preferences"],
+        "parameters": [
+          {
+            "name": "employeeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["shift_preferences", "vacation_preferences", "skill_preferences", "environment_preferences", "notification_preferences"]
+            },
+            "description": "Фильтр по категории предпочтений"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Предпочтения сотрудника",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmployeePreferencesResponse"
+                },
+                "example": {
+                  "employee_id": "550e8400-e29b-41d4-a716-446655440000",
+                  "employee_name": "Иванов Иван Иванович",
+                  "preferences": [
+                    {
+                      "preference_id": "pref_shift_001",
+                      "type": "shift_start_time",
+                      "category": "shift_preferences",
+                      "name_ru": "Предпочитаемое время начала смены",
+                      "value": {
+                        "preferred_times": ["08:00", "09:00"],
+                        "max_variation_hours": 2,
+                        "weekend_preference": "flexible"
+                      },
+                      "display_value": "Предпочитаю начинать в 8:00-9:00",
+                      "priority": "high",
+                      "flexibility_factor": 5,
+                      "satisfaction_score": 8.2,
+                      "satisfaction_threshold": 7.0,
+                      "effective_date": "2025-01-01",
+                      "status": "active"
+                    },
+                    {
+                      "preference_id": "pref_vacation_001", 
+                      "type": "vacation_period",
+                      "category": "vacation_preferences",
+                      "name_ru": "Предпочитаемый период отпуска",
+                      "value": {
+                        "preferred_months": ["06", "07", "08"],
+                        "avoid_holidays": false,
+                        "preferred_duration_weeks": 2,
+                        "flexible_dates": true
+                      },
+                      "display_value": "Предпочитаю летний отпуск (июнь-август)",
+                      "priority": "medium",
+                      "flexibility_factor": 7,
+                      "satisfaction_score": 7.8,
+                      "satisfaction_threshold": 7.0,
+                      "effective_date": "2025-01-01",
+                      "status": "active"
+                    }
+                  ],
+                  "satisfaction_summary": {
+                    "overall_satisfaction": 8.0,
+                    "total_preferences": 2,
+                    "high_priority_count": 1,
+                    "below_threshold_count": 0,
+                    "category_scores": {
+                      "shift_preferences": 8.2,
+                      "vacation_preferences": 7.8
+                    }
+                  },
+                  "last_updated": "2025-07-15T12:00:00Z"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Обновить предпочтения сотрудника",
+        "description": "Обновляет предпочтения сотрудника с автоматической проверкой конфликтов",
+        "tags": ["Employee Preferences"],
+        "parameters": [
+          {
+            "name": "employeeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePreferencesRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Предпочтения успешно обновлены",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdatePreferencesResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт предпочтений обнаружен",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreferenceConflictResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/schedule/optimization": {
+      "post": {
+        "summary": "Запустить оптимизацию расписания",
+        "description": "Запускает процесс оптимизации расписания с учетом предпочтений и российских праздников",
+        "tags": ["Schedule Optimization"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScheduleOptimizationRequest"
+              },
+              "example": {
+                "template_id": "template_24x7_optimized",
+                "target_period": {
+                  "start_date": "2025-07-21",
+                  "end_date": "2025-07-27"
+                },
+                "optimization_parameters": {
+                  "algorithm": "genetic_algorithm",
+                  "timeout_seconds": 300,
+                  "quality_target": 8.0,
+                  "objectives": ["coverage", "satisfaction", "cost_efficiency"],
+                  "weights": {
+                    "coverage": 0.4,
+                    "satisfaction": 0.35,
+                    "cost_efficiency": 0.25
+                  }
+                },
+                "constraints": {
+                  "respect_preferences": true,
+                  "consider_holidays": true,
+                  "maintain_coverage": true,
+                  "labor_law_compliance": true
+                },
+                "employee_pool": [
+                  "550e8400-e29b-41d4-a716-446655440000",
+                  "550e8400-e29b-41d4-a716-446655440001"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Оптимизация запущена",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OptimizationStatusResponse"
+                },
+                "example": {
+                  "optimization_id": "opt_20250715_001",
+                  "status": "running",
+                  "estimated_completion": "2025-07-15T12:05:00Z",
+                  "progress": 0,
+                  "message": "Инициализация алгоритма оптимизации"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/schedule/optimization/{optimizationId}/status": {
+      "get": {
+        "summary": "Статус оптимизации расписания",
+        "description": "Получить текущий статус выполнения оптимизации",
+        "tags": ["Schedule Optimization"],
+        "parameters": [
+          {
+            "name": "optimizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Статус оптимизации",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OptimizationStatusResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/schedule/optimization/{optimizationId}/results": {
+      "get": {
+        "summary": "Результаты оптимизации расписания",
+        "description": "Получить детальные результаты завершенной оптимизации",
+        "tags": ["Schedule Optimization"],
+        "parameters": [
+          {
+            "name": "optimizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Результаты оптимизации",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OptimizationResultsResponse"
+                },
+                "example": {
+                  "optimization_id": "opt_20250715_001",
+                  "status": "completed",
+                  "execution_summary": {
+                    "algorithm_used": "genetic_algorithm",
+                    "execution_time_ms": 45230,
+                    "iterations_performed": 1250,
+                    "convergence_achieved": true
+                  },
+                  "quality_metrics": {
+                    "overall_score": 8.7,
+                    "coverage_score": 9.1,
+                    "satisfaction_score": 8.4,
+                    "cost_efficiency_score": 8.6,
+                    "preference_fulfillment_rate": 87.5
+                  },
+                  "schedule_result": {
+                    "total_shifts": 168,
+                    "employees_scheduled": 45,
+                    "coverage_achieved": 96.5,
+                    "constraint_violations": 0,
+                    "preference_accommodations": 156
+                  },
+                  "holiday_integration": {
+                    "holidays_considered": 2,
+                    "adjustments_made": [
+                      {
+                        "date": "2025-07-23",
+                        "type": "pre_holiday",
+                        "adjustment": "reduced_staff_requirement"
+                      }
+                    ],
+                    "optimization_benefit": "15% улучшение удовлетворенности"
+                  },
+                  "recommendations": [
+                    {
+                      "type": "implementation",
+                      "priority": "high",
+                      "message": "Рекомендуется внедрить с 2025-07-21"
+                    },
+                    {
+                      "type": "monitoring",
+                      "priority": "medium", 
+                      "message": "Контролировать нагрузку в пиковые часы"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Результаты не найдены или оптимизация не завершена"
+          }
+        }
+      }
+    },
+    "/resources/allocation": {
+      "post": {
+        "summary": "Запустить распределение ресурсов",
+        "description": "Оптимальное распределение человеческих и технических ресурсов",
+        "tags": ["Resource Allocation"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResourceAllocationRequest"
+              },
+              "example": {
+                "model_id": "model_peak_season",
+                "target_period": {
+                  "start": "2025-07-21T00:00:00Z",
+                  "end": "2025-07-27T23:59:59Z"
+                },
+                "resource_requirements": {
+                  "skills": {
+                    "customer_service": 150,
+                    "technical_support": 80,
+                    "sales": 60
+                  },
+                  "equipment": {
+                    "workstations": 45,
+                    "phone_lines": 50
+                  }
+                },
+                "constraints": {
+                  "max_overtime_percentage": 15,
+                  "skill_coverage_minimum": 0.9,
+                  "cost_limit": 250000
+                },
+                "preferences": {
+                  "consider_employee_preferences": true,
+                  "preference_weight": 0.3,
+                  "vacation_accommodation": true
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Распределение ресурсов запущено",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AllocationStatusResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/analytics/workforce-summary/{employeeId}": {
+      "get": {
+        "summary": "Сводная аналитика по сотруднику",
+        "description": "Комплексная аналитика включающая отпуска, предпочтения, производительность",
+        "tags": ["Analytics"],
+        "parameters": [
+          {
+            "name": "employeeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Сводная аналитика сотрудника",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkforceSummaryResponse"
+                },
+                "example": {
+                  "employee_id": "550e8400-e29b-41d4-a716-446655440000",
+                  "vacation_status": {
+                    "total_entitlement": 28,
+                    "remaining_days": 20,
+                    "holiday_extensions": 2,
+                    "optimization_suggestions": []
+                  },
+                  "preferences": [
+                    {
+                      "type": "Предпочитаемое время начала смены",
+                      "category": "shift_preferences",
+                      "satisfaction_score": 8.2,
+                      "priority": "high",
+                      "flexibility": 5
+                    }
+                  ],
+                  "satisfaction_metrics": {
+                    "overall_satisfaction": 8.0,
+                    "category_scores": {
+                      "shift_preferences": 8.2,
+                      "vacation_preferences": 7.8
+                    },
+                    "improvement_suggestions": []
+                  },
+                  "last_updated": "2025-07-15T12:00:00Z"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/system/health": {
+      "get": {
+        "summary": "Состояние системы",
+        "description": "Мониторинг здоровья всех компонентов интегрированной системы",
+        "tags": ["System Monitoring"],
+        "responses": {
+          "200": {
+            "description": "Состояние системы",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SystemHealthResponse"
+                },
+                "example": {
+                  "overall_status": "healthy",
+                  "overall_score": 8.9,
+                  "components": [
+                    {
+                      "name": "Russian Production Calendar Service",
+                      "type": "calendar_integration",
+                      "status": "healthy",
+                      "health_score": 9.2,
+                      "response_time_ms": 150.5,
+                      "success_rate": 99.8,
+                      "sync_status": "synchronized",
+                      "critical_path": true
+                    },
+                    {
+                      "name": "Employee Preference Engine",
+                      "type": "preference_engine", 
+                      "status": "healthy",
+                      "health_score": 8.9,
+                      "response_time_ms": 275.3,
+                      "success_rate": 98.5,
+                      "sync_status": "synchronized",
+                      "critical_path": true
+                    }
+                  ],
+                  "alerts": [],
+                  "last_check": "2025-07-15T12:00:00Z"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "ComprehensiveVacationStatus": {
+        "type": "object",
+        "required": ["employee_id", "vacation_scheme", "current_year_status"],
+        "properties": {
+          "employee_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "employee_name": {
+            "type": "string"
+          },
+          "department": {
+            "type": "string"
+          },
+          "vacation_scheme": {
+            "$ref": "#/components/schemas/VacationScheme"
+          },
+          "current_year_status": {
+            "$ref": "#/components/schemas/VacationYearStatus"
+          },
+          "holiday_integration": {
+            "$ref": "#/components/schemas/HolidayIntegration"
+          },
+          "optimization_suggestions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VacationOptimizationSuggestion"
+            }
+          },
+          "compliance_status": {
+            "$ref": "#/components/schemas/VacationComplianceStatus"
+          },
+          "last_updated": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "VacationScheme": {
+        "type": "object",
+        "properties": {
+          "scheme_id": {
+            "type": "string"
+          },
+          "scheme_name": {
+            "type": "string"
+          },
+          "annual_entitlement": {
+            "type": "integer"
+          },
+          "max_periods": {
+            "type": "integer"
+          },
+          "labor_code_compliant": {
+            "type": "boolean"
+          }
+        }
+      },
+      "VacationYearStatus": {
+        "type": "object",
+        "properties": {
+          "year": {
+            "type": "integer"
+          },
+          "total_entitlement_days": {
+            "type": "number"
+          },
+          "taken_days": {
+            "type": "number"
+          },
+          "pending_days": {
+            "type": "number"
+          },
+          "remaining_days": {
+            "type": "number"
+          },
+          "carried_over_days": {
+            "type": "number"
+          },
+          "periods_used": {
+            "type": "integer"
+          },
+          "periods_remaining": {
+            "type": "integer"
+          },
+          "continuous_period_satisfied": {
+            "type": "boolean"
+          }
+        }
+      },
+      "HolidayIntegration": {
+        "type": "object",
+        "properties": {
+          "holiday_extensions_used": {
+            "type": "integer"
+          },
+          "bridge_days_added": {
+            "type": "integer"
+          },
+          "weekend_optimizations": {
+            "type": "integer"
+          },
+          "potential_savings": {
+            "type": "integer"
+          }
+        }
+      },
+      "VacationOptimizationSuggestion": {
+        "type": "object",
+        "properties": {
+          "period_start": {
+            "type": "string",
+            "format": "date"
+          },
+          "period_end": {
+            "type": "string",
+            "format": "date"
+          },
+          "work_days_used": {
+            "type": "integer"
+          },
+          "total_calendar_days": {
+            "type": "integer"
+          },
+          "holiday_benefits": {
+            "type": "integer"
+          },
+          "score": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 10
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      },
+      "VacationComplianceStatus": {
+        "type": "object",
+        "properties": {
+          "russian_labor_code_compliant": {
+            "type": "boolean"
+          },
+          "minimum_continuous_period_satisfied": {
+            "type": "boolean"
+          },
+          "advance_notice_requirements": {
+            "type": "string",
+            "enum": ["fulfilled", "pending", "violated"]
+          },
+          "blackout_period_conflicts": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "OptimalPeriodsRequest": {
+        "type": "object",
+        "required": ["employee_id", "vacation_days_needed"],
+        "properties": {
+          "employee_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "target_year": {
+            "type": "integer",
+            "minimum": 2020,
+            "maximum": 2030
+          },
+          "vacation_days_needed": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 42
+          },
+          "preferences": {
+            "type": "object",
+            "properties": {
+              "preferred_months": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^(0[1-9]|1[0-2])$"
+                }
+              },
+              "avoid_holidays": {
+                "type": "boolean"
+              },
+              "flexible_dates": {
+                "type": "boolean"
+              },
+              "max_suggestions": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 10
+              }
+            }
+          },
+          "constraints": {
+            "type": "object",
+            "properties": {
+              "blackout_periods": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "date"
+                }
+              },
+              "team_coverage_required": {
+                "type": "boolean"
+              },
+              "advance_notice_days": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          }
+        }
+      },
+      "OptimalPeriodsResponse": {
+        "type": "object",
+        "properties": {
+          "suggestions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VacationOptimizationSuggestion"
+            }
+          },
+          "analysis_summary": {
+            "type": "object",
+            "properties": {
+              "total_suggestions": {
+                "type": "integer"
+              },
+              "best_score": {
+                "type": "number"
+              },
+              "holiday_optimizations_available": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      },
+      "EmployeePreferencesResponse": {
+        "type": "object",
+        "properties": {
+          "employee_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "employee_name": {
+            "type": "string"
+          },
+          "preferences": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EmployeePreference"
+            }
+          },
+          "satisfaction_summary": {
+            "$ref": "#/components/schemas/SatisfactionSummary"
+          },
+          "last_updated": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "EmployeePreference": {
+        "type": "object",
+        "properties": {
+          "preference_id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string",
+            "enum": ["shift_preferences", "vacation_preferences", "skill_preferences", "environment_preferences", "notification_preferences"]
+          },
+          "name_ru": {
+            "type": "string"
+          },
+          "value": {
+            "type": "object"
+          },
+          "display_value": {
+            "type": "string"
+          },
+          "priority": {
+            "type": "string",
+            "enum": ["low", "medium", "high", "critical"]
+          },
+          "flexibility_factor": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10
+          },
+          "satisfaction_score": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 10
+          },
+          "satisfaction_threshold": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 10
+          },
+          "effective_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["active", "inactive", "pending_approval", "conflicted", "expired"]
+          }
+        }
+      },
+      "SatisfactionSummary": {
+        "type": "object",
+        "properties": {
+          "overall_satisfaction": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 10
+          },
+          "total_preferences": {
+            "type": "integer"
+          },
+          "high_priority_count": {
+            "type": "integer"
+          },
+          "below_threshold_count": {
+            "type": "integer"
+          },
+          "category_scores": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number"
+            }
+          }
+        }
+      },
+      "UpdatePreferencesRequest": {
+        "type": "object",
+        "properties": {
+          "preferences": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type_id": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "object"
+                },
+                "priority": {
+                  "type": "string",
+                  "enum": ["low", "medium", "high", "critical"]
+                },
+                "flexibility_factor": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 10
+                }
+              }
+            }
+          }
+        }
+      },
+      "UpdatePreferencesResponse": {
+        "type": "object",
+        "properties": {
+          "updated_preferences": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "conflicts_detected": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PreferenceConflict"
+            }
+          },
+          "satisfaction_impact": {
+            "type": "object",
+            "properties": {
+              "previous_score": {
+                "type": "number"
+              },
+              "new_score": {
+                "type": "number"
+              },
+              "change": {
+                "type": "number"
+              }
+            }
+          }
+        }
+      },
+      "PreferenceConflict": {
+        "type": "object",
+        "properties": {
+          "conflict_id": {
+            "type": "string"
+          },
+          "conflict_type": {
+            "type": "string"
+          },
+          "conflicting_preferences": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["low", "medium", "high", "critical"]
+          },
+          "resolution_suggestions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "PreferenceConflictResponse": {
+        "type": "object",
+        "properties": {
+          "conflicts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PreferenceConflict"
+            }
+          },
+          "auto_resolution_available": {
+            "type": "boolean"
+          },
+          "manual_intervention_required": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ScheduleOptimizationRequest": {
+        "type": "object",
+        "required": ["template_id", "target_period"],
+        "properties": {
+          "template_id": {
+            "type": "string"
+          },
+          "target_period": {
+            "type": "object",
+            "properties": {
+              "start_date": {
+                "type": "string",
+                "format": "date"
+              },
+              "end_date": {
+                "type": "string",
+                "format": "date"
+              }
+            }
+          },
+          "optimization_parameters": {
+            "type": "object",
+            "properties": {
+              "algorithm": {
+                "type": "string",
+                "enum": ["genetic_algorithm", "linear_programming", "constraint_satisfaction", "hybrid"]
+              },
+              "timeout_seconds": {
+                "type": "integer",
+                "minimum": 30,
+                "maximum": 600
+              },
+              "quality_target": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 10
+              },
+              "objectives": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": ["coverage", "satisfaction", "cost_efficiency", "compliance"]
+                }
+              },
+              "weights": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                }
+              }
+            }
+          },
+          "constraints": {
+            "type": "object",
+            "properties": {
+              "respect_preferences": {
+                "type": "boolean"
+              },
+              "consider_holidays": {
+                "type": "boolean"
+              },
+              "maintain_coverage": {
+                "type": "boolean"
+              },
+              "labor_law_compliance": {
+                "type": "boolean"
+              }
+            }
+          },
+          "employee_pool": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        }
+      },
+      "OptimizationStatusResponse": {
+        "type": "object",
+        "properties": {
+          "optimization_id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["queued", "running", "completed", "failed", "cancelled"]
+          },
+          "progress": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "estimated_completion": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "OptimizationResultsResponse": {
+        "type": "object",
+        "properties": {
+          "optimization_id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "execution_summary": {
+            "type": "object",
+            "properties": {
+              "algorithm_used": {
+                "type": "string"
+              },
+              "execution_time_ms": {
+                "type": "integer"
+              },
+              "iterations_performed": {
+                "type": "integer"
+              },
+              "convergence_achieved": {
+                "type": "boolean"
+              }
+            }
+          },
+          "quality_metrics": {
+            "type": "object",
+            "properties": {
+              "overall_score": {
+                "type": "number"
+              },
+              "coverage_score": {
+                "type": "number"
+              },
+              "satisfaction_score": {
+                "type": "number"
+              },
+              "cost_efficiency_score": {
+                "type": "number"
+              },
+              "preference_fulfillment_rate": {
+                "type": "number"
+              }
+            }
+          },
+          "schedule_result": {
+            "type": "object",
+            "properties": {
+              "total_shifts": {
+                "type": "integer"
+              },
+              "employees_scheduled": {
+                "type": "integer"
+              },
+              "coverage_achieved": {
+                "type": "number"
+              },
+              "constraint_violations": {
+                "type": "integer"
+              },
+              "preference_accommodations": {
+                "type": "integer"
+              }
+            }
+          },
+          "holiday_integration": {
+            "type": "object",
+            "properties": {
+              "holidays_considered": {
+                "type": "integer"
+              },
+              "adjustments_made": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "date": {
+                      "type": "string",
+                      "format": "date"
+                    },
+                    "type": {
+                      "type": "string"
+                    },
+                    "adjustment": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "optimization_benefit": {
+                "type": "string"
+              }
+            }
+          },
+          "recommendations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "priority": {
+                  "type": "string",
+                  "enum": ["low", "medium", "high", "critical"]
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "ResourceAllocationRequest": {
+        "type": "object",
+        "required": ["model_id", "target_period", "resource_requirements"],
+        "properties": {
+          "model_id": {
+            "type": "string"
+          },
+          "target_period": {
+            "type": "object",
+            "properties": {
+              "start": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "end": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          },
+          "resource_requirements": {
+            "type": "object",
+            "properties": {
+              "skills": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "integer"
+                }
+              },
+              "equipment": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "constraints": {
+            "type": "object",
+            "properties": {
+              "max_overtime_percentage": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 50
+              },
+              "skill_coverage_minimum": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "cost_limit": {
+                "type": "number",
+                "minimum": 0
+              }
+            }
+          },
+          "preferences": {
+            "type": "object",
+            "properties": {
+              "consider_employee_preferences": {
+                "type": "boolean"
+              },
+              "preference_weight": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "vacation_accommodation": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      },
+      "AllocationStatusResponse": {
+        "type": "object",
+        "properties": {
+          "execution_id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["queued", "running", "completed", "failed"]
+          },
+          "progress": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "estimated_completion": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "WorkforceSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "employee_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "vacation_status": {
+            "type": "object"
+          },
+          "preferences": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "satisfaction_metrics": {
+            "type": "object"
+          },
+          "last_updated": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "SystemHealthResponse": {
+        "type": "object",
+        "properties": {
+          "overall_status": {
+            "type": "string",
+            "enum": ["healthy", "warning", "error", "maintenance"]
+          },
+          "overall_score": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 10
+          },
+          "components": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string"
+                },
+                "health_score": {
+                  "type": "number"
+                },
+                "response_time_ms": {
+                  "type": "number"
+                },
+                "success_rate": {
+                  "type": "number"
+                },
+                "sync_status": {
+                  "type": "string"
+                },
+                "critical_path": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "alerts": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "last_check": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "details": {
+                "type": "object"
+              }
+            }
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "request_id": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Vacation Management",
+      "description": "Управление отпусками с интеграцией российского календаря"
+    },
+    {
+      "name": "Employee Preferences", 
+      "description": "Управление предпочтениями сотрудников и анализ удовлетворенности"
+    },
+    {
+      "name": "Schedule Optimization",
+      "description": "Оптимизация расписаний с учетом предпочтений и праздников"
+    },
+    {
+      "name": "Resource Allocation",
+      "description": "Распределение человеческих и технических ресурсов"
+    },
+    {
+      "name": "Analytics",
+      "description": "Аналитика и отчетность по управлению персоналом"
+    },
+    {
+      "name": "System Monitoring",
+      "description": "Мониторинг состояния интегрированной системы"
+    }
+  ]
+}

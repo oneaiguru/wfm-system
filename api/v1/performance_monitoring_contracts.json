@@ -1,0 +1,1571 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Performance Monitoring & Analytics API",
+    "description": "Comprehensive performance monitoring and analytics system for Russian WFM operations. Provides real-time metrics, historical analytics, forecasting, and compliance reporting.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "WFM Development Team",
+      "email": "dev@wfm-system.ru"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.wfm-system.ru/v1",
+      "description": "Production API Server"
+    },
+    {
+      "url": "https://staging-api.wfm-system.ru/v1", 
+      "description": "Staging API Server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Real-time Metrics",
+      "description": "Real-time performance data collection and monitoring"
+    },
+    {
+      "name": "Historical Analytics",
+      "description": "Historical performance analysis and trends"
+    },
+    {
+      "name": "Performance Alerts",
+      "description": "Alert management and notification system"
+    },
+    {
+      "name": "Forecasting",
+      "description": "Performance forecasting and predictions"
+    },
+    {
+      "name": "Dashboards",
+      "description": "Dashboard configuration and management"
+    },
+    {
+      "name": "Compliance",
+      "description": "Russian regulatory compliance and audit"
+    }
+  ],
+  "paths": {
+    "/performance/metrics/definitions": {
+      "get": {
+        "tags": ["Real-time Metrics"],
+        "summary": "Get performance metric definitions",
+        "description": "Retrieve all available performance metrics with Russian localization",
+        "parameters": [
+          {
+            "name": "category",
+            "in": "query",
+            "description": "Filter by metric category",
+            "schema": {
+              "type": "string",
+              "enum": ["productivity", "quality", "efficiency", "compliance", "forecast_accuracy"]
+            }
+          },
+          {
+            "name": "is_realtime",
+            "in": "query",
+            "description": "Filter by real-time capability",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "language",
+            "in": "query", 
+            "description": "Response language",
+            "schema": {
+              "type": "string",
+              "enum": ["ru", "en"],
+              "default": "ru"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of performance metric definitions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "metrics": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/MetricDefinition"
+                      }
+                    },
+                    "total_count": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Real-time Metrics"],
+        "summary": "Create new metric definition",
+        "description": "Create a new performance metric definition with Russian compliance",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateMetricDefinition"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Metric definition created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MetricDefinition"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid metric definition",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/performance/realtime/data": {
+      "get": {
+        "tags": ["Real-time Metrics"],
+        "summary": "Get real-time performance data",
+        "description": "Retrieve current performance measurements for monitoring dashboards",
+        "parameters": [
+          {
+            "name": "employee_id",
+            "in": "query",
+            "description": "Filter by employee ID",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "department_id", 
+            "in": "query",
+            "description": "Filter by department ID",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "metric_codes",
+            "in": "query",
+            "description": "Comma-separated list of metric codes",
+            "schema": {
+              "type": "string",
+              "example": "AHT,ADHERENCE,CSAT"
+            }
+          },
+          {
+            "name": "time_range",
+            "in": "query",
+            "description": "Time range for data retrieval",
+            "schema": {
+              "type": "string",
+              "enum": ["1h", "4h", "24h", "7d"],
+              "default": "1h"
+            }
+          },
+          {
+            "name": "aggregation",
+            "in": "query",
+            "description": "Data aggregation level",
+            "schema": {
+              "type": "string",
+              "enum": ["raw", "5min", "15min", "1hour"],
+              "default": "raw"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Real-time performance data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/RealtimeData"
+                      }
+                    },
+                    "metadata": {
+                      "$ref": "#/components/schemas/DataMetadata"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Real-time Metrics"],
+        "summary": "Submit real-time performance data",
+        "description": "Submit new performance measurements from telephony or other systems",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "measurements": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/PerformanceMeasurement"
+                    }
+                  },
+                  "batch_metadata": {
+                    "$ref": "#/components/schemas/BatchMetadata"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Measurements submitted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "processed_count": {
+                      "type": "integer"
+                    },
+                    "failed_count": {
+                      "type": "integer"
+                    },
+                    "batch_id": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/performance/historical/analytics": {
+      "get": {
+        "tags": ["Historical Analytics"],
+        "summary": "Get historical performance analytics",
+        "description": "Retrieve aggregated historical performance data with trend analysis",
+        "parameters": [
+          {
+            "name": "start_date",
+            "in": "query",
+            "required": true,
+            "description": "Start date for analysis period",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "end_date",
+            "in": "query", 
+            "required": true,
+            "description": "End date for analysis period",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "employee_id",
+            "in": "query",
+            "description": "Filter by employee ID",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "analysis_period",
+            "in": "query",
+            "description": "Analysis period granularity",
+            "schema": {
+              "type": "string",
+              "enum": ["daily", "weekly", "monthly"],
+              "default": "daily"
+            }
+          },
+          {
+            "name": "include_trends",
+            "in": "query",
+            "description": "Include trend analysis",
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Historical analytics data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "analytics": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/HistoricalAnalytics"
+                      }
+                    },
+                    "summary": {
+                      "$ref": "#/components/schemas/AnalyticsSummary"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/performance/alerts": {
+      "get": {
+        "tags": ["Performance Alerts"],
+        "summary": "Get performance alerts",
+        "description": "Retrieve current and historical performance alerts",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter by alert status",
+            "schema": {
+              "type": "string",
+              "enum": ["new", "acknowledged", "resolved", "escalated"]
+            }
+          },
+          {
+            "name": "severity",
+            "in": "query",
+            "description": "Filter by severity level",
+            "schema": {
+              "type": "string",
+              "enum": ["info", "warning", "critical"]
+            }
+          },
+          {
+            "name": "employee_id",
+            "in": "query",
+            "description": "Filter by employee ID",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "time_range",
+            "in": "query",
+            "description": "Time range for alerts",
+            "schema": {
+              "type": "string",
+              "enum": ["1h", "4h", "24h", "7d"],
+              "default": "24h"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of performance alerts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "alerts": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/PerformanceAlert"
+                      }
+                    },
+                    "summary": {
+                      "$ref": "#/components/schemas/AlertsSummary"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/performance/alerts/{alert_id}/acknowledge": {
+      "post": {
+        "tags": ["Performance Alerts"],
+        "summary": "Acknowledge performance alert",
+        "description": "Mark a performance alert as acknowledged",
+        "parameters": [
+          {
+            "name": "alert_id",
+            "in": "path",
+            "required": true,
+            "description": "Alert ID to acknowledge",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "acknowledged_by": {
+                    "type": "string",
+                    "description": "User acknowledging the alert"
+                  },
+                  "notes": {
+                    "type": "string",
+                    "description": "Acknowledgment notes"
+                  },
+                  "action_taken": {
+                    "type": "string",
+                    "description": "Action taken to address alert"
+                  }
+                },
+                "required": ["acknowledged_by"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Alert acknowledged successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PerformanceAlert"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/performance/forecasts": {
+      "get": {
+        "tags": ["Forecasting"],
+        "summary": "Get performance forecasts",
+        "description": "Retrieve AI/ML-generated performance predictions",
+        "parameters": [
+          {
+            "name": "metric_codes",
+            "in": "query",
+            "description": "Comma-separated list of metric codes",
+            "schema": {
+              "type": "string",
+              "example": "AHT,CSAT,ADHERENCE"
+            }
+          },
+          {
+            "name": "forecast_horizon",
+            "in": "query",
+            "description": "Forecast period in days",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 90,
+              "default": 30
+            }
+          },
+          {
+            "name": "employee_id",
+            "in": "query",
+            "description": "Filter by employee ID",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "confidence_level",
+            "in": "query",
+            "description": "Minimum confidence level",
+            "schema": {
+              "type": "number",
+              "minimum": 50,
+              "maximum": 99,
+              "default": 95
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Performance forecasts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "forecasts": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/PerformanceForecast"
+                      }
+                    },
+                    "model_info": {
+                      "$ref": "#/components/schemas/ForecastModelInfo"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/performance/dashboards": {
+      "get": {
+        "tags": ["Dashboards"],
+        "summary": "Get dashboard configurations",
+        "description": "Retrieve available performance dashboards",
+        "parameters": [
+          {
+            "name": "dashboard_type",
+            "in": "query",
+            "description": "Filter by dashboard type",
+            "schema": {
+              "type": "string",
+              "enum": ["realtime", "analytical", "executive", "operational"]
+            }
+          },
+          {
+            "name": "target_audience",
+            "in": "query",
+            "description": "Filter by target audience",
+            "schema": {
+              "type": "string",
+              "enum": ["agents", "supervisors", "managers", "executives"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of dashboard configurations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "dashboards": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/DashboardConfig"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/performance/dashboards/{dashboard_id}/data": {
+      "get": {
+        "tags": ["Dashboards"],
+        "summary": "Get dashboard data",
+        "description": "Retrieve data for a specific dashboard",
+        "parameters": [
+          {
+            "name": "dashboard_id",
+            "in": "path",
+            "required": true,
+            "description": "Dashboard ID",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "time_range",
+            "in": "query",
+            "description": "Time range for dashboard data",
+            "schema": {
+              "type": "string",
+              "enum": ["1h", "4h", "24h", "7d", "30d"],
+              "default": "24h"
+            }
+          },
+          {
+            "name": "filters",
+            "in": "query",
+            "description": "Additional filters in JSON format",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dashboard data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "widgets": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/WidgetData"
+                      }
+                    },
+                    "last_updated": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/performance/compliance/standards": {
+      "get": {
+        "tags": ["Compliance"],
+        "summary": "Get Russian performance standards",
+        "description": "Retrieve Russian regulatory performance standards and requirements",
+        "parameters": [
+          {
+            "name": "regulatory_framework",
+            "in": "query",
+            "description": "Filter by regulatory framework",
+            "schema": {
+              "type": "string",
+              "enum": ["trudovoy_kodeks", "gost", "industry_standard"]
+            }
+          },
+          {
+            "name": "is_mandatory",
+            "in": "query",
+            "description": "Filter by mandatory status",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Russian performance standards",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "standards": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/RussianPerformanceStandard"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/performance/compliance/check": {
+      "post": {
+        "tags": ["Compliance"],
+        "summary": "Run compliance check",
+        "description": "Execute compliance check against Russian regulatory requirements",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "check_type": {
+                    "type": "string",
+                    "enum": ["data_protection", "access_control", "calculation_accuracy", "audit_trail"]
+                  },
+                  "scope": {
+                    "type": "object",
+                    "properties": {
+                      "start_date": {
+                        "type": "string",
+                        "format": "date"
+                      },
+                      "end_date": {
+                        "type": "string",
+                        "format": "date"
+                      },
+                      "employee_ids": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "format": "uuid"
+                        }
+                      }
+                    }
+                  }
+                },
+                "required": ["check_type"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Compliance check results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComplianceCheckResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "MetricDefinition": {
+        "type": "object",
+        "properties": {
+          "metric_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "metric_code": {
+            "type": "string",
+            "example": "AHT"
+          },
+          "metric_name": {
+            "type": "string",
+            "example": "Average Handle Time"
+          },
+          "metric_name_ru": {
+            "type": "string",
+            "example": "Среднее время обработки"
+          },
+          "metric_category": {
+            "type": "string",
+            "enum": ["productivity", "quality", "efficiency", "compliance", "forecast_accuracy"]
+          },
+          "metric_type": {
+            "type": "string",
+            "enum": ["percentage", "count", "duration", "ratio", "score"]
+          },
+          "measurement_unit": {
+            "type": "string",
+            "example": "seconds"
+          },
+          "measurement_unit_ru": {
+            "type": "string",
+            "example": "секунды"
+          },
+          "target_value": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "threshold_critical": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "threshold_warning": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "is_realtime": {
+            "type": "boolean"
+          },
+          "description": {
+            "type": "string"
+          },
+          "description_ru": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateMetricDefinition": {
+        "type": "object",
+        "required": ["metric_code", "metric_name", "metric_name_ru", "metric_category", "metric_type"],
+        "properties": {
+          "metric_code": {
+            "type": "string",
+            "pattern": "^[A-Z_]+$"
+          },
+          "metric_name": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "metric_name_ru": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "metric_category": {
+            "type": "string",
+            "enum": ["productivity", "quality", "efficiency", "compliance", "forecast_accuracy"]
+          },
+          "metric_type": {
+            "type": "string",
+            "enum": ["percentage", "count", "duration", "ratio", "score"]
+          },
+          "measurement_unit": {
+            "type": "string"
+          },
+          "measurement_unit_ru": {
+            "type": "string"
+          },
+          "target_value": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "threshold_critical": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "threshold_warning": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "is_realtime": {
+            "type": "boolean",
+            "default": false
+          },
+          "description": {
+            "type": "string"
+          },
+          "description_ru": {
+            "type": "string"
+          }
+        }
+      },
+      "RealtimeData": {
+        "type": "object",
+        "properties": {
+          "data_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "metric_code": {
+            "type": "string"
+          },
+          "metric_name_ru": {
+            "type": "string"
+          },
+          "employee_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "department_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "measurement_timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "metric_value": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "target_value": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "target_achievement_pct": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "performance_rating": {
+            "type": "string",
+            "enum": ["excellent", "good", "needs_improvement"]
+          },
+          "data_source": {
+            "type": "string"
+          },
+          "quality_score": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
+      "PerformanceMeasurement": {
+        "type": "object",
+        "required": ["metric_code", "metric_value", "data_source"],
+        "properties": {
+          "metric_code": {
+            "type": "string"
+          },
+          "employee_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "department_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "team_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "measurement_timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "metric_value": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "measurement_interval": {
+            "type": "string",
+            "enum": ["1min", "5min", "15min", "30min", "1hour"]
+          },
+          "data_source": {
+            "type": "string"
+          },
+          "source_system": {
+            "type": "string"
+          },
+          "session_id": {
+            "type": "string"
+          },
+          "quality_score": {
+            "type": "number",
+            "format": "decimal",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "tags": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      },
+      "BatchMetadata": {
+        "type": "object",
+        "properties": {
+          "batch_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "source_system": {
+            "type": "string"
+          },
+          "submission_timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "data_quality_score": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "validation_rules": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "DataMetadata": {
+        "type": "object",
+        "properties": {
+          "total_records": {
+            "type": "integer"
+          },
+          "time_range": {
+            "type": "object",
+            "properties": {
+              "start": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "end": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          },
+          "data_quality": {
+            "type": "object",
+            "properties": {
+              "completeness_pct": {
+                "type": "number",
+                "format": "decimal"
+              },
+              "accuracy_score": {
+                "type": "number",
+                "format": "decimal"
+              }
+            }
+          },
+          "aggregation_applied": {
+            "type": "string"
+          }
+        }
+      },
+      "HistoricalAnalytics": {
+        "type": "object",
+        "properties": {
+          "analytics_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "metric_code": {
+            "type": "string"
+          },
+          "metric_name_ru": {
+            "type": "string"
+          },
+          "employee_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "analysis_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "analysis_period": {
+            "type": "string",
+            "enum": ["daily", "weekly", "monthly", "quarterly", "yearly"]
+          },
+          "metric_value": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "target_achievement_pct": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "trend_direction": {
+            "type": "string",
+            "enum": ["improving", "declining", "stable"]
+          },
+          "trend_strength": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "percentile_rank": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "moving_average_7d": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "moving_average_30d": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "seasonal_adjustment": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
+      "AnalyticsSummary": {
+        "type": "object",
+        "properties": {
+          "period_summary": {
+            "type": "object",
+            "properties": {
+              "avg_value": {
+                "type": "number",
+                "format": "decimal"
+              },
+              "min_value": {
+                "type": "number",
+                "format": "decimal"
+              },
+              "max_value": {
+                "type": "number",
+                "format": "decimal"
+              },
+              "std_deviation": {
+                "type": "number",
+                "format": "decimal"
+              }
+            }
+          },
+          "trend_analysis": {
+            "type": "object",
+            "properties": {
+              "overall_trend": {
+                "type": "string",
+                "enum": ["improving", "declining", "stable"]
+              },
+              "trend_confidence": {
+                "type": "number",
+                "format": "decimal"
+              },
+              "seasonal_patterns": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "pattern_type": {
+                      "type": "string"
+                    },
+                    "strength": {
+                      "type": "number",
+                      "format": "decimal"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "PerformanceAlert": {
+        "type": "object",
+        "properties": {
+          "alert_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "metric_code": {
+            "type": "string"
+          },
+          "employee_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "alert_timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "severity_level": {
+            "type": "string",
+            "enum": ["info", "warning", "critical"]
+          },
+          "alert_message": {
+            "type": "string"
+          },
+          "alert_message_ru": {
+            "type": "string"
+          },
+          "current_value": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "threshold_value": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "variance_from_threshold": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["new", "acknowledged", "resolved", "escalated"]
+          },
+          "acknowledged_by": {
+            "type": "string"
+          },
+          "acknowledged_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "resolution_notes": {
+            "type": "string"
+          }
+        }
+      },
+      "AlertsSummary": {
+        "type": "object",
+        "properties": {
+          "total_alerts": {
+            "type": "integer"
+          },
+          "by_severity": {
+            "type": "object",
+            "properties": {
+              "critical": {
+                "type": "integer"
+              },
+              "warning": {
+                "type": "integer"
+              },
+              "info": {
+                "type": "integer"
+              }
+            }
+          },
+          "by_status": {
+            "type": "object",
+            "properties": {
+              "new": {
+                "type": "integer"
+              },
+              "acknowledged": {
+                "type": "integer"
+              },
+              "resolved": {
+                "type": "integer"
+              },
+              "escalated": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      },
+      "PerformanceForecast": {
+        "type": "object",
+        "properties": {
+          "forecast_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "metric_code": {
+            "type": "string"
+          },
+          "employee_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "forecast_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "forecast_period": {
+            "type": "string",
+            "enum": ["daily", "weekly", "monthly"]
+          },
+          "predicted_value": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "confidence_interval_lower": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "confidence_interval_upper": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "confidence_level": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "prediction_factors": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "actual_value": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "forecast_accuracy": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
+      "ForecastModelInfo": {
+        "type": "object",
+        "properties": {
+          "model_name": {
+            "type": "string"
+          },
+          "model_name_ru": {
+            "type": "string"
+          },
+          "model_type": {
+            "type": "string",
+            "enum": ["linear_regression", "arima", "seasonal", "ml_ensemble"]
+          },
+          "accuracy_score": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "last_trained_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "training_data_period": {
+            "type": "integer"
+          },
+          "forecast_horizon": {
+            "type": "integer"
+          }
+        }
+      },
+      "DashboardConfig": {
+        "type": "object",
+        "properties": {
+          "dashboard_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "dashboard_code": {
+            "type": "string"
+          },
+          "dashboard_name": {
+            "type": "string"
+          },
+          "dashboard_name_ru": {
+            "type": "string"
+          },
+          "dashboard_type": {
+            "type": "string",
+            "enum": ["realtime", "analytical", "executive", "operational"]
+          },
+          "target_audience": {
+            "type": "string",
+            "enum": ["agents", "supervisors", "managers", "executives"]
+          },
+          "refresh_interval": {
+            "type": "integer"
+          },
+          "layout_config": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "widgets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WidgetConfig"
+            }
+          }
+        }
+      },
+      "WidgetConfig": {
+        "type": "object",
+        "properties": {
+          "widget_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "widget_code": {
+            "type": "string"
+          },
+          "widget_name": {
+            "type": "string"
+          },
+          "widget_name_ru": {
+            "type": "string"
+          },
+          "widget_type": {
+            "type": "string",
+            "enum": ["chart", "gauge", "table", "kpi", "trend", "comparison"]
+          },
+          "position": {
+            "type": "object",
+            "properties": {
+              "x": {
+                "type": "integer"
+              },
+              "y": {
+                "type": "integer"
+              },
+              "width": {
+                "type": "integer"
+              },
+              "height": {
+                "type": "integer"
+              }
+            }
+          },
+          "metric_codes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "WidgetData": {
+        "type": "object",
+        "properties": {
+          "widget_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "widget_code": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "last_updated": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "data_quality_score": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
+      "RussianPerformanceStandard": {
+        "type": "object",
+        "properties": {
+          "standard_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "standard_code": {
+            "type": "string"
+          },
+          "standard_name_ru": {
+            "type": "string"
+          },
+          "regulatory_framework": {
+            "type": "string",
+            "enum": ["trudovoy_kodeks", "gost", "industry_standard"]
+          },
+          "metric_code": {
+            "type": "string"
+          },
+          "minimum_value": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "recommended_value": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "measurement_frequency": {
+            "type": "string"
+          },
+          "reporting_requirement": {
+            "type": "string"
+          },
+          "penalty_for_non_compliance": {
+            "type": "string"
+          },
+          "is_mandatory": {
+            "type": "boolean"
+          },
+          "effective_date": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "ComplianceCheckResult": {
+        "type": "object",
+        "properties": {
+          "check_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "execution_timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "check_status": {
+            "type": "string",
+            "enum": ["passed", "failed", "warning", "error"]
+          },
+          "issues_found": {
+            "type": "integer"
+          },
+          "records_checked": {
+            "type": "integer"
+          },
+          "execution_time_ms": {
+            "type": "integer"
+          },
+          "result_details": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "recommendations": {
+            "type": "string"
+          },
+          "recommendations_ru": {
+            "type": "string"
+          },
+          "remediation_required": {
+            "type": "boolean"
+          },
+          "remediation_deadline": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error_code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "message_ru": {
+            "type": "string"
+          },
+          "details": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      },
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key"
+      }
+    }
+  },
+  "security": [
+    {
+      "BearerAuth": []
+    },
+    {
+      "ApiKeyAuth": []
+    }
+  ]
+}

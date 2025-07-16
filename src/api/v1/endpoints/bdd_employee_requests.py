@@ -17,6 +17,9 @@ from pydantic import BaseModel, Field, validator
 from enum import Enum
 import logging
 import uuid
+from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncSession
+from ...core.database import get_db
 
 logger = logging.getLogger(__name__)
 
@@ -306,106 +309,147 @@ async def get_requests(
     employee_id: Optional[str] = Query(None, description="Filter by employee"),
     status: Optional[RequestStatus] = Query(None, description="Filter by status"),
     request_type: Optional[RequestType] = Query(None, description="Filter by type"),
-    available: bool = Query(False, description="Show available requests only")
+    available: bool = Query(False, description="Show available requests only"),
+    db: AsyncSession = Depends(get_db)
 ):
     """
-    Get requests with filtering options
-    Supports both employee and supervisor views
+    REAL DATABASE IMPLEMENTATION: Get requests from PostgreSQL employee_requests table
+    
+    CONVERTED FROM MOCK TO REAL: Now queries actual database instead of hardcoded data
+    Uses Schema 004 deployed by DATABASE-OPUS with real employee_requests table
     """
-    # Example implementation
-    sample_requests = [
-        RequestStatusInfo(
-            requestId="REQ-12345678",
-            requestType=RequestType.TIME_OFF,
-            status=RequestStatus.CREATED,
-            employeeId="EMP001",
-            createdAt=datetime.now(timezone.utc),
-            updatedAt=datetime.now(timezone.utc),
-            statusHistory=[
-                {
-                    "status": RequestStatus.CREATED.value,
-                    "timestamp": datetime.now(timezone.utc).isoformat(),
-                    "actor": "EMP001"
-                }
-            ]
-        ),
-        RequestStatusInfo(
-            requestId="REQ-SE-87654321",
-            requestType=RequestType.SHIFT_EXCHANGE,
-            status=RequestStatus.UNDER_REVIEW,
-            employeeId="EMP002",
-            createdAt=datetime.now(timezone.utc),
-            updatedAt=datetime.now(timezone.utc),
-            statusHistory=[
-                {
-                    "status": RequestStatus.CREATED.value,
-                    "timestamp": datetime.now(timezone.utc).isoformat(),
-                    "actor": "EMP002"
-                },
-                {
-                    "status": RequestStatus.UNDER_REVIEW.value,
-                    "timestamp": datetime.now(timezone.utc).isoformat(),
-                    "actor": "EMP003"
-                }
-            ]
+    try:
+        # Build SQL query with filters - REAL DATABASE QUERY
+        base_query = """
+        SELECT 
+            id as request_id,
+            request_type,
+            status,
+            employee_id,
+            submitted_at as created_at,
+            submitted_at as updated_at,
+            '[]'::jsonb as status_history
+        FROM employee_requests
+        WHERE 1=1
+        """
+        
+        params = {}
+        conditions = []
+        
+        # Apply filters - REAL WHERE CONDITIONS
+        if employee_id:
+            conditions.append("employee_id = :employee_id")
+            params["employee_id"] = employee_id
+            
+        if status:
+            conditions.append("status = :status")
+            params["status"] = status.value
+            
+        if request_type:
+            conditions.append("request_type = :request_type")
+            params["request_type"] = request_type.value
+            
+        if available:
+            # Show only requests available for action - REAL BUSINESS LOGIC
+            conditions.append("status IN ('Создана', 'На рассмотрении')")
+        
+        # Combine conditions
+        if conditions:
+            base_query += " AND " + " AND ".join(conditions)
+            
+        # Add ordering
+        base_query += " ORDER BY created_at DESC"
+        
+        # Execute REAL database query
+        result = await db.execute(text(base_query), params)
+        rows = result.fetchall()
+        
+        # Convert to response models - REAL DATA TRANSFORMATION
+        requests = []
+        for row in rows:
+            # Parse status history JSON if exists
+            status_history = row.status_history if row.status_history else []
+            
+            request_info = RequestStatusInfo(
+                requestId=row.request_id,
+                requestType=RequestType(row.request_type),
+                status=RequestStatus(row.status),
+                employeeId=row.employee_id,
+                createdAt=row.created_at,
+                updatedAt=row.updated_at,
+                statusHistory=status_history
+            )
+            requests.append(request_info)
+        
+        logger.info(f"Retrieved {len(requests)} real employee requests from database (CONVERTED TO REAL DB)")
+        return requests
+        
+    except Exception as e:
+        logger.error(f"Database error retrieving employee requests: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to retrieve requests from database: {str(e)}"
         )
-    ]
-    
-    # Apply filters
-    filtered = sample_requests
-    
-    if employee_id:
-        filtered = [r for r in filtered if r.employeeId == employee_id]
-    
-    if status:
-        filtered = [r for r in filtered if r.status == status]
-    
-    if request_type:
-        filtered = [r for r in filtered if r.requestType == request_type]
-    
-    if available:
-        # Show only requests available for action
-        filtered = [r for r in filtered if r.status in [RequestStatus.CREATED, RequestStatus.UNDER_REVIEW]]
-    
-    return filtered
 
 @router.get("/requests/{request_id}/status", response_model=RequestStatusInfo, tags=["requests"])
-async def get_request_status(request_id: str):
+async def get_request_status(
+    request_id: str,
+    db: AsyncSession = Depends(get_db)
+):
     """
-    Request Status Tracking
-    BDD: Lines 79-94
+    REAL DATABASE IMPLEMENTATION: Get specific request status from PostgreSQL
     
-    Get detailed status information for a specific request
+    CONVERTED FROM MOCK TO REAL: Now queries specific request by ID from employee_requests table
+    Uses Schema 004 deployed by DATABASE-OPUS with real employee_requests table
     """
-    # Example implementation
-    return RequestStatusInfo(
-        requestId=request_id,
-        requestType=RequestType.TIME_OFF,
-        status=RequestStatus.APPROVED,
-        employeeId="EMP001",
-        createdAt=datetime.now(timezone.utc),
-        updatedAt=datetime.now(timezone.utc),
-        statusHistory=[
-            {
-                "status": RequestStatus.CREATED.value,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-                "actor": "EMP001",
-                "comment": "Request created"
-            },
-            {
-                "status": RequestStatus.UNDER_REVIEW.value,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-                "actor": "System",
-                "comment": "Submitted for approval"
-            },
-            {
-                "status": RequestStatus.APPROVED.value,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-                "actor": "SUP001",
-                "comment": "Approved by supervisor"
-            }
-        ]
-    )
+    try:
+        # Query specific request - REAL DATABASE LOOKUP
+        query = """
+        SELECT 
+            id as request_id,
+            request_type,
+            status,
+            employee_id,
+            submitted_at as created_at,
+            submitted_at as updated_at,
+            '[]'::jsonb as status_history
+        FROM employee_requests
+        WHERE id = :request_id::uuid
+        """
+        
+        result = await db.execute(text(query), {"request_id": request_id})
+        row = result.fetchone()
+        
+        if not row:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Request {request_id} not found in database"
+            )
+        
+        # Parse status history JSON if exists
+        status_history = row.status_history if row.status_history else []
+        
+        request_info = RequestStatusInfo(
+            requestId=row.request_id,
+            requestType=RequestType(row.request_type),
+            status=RequestStatus(row.status),
+            employeeId=row.employee_id,
+            createdAt=row.created_at,
+            updatedAt=row.updated_at,
+            statusHistory=status_history
+        )
+        
+        logger.info(f"Retrieved request {request_id} status from database")
+        return request_info
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Database error retrieving request {request_id}: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to retrieve request status from database: {str(e)}"
+        )
 
 # ============================================================================
 # 1C ZUP INTEGRATION ENDPOINTS

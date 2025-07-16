@@ -6,7 +6,7 @@ Scenarios: Create Detailed Daily Timetables, Break Optimization, Multi-skill Pla
 """
 
 import numpy as np
-from datetime import datetime, timedelta, time
+from datetime import datetime, timedelta, time, date
 from typing import Dict, List, Optional, Any, Set, Tuple
 from dataclasses import dataclass, field
 from enum import Enum
@@ -14,6 +14,15 @@ import logging
 from collections import defaultdict
 import pandas as pd
 from copy import deepcopy
+import asyncio
+
+# Import the database service
+from .timetable_database_service import (
+    TimetableDatabaseService, 
+    ScheduleTemplate as DBScheduleTemplate,
+    EmployeeAvailability,
+    ScheduleShift
+)
 
 logger = logging.getLogger(__name__)
 
@@ -44,6 +53,8 @@ class WorkScheduleEntry:
     shift_end: time
     skills: List[str]
     availability_percentage: float = 100.0
+    employee_constraints: Optional[Dict[str, Any]] = None
+    schedule_preferences: Optional[List[Dict[str, Any]]] = None
 
 @dataclass
 class ForecastData:
@@ -95,7 +106,7 @@ class LunchRule:
     min_hours_before: float = 2.0  # minimum hours worked before lunch
 
 class TimetableGenerator:
-    """Generate optimal daily timetables from work schedules"""
+    """Generate optimal daily timetables from work schedules using Mobile Workforce Scheduler pattern"""
     
     def __init__(self):
         self.work_schedules: List[WorkScheduleEntry] = []
@@ -104,10 +115,57 @@ class TimetableGenerator:
         self.templates: Dict[str, TimetableTemplate] = {}
         self.break_rules: Dict[str, BreakRule] = {}
         self.lunch_rules: Dict[str, LunchRule] = {}
+        
+        # Database service for real data
+        self.db_service = TimetableDatabaseService()
+        self.db_initialized = False
+        
+        # Cache for database objects
+        self.db_templates: Dict[str, DBScheduleTemplate] = {}
+        self.employee_availability: Dict[str, EmployeeAvailability] = {}
+        self.constraint_rules: Dict[str, Dict[str, Any]] = {}
+        
         self._initialize_default_rules()
         
+    async def _ensure_db_initialized(self):
+        """Ensure database service is initialized"""
+        if not self.db_initialized:
+            await self.db_service.initialize()
+            await self._load_constraint_rules()
+            self.db_initialized = True
+    
+    async def _load_constraint_rules(self):
+        """Load constraint rules from database"""
+        try:
+            self.constraint_rules = await self.db_service.get_constraint_rules()
+            self._initialize_rules_from_db()
+        except Exception as e:
+            logger.warning(f"Failed to load constraint rules from DB: {e}")
+            self._initialize_default_rules()
+    
+    def _initialize_rules_from_db(self):
+        """Initialize rules from database constraint rules"""
+        break_rules = self.constraint_rules.get('break_rules', {})
+        
+        # Initialize break rule from database
+        self.break_rules['default'] = BreakRule(
+            break_duration=break_rules.get('short_break_duration', 15),
+            frequency_hours=break_rules.get('short_break_frequency', 2.0),
+            spacing_minutes=90,
+            max_delay_minutes=30
+        )
+        
+        # Initialize lunch rule from database
+        self.lunch_rules['default'] = LunchRule(
+            min_duration=break_rules.get('lunch_break_min_duration', 30),
+            max_duration=break_rules.get('lunch_break_max_duration', 60),
+            earliest_start=break_rules.get('lunch_earliest_start', time(11, 0)),
+            latest_start=break_rules.get('lunch_latest_start', time(14, 0)),
+            min_hours_before=break_rules.get('min_work_before_lunch', 2.0)
+        )
+    
     def _initialize_default_rules(self):
-        """Initialize default break and lunch rules"""
+        """Initialize default break and lunch rules as fallback"""
         # Default break rule: 15 minutes every 2 hours
         self.break_rules['default'] = BreakRule(
             break_duration=15,
@@ -133,21 +191,39 @@ class TimetableGenerator:
             optimization_criteria=OptimizationCriteria.SERVICE_LEVEL_80_20
         )
     
-    def create_timetable(self,
-                        period_start: datetime,
-                        period_end: datetime,
-                        template_name: str,
-                        work_schedules: List[WorkScheduleEntry],
-                        forecast_data: List[ForecastData],
-                        optimization_enabled: bool = True) -> List[TimetableBlock]:
-        """Create detailed timetables for the period"""
+    async def create_timetable(self,
+                              period_start: datetime,
+                              period_end: datetime,
+                              template_name: str,
+                              work_schedules: Optional[List[WorkScheduleEntry]] = None,
+                              forecast_data: Optional[List[ForecastData]] = None,
+                              optimization_enabled: bool = True,
+                              department_id: Optional[str] = None) -> List[TimetableBlock]:
+        """Create detailed timetables for the period using real database data"""
+        await self._ensure_db_initialized()
+        
+        # Load real data from database if not provided
+        if work_schedules is None:
+            work_schedules = await self._load_work_schedules_from_db(
+                period_start.date(), period_end.date(), department_id
+            )
+        
+        if forecast_data is None:
+            forecast_data = await self._load_forecast_data_from_db(
+                period_start.date(), period_end.date()
+            )
+        
         self.work_schedules = work_schedules
         self.forecast_data = forecast_data
         self.timetable_blocks = []
         
-        template = self.templates.get(template_name)
+        # Try to get template from database first
+        template = await self._get_template_from_db(template_name)
         if not template:
-            raise ValueError(f"Template {template_name} not found")
+            # Fallback to in-memory templates
+            template = self.templates.get(template_name)
+            if not template:
+                raise ValueError(f"Template {template_name} not found in database or memory")
         
         # Generate timetable for each day in period
         current_date = period_start.date()
@@ -200,12 +276,179 @@ class TimetableGenerator:
         
         return daily_blocks
     
+    async def _load_work_schedules_from_db(self, 
+                                          start_date: date, 
+                                          end_date: date,
+                                          department_id: Optional[str] = None) -> List[WorkScheduleEntry]:
+        """Load work schedules from database using employee availability and shifts"""
+        try:
+            # Get employee availability
+            self.employee_availability = await self.db_service.get_employee_availability(
+                start_date, end_date, department_id
+            )
+            
+            # Get existing shifts
+            employee_ids = list(self.employee_availability.keys())
+            shifts_by_employee = await self.db_service.get_schedule_shifts(
+                start_date, end_date, employee_ids
+            )
+            
+            work_schedules = []
+            
+            # Convert database data to WorkScheduleEntry objects
+            for employee_id, availability in self.employee_availability.items():
+                shifts = shifts_by_employee.get(employee_id, [])
+                
+                # Extract skills list
+                skills = [skill['name'] for skill in availability.skills]
+                
+                # Create schedule entries for each shift
+                for shift in shifts:
+                    if shift.status in ['scheduled', 'confirmed']:
+                        schedule_entry = WorkScheduleEntry(
+                            employee_id=employee_id,
+                            date=datetime.combine(shift.shift_date, time(0, 0)),
+                            shift_start=shift.start_time,
+                            shift_end=shift.end_time,
+                            skills=skills,
+                            availability_percentage=availability.work_rate * 100,
+                            employee_constraints={
+                                'max_daily_hours': availability.max_daily_hours,
+                                'max_weekly_hours': availability.max_weekly_hours,
+                                'night_work_allowed': availability.night_work_allowed,
+                                'weekend_work_allowed': availability.weekend_work_allowed,
+                                'overtime_allowed': availability.overtime_allowed
+                            },
+                            schedule_preferences=availability.schedule_preferences
+                        )
+                        work_schedules.append(schedule_entry)
+            
+            logger.info(f"Loaded {len(work_schedules)} work schedules from database")
+            return work_schedules
+            
+        except Exception as e:
+            logger.error(f"Error loading work schedules from database: {str(e)}")
+            return []
+    
+    async def _load_forecast_data_from_db(self, 
+                                         start_date: date, 
+                                         end_date: date) -> List[ForecastData]:
+        """Load forecast data from database"""
+        try:
+            forecast_requirements = await self.db_service.get_forecast_requirements(
+                start_date, end_date
+            )
+            
+            forecast_data = []
+            
+            for date_str, intervals in forecast_requirements.items():
+                forecast_date = datetime.fromisoformat(date_str).date()
+                
+                for interval_req in intervals:
+                    # Convert interval_start to datetime and interval number
+                    interval_time = interval_req['interval_start']
+                    forecast_datetime = datetime.combine(forecast_date, interval_time)
+                    
+                    # Calculate 15-minute interval number (assuming day starts at 00:00)
+                    interval_number = (interval_time.hour * 4) + (interval_time.minute // 15)
+                    
+                    forecast_entry = ForecastData(
+                        datetime=forecast_datetime,
+                        interval=interval_number,
+                        call_volume=interval_req['call_volume'],
+                        average_handle_time=interval_req['average_handle_time'],
+                        required_agents=float(interval_req['required_agents']),
+                        service_level_target=interval_req['service_level_target'] * 100  # Convert to percentage
+                    )
+                    
+                    forecast_data.append(forecast_entry)
+            
+            logger.info(f"Loaded {len(forecast_data)} forecast data points from database")
+            return forecast_data
+            
+        except Exception as e:
+            logger.error(f"Error loading forecast data from database: {str(e)}")
+            return []
+    
+    async def _get_template_from_db(self, template_name: str) -> Optional[TimetableTemplate]:
+        """Get template from database and convert to internal format"""
+        try:
+            if not self.db_templates:
+                self.db_templates = await self.db_service.get_schedule_templates()
+            
+            # Look for template by name or code
+            db_template = None
+            for template_code, template in self.db_templates.items():
+                if template.template_name == template_name or template_code == template_name:
+                    db_template = template
+                    break
+            
+            if not db_template:
+                return None
+            
+            # Convert database template to internal format
+            return TimetableTemplate(
+                template_name=db_template.template_name,
+                break_rules={'rule': 'default'},
+                lunch_rules={'rule': 'default'},
+                activity_distribution={
+                    ActivityType.WORK_ATTENDANCE: 0.85,
+                    ActivityType.LUNCH_BREAK: db_template.break_minutes / (db_template.hours_per_day * 60),
+                    ActivityType.SHORT_BREAK: 0.075,
+                    ActivityType.TRAINING: 0.025
+                },
+                optimization_criteria=OptimizationCriteria.SERVICE_LEVEL_80_20
+            )
+            
+        except Exception as e:
+            logger.error(f"Error getting template from database: {str(e)}")
+            return None
+    
+    async def save_timetable_to_db(self, template_code: str) -> List[str]:
+        """Save generated timetable blocks to database"""
+        try:
+            # Convert timetable blocks to database format
+            db_blocks = []
+            
+            for block in self.timetable_blocks:
+                db_block = {
+                    'employee_id': block.employee_id,
+                    'block_date': block.datetime.date(),
+                    'interval_start': block.interval_start,
+                    'interval_end': block.interval_end,
+                    'activity_type': block.activity_type.value,
+                    'skill_assigned': block.skill_assigned,
+                    'project_id': block.project_id,
+                    'break_type': block.break_type,
+                    'is_locked': block.locked
+                }
+                db_blocks.append(db_block)
+            
+            # Save to database
+            created_ids = await self.db_service.save_timetable_blocks(db_blocks, template_code)
+            
+            logger.info(f"Saved {len(created_ids)} timetable blocks to database")
+            return created_ids
+            
+        except Exception as e:
+            logger.error(f"Error saving timetable to database: {str(e)}")
+            return []
+    
+    async def close_db_connection(self):
+        """Close database connection"""
+        if self.db_service:
+            await self.db_service.close()
+    
     def _generate_employee_timetable(self,
                                    schedule: WorkScheduleEntry,
                                    template: TimetableTemplate,
                                    date: datetime) -> List[TimetableBlock]:
-        """Generate initial timetable for an employee"""
+        """Generate initial timetable for an employee with real constraints"""
         blocks = []
+        
+        # Get employee constraints
+        constraints = schedule.employee_constraints or {}
+        preferences = schedule.schedule_preferences or []
         
         # Calculate shift duration and intervals
         shift_start_dt = datetime.combine(date.date(), schedule.shift_start)
@@ -215,12 +458,50 @@ class TimetableGenerator:
         if shift_end_dt <= shift_start_dt:
             shift_end_dt += timedelta(days=1)
         
+        # Validate shift duration against constraints
+        shift_hours = (shift_end_dt - shift_start_dt).total_seconds() / 3600
+        max_daily_hours = constraints.get('max_daily_hours', 8)
+        
+        if shift_hours > max_daily_hours and not constraints.get('overtime_allowed', False):
+            logger.warning(f"Shift duration {shift_hours:.1f}h exceeds max daily hours {max_daily_hours}h for employee {schedule.employee_id}")
+            # Adjust shift end time
+            shift_end_dt = shift_start_dt + timedelta(hours=max_daily_hours)
+        
+        # Check for schedule preferences for this date
+        date_preferences = [
+            pref for pref in preferences 
+            if pref.get('date') == date.date()
+        ]
+        
+        # Apply preferences if any
+        if date_preferences:
+            pref = date_preferences[0]  # Take first preference
+            if pref.get('day_type') == 'Day off':
+                # Employee requested day off - mark as not available
+                return self._create_unavailable_blocks(shift_start_dt, shift_end_dt, schedule.employee_id)
+            
+            # Adjust shift times based on preferences
+            if pref.get('preferred_start_time') and pref.get('preferred_end_time'):
+                preferred_start = datetime.combine(date.date(), pref['preferred_start_time'])
+                preferred_end = datetime.combine(date.date(), pref['preferred_end_time'])
+                
+                # Use preferred times if they're reasonable (within 2 hours of scheduled)
+                if abs((preferred_start - shift_start_dt).total_seconds()) <= 7200:  # 2 hours
+                    shift_start_dt = preferred_start
+                if abs((preferred_end - shift_end_dt).total_seconds()) <= 7200:
+                    shift_end_dt = preferred_end
+        
         # Generate 15-minute blocks
         current_time = shift_start_dt
         interval_count = 0
         
         while current_time < shift_end_dt:
             interval_end = current_time + timedelta(minutes=15)
+            
+            # Determine primary skill based on availability and rotation
+            primary_skill = self._get_optimal_skill_for_interval(
+                schedule.skills, current_time, interval_count
+            )
             
             # Default to work attendance
             block = TimetableBlock(
@@ -229,20 +510,202 @@ class TimetableGenerator:
                 interval_start=current_time.time(),
                 interval_end=interval_end.time(),
                 activity_type=ActivityType.WORK_ATTENDANCE,
-                skill_assigned=schedule.skills[0] if schedule.skills else None
+                skill_assigned=primary_skill
             )
             
             blocks.append(block)
             current_time = interval_end
             interval_count += 1
         
-        # Schedule lunch break
-        lunch_blocks = self._schedule_lunch(blocks, template.lunch_rules)
+        # Apply constraint-based scheduling
+        blocks = self._apply_constraint_based_scheduling(blocks, constraints)
         
-        # Schedule short breaks
-        break_blocks = self._schedule_breaks(blocks, template.break_rules)
+        # Schedule lunch break with constraints
+        blocks = self._schedule_lunch_with_constraints(blocks, template.lunch_rules, constraints)
+        
+        # Schedule short breaks with constraints  
+        blocks = self._schedule_breaks_with_constraints(blocks, template.break_rules, constraints)
         
         return blocks
+    
+    def _create_unavailable_blocks(self, 
+                                  start_dt: datetime, 
+                                  end_dt: datetime, 
+                                  employee_id: str) -> List[TimetableBlock]:
+        """Create unavailable blocks for requested day off"""
+        blocks = []
+        current_time = start_dt
+        
+        while current_time < end_dt:
+            interval_end = current_time + timedelta(minutes=15)
+            
+            block = TimetableBlock(
+                employee_id=employee_id,
+                datetime=current_time,
+                interval_start=current_time.time(),
+                interval_end=interval_end.time(),
+                activity_type=ActivityType.NOT_AVAILABLE,
+                locked=True  # Lock unavailable blocks
+            )
+            
+            blocks.append(block)
+            current_time = interval_end
+        
+        return blocks
+    
+    def _get_optimal_skill_for_interval(self, 
+                                       skills: List[str], 
+                                       current_time: datetime, 
+                                       interval_count: int) -> Optional[str]:
+        """Determine optimal skill assignment for current interval"""
+        if not skills:
+            return None
+        
+        # For multi-skilled employees, rotate skills throughout the day
+        if len(skills) > 1:
+            # Primary skill gets 70% of time, others split remaining 30%
+            if interval_count % 10 < 7:  # 70% primary skill
+                return skills[0]
+            else:
+                # Rotate through secondary skills
+                secondary_idx = (interval_count // 10) % (len(skills) - 1)
+                return skills[1 + secondary_idx]
+        
+        return skills[0]
+    
+    def _apply_constraint_based_scheduling(self, 
+                                         blocks: List[TimetableBlock], 
+                                         constraints: Dict[str, Any]) -> List[TimetableBlock]:
+        """Apply constraint-based adjustments to schedule"""
+        # Check night work constraints
+        if not constraints.get('night_work_allowed', True):
+            for block in blocks:
+                # Consider 22:00-06:00 as night hours
+                hour = block.interval_start.hour
+                if hour >= 22 or hour < 6:
+                    block.activity_type = ActivityType.NOT_AVAILABLE
+                    block.locked = True
+        
+        # Check weekend work constraints  
+        if not constraints.get('weekend_work_allowed', True):
+            weekday = blocks[0].datetime.weekday()
+            if weekday >= 5:  # Saturday (5) or Sunday (6)
+                for block in blocks:
+                    block.activity_type = ActivityType.NOT_AVAILABLE
+                    block.locked = True
+        
+        return blocks
+    
+    def _schedule_lunch_with_constraints(self, 
+                                       blocks: List[TimetableBlock], 
+                                       lunch_rules: Dict[str, Any],
+                                       constraints: Dict[str, Any]) -> List[TimetableBlock]:
+        """Schedule lunch break with employee constraints"""
+        rule_name = lunch_rules.get('rule', 'default')
+        rule = self.lunch_rules.get(rule_name, self.lunch_rules['default'])
+        
+        # Skip if shift is too short
+        work_blocks = [b for b in blocks if b.activity_type == ActivityType.WORK_ATTENDANCE]
+        if len(work_blocks) < 20:  # Less than 5 hours shift
+            return blocks
+        
+        # Find eligible lunch window considering constraints
+        eligible_start_idx = int(rule.min_hours_before * 4)  # 4 blocks per hour
+        
+        # Find blocks within lunch time window
+        lunch_candidates = []
+        for i, block in enumerate(blocks[eligible_start_idx:], eligible_start_idx):
+            if (rule.earliest_start <= block.interval_start <= rule.latest_start and
+                block.activity_type == ActivityType.WORK_ATTENDANCE):
+                lunch_candidates.append(i)
+        
+        if not lunch_candidates:
+            return blocks
+        
+        # Select optimal lunch start (prefer middle of window)
+        lunch_start_idx = lunch_candidates[len(lunch_candidates) // 2]
+        lunch_duration_blocks = rule.min_duration // 15
+        
+        # Ensure lunch doesn't exceed max daily hours constraint
+        max_daily_hours = constraints.get('max_daily_hours', 8)
+        total_shift_blocks = len([b for b in blocks if b.activity_type != ActivityType.NOT_AVAILABLE])
+        max_work_blocks = int((max_daily_hours * 4) - lunch_duration_blocks)
+        
+        if total_shift_blocks > max_work_blocks:
+            # Adjust lunch duration or skip
+            available_lunch_blocks = total_shift_blocks - max_work_blocks
+            lunch_duration_blocks = min(lunch_duration_blocks, available_lunch_blocks)
+        
+        # Mark lunch blocks
+        for i in range(lunch_start_idx, min(lunch_start_idx + lunch_duration_blocks, len(blocks))):
+            if blocks[i].activity_type == ActivityType.WORK_ATTENDANCE:
+                blocks[i].activity_type = ActivityType.LUNCH_BREAK
+                blocks[i].break_type = 'lunch'
+        
+        return blocks
+    
+    def _schedule_breaks_with_constraints(self, 
+                                        blocks: List[TimetableBlock], 
+                                        break_rules: Dict[str, Any],
+                                        constraints: Dict[str, Any]) -> List[TimetableBlock]:
+        """Schedule short breaks with employee constraints"""
+        rule_name = break_rules.get('rule', 'default')
+        rule = self.break_rules.get(rule_name, self.break_rules['default'])
+        
+        blocks_per_break = int(rule.frequency_hours * 4)  # 4 blocks per hour
+        break_duration_blocks = rule.break_duration // 15
+        
+        # Consider max consecutive work constraint from database
+        max_consecutive_work = self.constraint_rules.get('break_rules', {}).get('max_consecutive_work', 4.0)
+        max_consecutive_blocks = int(max_consecutive_work * 4)
+        
+        # Track last break time
+        last_break_idx = -1
+        work_block_count = 0
+        
+        for i in range(len(blocks)):
+            if blocks[i].activity_type == ActivityType.WORK_ATTENDANCE:
+                work_block_count += 1
+                
+                # Force break if max consecutive work reached
+                if work_block_count >= max_consecutive_blocks:
+                    if self._schedule_break_at_index(blocks, i, break_duration_blocks):
+                        last_break_idx = i
+                        work_block_count = 0
+                        continue
+                
+                # Regular break scheduling
+                if (i >= blocks_per_break and 
+                    (last_break_idx < 0 or i - last_break_idx >= (rule.spacing_minutes // 15))):
+                    
+                    if self._schedule_break_at_index(blocks, i, break_duration_blocks):
+                        last_break_idx = i
+                        work_block_count = 0
+            else:
+                work_block_count = 0  # Reset count for non-work blocks
+        
+        return blocks
+    
+    def _schedule_break_at_index(self, 
+                               blocks: List[TimetableBlock], 
+                               start_idx: int, 
+                               duration_blocks: int) -> bool:
+        """Schedule break at specific index if possible"""
+        # Check if break can be scheduled
+        if start_idx + duration_blocks > len(blocks):
+            return False
+        
+        # Check if all blocks are available for break
+        for i in range(start_idx, start_idx + duration_blocks):
+            if blocks[i].activity_type != ActivityType.WORK_ATTENDANCE:
+                return False
+        
+        # Schedule the break
+        for i in range(start_idx, start_idx + duration_blocks):
+            blocks[i].activity_type = ActivityType.SHORT_BREAK
+            blocks[i].break_type = 'short'
+        
+        return True
     
     def _schedule_lunch(self,
                        blocks: List[TimetableBlock],
@@ -501,12 +964,12 @@ class TimetableGenerator:
         
         return blocks
     
-    def make_manual_adjustment(self,
-                             employee_id: str,
-                             start_time: datetime,
-                             end_time: datetime,
-                             adjustment_type: str,
-                             **kwargs) -> bool:
+    async def make_manual_adjustment(self,
+                                   employee_id: str,
+                                   start_time: datetime,
+                                   end_time: datetime,
+                                   adjustment_type: str,
+                                   **kwargs) -> bool:
         """Make manual adjustment to timetable"""
         affected_blocks = [
             b for b in self.timetable_blocks
@@ -539,8 +1002,38 @@ class TimetableGenerator:
         if success:
             # Validate impact on service level
             self._validate_adjustment_impact(affected_blocks)
+            
+            # Update database with real-time changes
+            await self._update_realtime_adjustments(affected_blocks, adjustment_type)
         
         return success
+    
+    async def _update_realtime_adjustments(self, 
+                                          affected_blocks: List[TimetableBlock],
+                                          adjustment_type: str):
+        """Update database with real-time timetable adjustments"""
+        try:
+            if not self.db_initialized:
+                await self._ensure_db_initialized()
+            
+            for block in affected_blocks:
+                # Prepare changes for database update
+                changes = {
+                    'activity_type': block.activity_type.value,
+                    'skill_assigned': block.skill_assigned,
+                    'project_id': block.project_id,
+                    'break_type': block.break_type,
+                    'is_locked': block.locked
+                }
+                
+                # For now, we'll use a simple ID mapping
+                # In production, you'd track the database IDs
+                block_id = f"{block.employee_id}_{block.datetime.isoformat()}"
+                
+                await self.db_service.update_realtime_timetable(block_id, changes)
+                
+        except Exception as e:
+            logger.error(f"Error updating real-time adjustments: {str(e)}")
     
     def _adjust_to_work(self, blocks: List[TimetableBlock]) -> bool:
         """Adjust blocks to work attendance"""

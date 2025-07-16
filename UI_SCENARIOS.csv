@@ -1,0 +1,29 @@
+BDD_File,Scenario_Number,Scenario_Name,Status,Your_Component,Test_Type,Test_File,Notes
+27-vacancy-planning-module,1,Access Control Validation,Implemented,VacancyPlanningModule.tsx,None,None,Role check implemented but no tests
+27-vacancy-planning-module,2,Settings Configuration,Implemented,VacancyPlanningSettings.tsx,None,None,Form works but uses mock data
+27-vacancy-planning-module,3,Gap Analysis Dashboard,Implemented,VacancyAnalysisDashboard.tsx,None,None,Complex UI with mock calculations
+27-vacancy-planning-module,4,Results Visualization,Implemented,VacancyResultsVisualization.tsx,None,None,Charts work with static data
+27-vacancy-planning-module,5,Hiring Recommendations,Implemented,VacancyRecommendations.tsx,None,None,Mock recommendations only
+27-vacancy-planning-module,6,Exchange Integration,Partial,VacancyIntegration.tsx,None,None,UI exists but no real integration
+27-vacancy-planning-module,7,Reporting Module,Implemented,VacancyReporting.tsx,None,None,Reports use mock data
+14-mobile-personal-cabinet,1,Mobile Authentication,Partial,MobilePersonalCabinet.tsx,Mock,None,Auth flow UI only
+14-mobile-personal-cabinet,2,Mobile Dashboard,Implemented,MobileDashboard.tsx,Mock,None,Static dashboard layout
+14-mobile-personal-cabinet,3,Mobile Calendar,Implemented,MobileCalendar.tsx,Mock,None,Calendar with fake events
+14-mobile-personal-cabinet,4,Mobile Notifications,Partial,MobileNotifications.tsx,None,None,UI shell no push support
+14-mobile-personal-cabinet,5,Mobile Requests,Partial,MobileRequests.tsx,None,None,Form UI no submission
+14-mobile-personal-cabinet,6,Offline Support,Partial,useOfflineSync.ts,None,None,Hook exists but not tested
+02-employee-requests,1,Request Creation,Partial,RequestForm.tsx,None,None,Form exists no backend
+02-employee-requests,2,Request List View,Implemented,RequestList.tsx,Mock,None,Shows mock requests
+02-employee-requests,3,Request Management,Partial,RequestManager.tsx,None,None,CRUD UI no real ops
+02-employee-requests,4,Shift Marketplace,Partial,ShiftMarketplace.tsx,Mock,None,UI with fake listings
+09-work-schedule-vacation-planning,1,Schedule Grid View,Implemented,VirtualizedScheduleGrid.tsx,None,None,Complex grid no real data
+09-work-schedule-vacation-planning,2,Shift Templates,Partial,ShiftTemplateManager.tsx,None,None,Template UI no save
+09-work-schedule-vacation-planning,3,Exception Manager,Partial,ExceptionManager.tsx,None,None,UI only no logic
+15-real-time-monitoring,1,Operational Dashboard,Implemented,OperationalControlDashboard.tsx,Mock,None,Mock metrics dashboard
+15-real-time-monitoring,2,Mobile Monitoring,Partial,MobileMonitoringDashboard.tsx,None,None,Basic UI shell
+11-system-integration,1,Integration Portal,Partial,WFMIntegrationPortal.tsx,None,None,Portal UI no real integrations
+11-system-integration,2,API Settings,Partial,APISettings.tsx,None,None,Config UI no persistence
+11-system-integration,3,Data Mapping Tool,Not_Implemented,DataMappingTool.tsx,None,None,Empty component shell
+18-system-administration,1,User Management,Partial,SystemUserManagement.tsx,None,None,CRUD UI no backend
+18-system-administration,2,Database Admin,Partial,DatabaseAdminDashboard.tsx,Mock,None,Mock database stats
+18-system-administration,3,Service Management,Partial,ServiceManagementConsole.tsx,None,None,Service list UI only

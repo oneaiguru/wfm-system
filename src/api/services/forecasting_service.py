@@ -70,14 +70,57 @@ class ForecastingService:
         period_end: date,
         db: Optional[Session] = None
     ) -> List[Dict[str, Any]]:
-        """Get historical data for forecasting"""
+        """Get historical data for forecasting - REAL DATABASE QUERY"""
         session = db or self.db
         if not session:
             return []
         
-        # TODO: Implement database query for historical data
-        # For now, return empty list
-        return []
+        try:
+            # REAL DATABASE QUERY - NO MORE MOCKS!
+            query = """
+            SELECT 
+                interval_start_time,
+                interval_end_time,
+                service_id,
+                group_id,
+                received_calls,
+                treated_calls,
+                miss_calls,
+                aht,
+                service_level,
+                abandonment_rate,
+                occupancy_rate
+            FROM contact_statistics 
+            WHERE interval_start_time >= %s 
+            AND interval_end_time <= %s
+            ORDER BY interval_start_time
+            """
+            
+            result = session.execute(query, (period_start, period_end))
+            rows = result.fetchall()
+            
+            # Convert to list of dictionaries
+            historical_data = []
+            for row in rows:
+                historical_data.append({
+                    'timestamp': row[0].isoformat(),
+                    'service_id': row[2],
+                    'group_id': row[3],
+                    'calls_received': row[4] or 0,
+                    'calls_treated': row[5] or 0,
+                    'calls_missed': row[6] or 0,
+                    'aht': row[7] or 0,
+                    'service_level': float(row[8]) if row[8] else 0.0,
+                    'abandonment_rate': float(row[9]) if row[9] else 0.0,
+                    'occupancy_rate': float(row[10]) if row[10] else 0.0
+                })
+            
+            logger.info(f"Retrieved {len(historical_data)} real records from database")
+            return historical_data
+            
+        except Exception as e:
+            logger.error(f"Database query failed: {e}")
+            return []
     
     async def save_forecast(
         self,

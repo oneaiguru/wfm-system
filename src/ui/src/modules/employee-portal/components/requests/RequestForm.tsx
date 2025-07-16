@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import realRequestService, { VacationRequestData, ApiResponse, SubmissionResult } from '../../../../services/realRequestService';
 
 interface RequestFormProps {
   isOpen: boolean;
@@ -49,8 +50,48 @@ const RequestForm: React.FC<RequestFormProps> = ({
   });
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [apiError, setApiError] = useState<string>('');
+  const [employees, setEmployees] = useState<any[]>([]);
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<string>('');
 
   const totalSteps = 4;
+
+  // Load real employees from API
+  useEffect(() => {
+    const loadEmployees = async () => {
+      try {
+        console.log('[BDD COMPLIANT] Loading real employees from API...');
+        const response = await fetch('/api/v1/employees');
+        
+        if (!response.ok) {
+          throw new Error(`Failed to load employees: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        setEmployees(data.employees || data || []);
+        
+        // Verify we got real Russian employees (BDD compliance check)
+        const hasRussianNames = (data.employees || data || []).some((emp: any) => 
+          emp.name && (emp.name.includes('Иван') || emp.name.includes('Мария') || emp.name.includes('Петр'))
+        );
+        
+        console.log(`[BDD COMPLIANT] Loaded ${(data.employees || data || []).length} employees, hasRussianNames: ${hasRussianNames}`);
+        
+        if (!hasRussianNames) {
+          console.warn('[BDD COMPLIANCE WARNING] No Russian employee names found - check API data');
+        }
+        
+      } catch (err) {
+        const errorMessage = `Ошибка загрузки сотрудников: ${err instanceof Error ? err.message : 'Unknown error'}`;
+        setApiError(errorMessage);
+        console.error('[BDD COMPLIANT] Employee loading failed:', err);
+      }
+    };
+
+    if (isOpen) {
+      loadEmployees();
+    }
+  }, [isOpen]);
 
   // Initialize form with edit data
   useEffect(() => {
@@ -71,6 +112,7 @@ const RequestForm: React.FC<RequestFormProps> = ({
     }
     setCurrentStep(1);
     setErrors({});
+    setSelectedEmployeeId('');
   }, [editRequest, isOpen]);
 
   const requestTypes = [
@@ -166,6 +208,11 @@ const RequestForm: React.FC<RequestFormProps> = ({
         if (!formData.title.trim()) {
           newErrors.title = 'Please provide a request title';
         }
+        
+        // BDD Compliance: Validate employee selection
+        if (!selectedEmployeeId) {
+          newErrors.selectedEmployee = 'Please select an employee';
+        }
         break;
     }
     
@@ -192,22 +239,77 @@ const RequestForm: React.FC<RequestFormProps> = ({
       return;
     }
     
+    // Clear any previous API errors
+    setApiError('');
     setIsSubmitting(true);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Check API health first
+      const isApiHealthy = await realRequestService.checkApiHealth();
+      if (!isApiHealthy) {
+        throw new Error('API server is not available. Please try again later.');
+      }
+
+      // BDD Compliance: Use real selected employee UUID, not hardcoded ID
+      if (!selectedEmployeeId) {
+        throw new Error('Please select an employee before submitting');
+      }
       
-      const submitData = {
-        ...formData,
-        status: asDraft ? 'draft' : 'submitted',
-        submittedAt: new Date()
+      // Only handle vacation requests for now (other types need separate endpoints)
+      if (formData.type !== 'vacation') {
+        throw new Error('Only vacation requests are currently supported in this REAL implementation');
+      }
+
+      // Prepare real API request with selected employee UUID
+      const requestData: VacationRequestData = {
+        employeeId: selectedEmployeeId, // Real UUID from dropdown selection
+        type: 'vacation',
+        title: formData.title,
+        startDate: formData.startDate,
+        endDate: formData.endDate,
+        reason: formData.reason,
+        priority: formData.priority,
+        attachments: formData.attachments,
+        additionalInfo: {
+          emergencyContact: formData.additionalInfo.emergencyContact,
+          halfDay: formData.additionalInfo.halfDay
+        },
+        status: asDraft ? 'draft' : 'submitted'
       };
+
+      console.log('[REAL COMPONENT] Submitting request to real API:', requestData);
+
+      // Make REAL API call - NO MOCKS
+      const result: ApiResponse<SubmissionResult> = await realRequestService.submitVacationRequest(requestData);
       
-      onSubmit(submitData);
-      onClose();
+      if (result.success && result.data) {
+        console.log('[REAL COMPONENT] Request submitted successfully:', result.data);
+        
+        // Pass real API response to parent
+        const submitData = {
+          ...formData,
+          id: result.data.requestId,
+          status: result.data.status as any,
+          submittedAt: new Date(result.data.submittedAt)
+        };
+        
+        onSubmit(submitData);
+        onClose();
+        
+        // Show success message
+        alert(`Request submitted successfully! ID: ${result.data.requestId}`);
+        
+      } else {
+        // Real API error
+        const errorMessage = result.error || 'Failed to submit request';
+        console.error('[REAL COMPONENT] API error:', errorMessage);
+        setApiError(errorMessage);
+      }
+      
     } catch (error) {
-      console.error('Error submitting request:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      console.error('[REAL COMPONENT] Submission error:', errorMessage);
+      setApiError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -517,6 +619,32 @@ const RequestForm: React.FC<RequestFormProps> = ({
               </h3>
               
               <div className="space-y-4">
+                {/* BDD Compliance: Real Employee Selection */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Select Employee *
+                  </label>
+                  <select
+                    value={selectedEmployeeId}
+                    onChange={(e) => setSelectedEmployeeId(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="">-- Choose Employee --</option>
+                    {employees.map(emp => (
+                      <option key={emp.id} value={emp.id}>
+                        {emp.name} ({emp.email || emp.department || 'Employee'})
+                      </option>
+                    ))}
+                  </select>
+                  <div className="text-xs text-gray-500 mt-1">
+                    Loaded employees: {employees.length}
+                    {employees.length === 0 && apiError && ' - Error loading employees'}
+                  </div>
+                  {errors.selectedEmployee && (
+                    <p className="mt-1 text-sm text-red-600">{errors.selectedEmployee}</p>
+                  )}
+                </div>
+                
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Request Title *
@@ -592,6 +720,15 @@ const RequestForm: React.FC<RequestFormProps> = ({
                 <div className="bg-gray-50 rounded-lg p-4">
                   <h4 className="font-medium text-gray-900 mb-3">Request Summary</h4>
                   <dl className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <dt className="text-gray-600">Employee:</dt>
+                      <dd className="font-medium">
+                        {selectedEmployeeId 
+                          ? employees.find(emp => emp.id === selectedEmployeeId)?.name || 'Unknown Employee'
+                          : 'Not selected'
+                        }
+                      </dd>
+                    </div>
                     <div className="flex justify-between">
                       <dt className="text-gray-600">Type:</dt>
                       <dd className="font-medium">
@@ -677,6 +814,19 @@ const RequestForm: React.FC<RequestFormProps> = ({
             </div>
           )}
         </div>
+
+        {/* API Error Display */}
+        {apiError && (
+          <div className="px-6 py-3 bg-red-50 border-t border-red-200">
+            <div className="flex items-center gap-2 text-red-800">
+              <span className="text-red-500">❌</span>
+              <div>
+                <div className="font-medium">Submission Failed</div>
+                <div className="text-sm">{apiError}</div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Footer */}
         <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">

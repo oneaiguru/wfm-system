@@ -23,7 +23,72 @@ import ScheduleOptimizationUI from './modules/schedule-optimization/components/S
 import TimeAttendanceUI from './modules/time-attendance/components/TimeAttendanceUI';
 import IntegrationDashboardUI from './modules/integration-ui/components/IntegrationDashboardUI';
 import { VacancyPlanningModule } from './modules/vacancy-planning';
+import { EmployeePortal } from './modules/employee-portal';
 import { IntegrationTester } from './components/IntegrationTester';
+import PendingRequestsList from './components/requests/PendingRequestsList';
+import EmployeeProfile from './components/employee/EmployeeProfile';
+import EmployeeSearch from './components/employee/EmployeeSearch';
+import WorkflowDashboard from './components/workflow/WorkflowDashboard';
+import WorkflowAutomation from './components/workflow-advanced/WorkflowAutomation';
+import WorkflowTemplates from './components/workflow-advanced/WorkflowTemplates';
+import WorkflowReporting from './components/workflow-advanced/WorkflowReporting';
+import WorkflowIntegrations from './components/workflow-advanced/WorkflowIntegrations';
+import WorkflowOptimization from './components/workflow-advanced/WorkflowOptimization';
+import ApprovalQueue from './components/workflow/ApprovalQueue';
+import WorkflowTracker from './components/workflow/WorkflowTracker';
+import EscalationManager from './components/workflow/EscalationManager';
+import WorkflowHistory from './components/workflow/WorkflowHistory';
+import WorkflowMetrics from './components/workflow/WorkflowMetrics';
+// Agent 7: Integration & Reporting Components
+import SystemHealthMonitor from './components/integration-reporting/SystemHealthMonitor';
+import ApiEndpointTester from './components/integration-reporting/ApiEndpointTester';
+import RealtimeDataMonitor from './components/integration-reporting/RealtimeDataMonitor';
+import DataSyncDashboard from './components/integration-reporting/DataSyncDashboard';
+import DatabaseQueryBuilder from './components/integration-reporting/DatabaseQueryBuilder';
+import BusinessIntelligenceReports from './components/integration-reporting/BusinessIntelligenceReports';
+// Admin Components
+import SystemSettings from './components/admin/SystemSettings';
+import RoleManager from './components/admin/RoleManager';
+import AuditLog from './components/admin/AuditLog';
+import UserPermissions from './components/admin/UserPermissions';
+import ConfigEditor from './components/admin/ConfigEditor';
+import SystemHealth from './components/admin/SystemHealth';
+// Performance Monitoring Components
+import RealtimeMetrics from './components/performance/RealtimeMetrics';
+import SLAMonitor from './components/performance/SLAMonitor';
+import ExecutiveDashboard from './components/performance/ExecutiveDashboard';
+import AlertConfiguration from './components/performance/AlertConfiguration';
+import TrendAnalysis from './components/performance/TrendAnalysis';
+import IntegrationMonitor from './components/performance/IntegrationMonitor';
+// Mobile Components
+import MobileLogin from './components/mobile/MobileLogin';
+import MobileCalendarView from './components/mobile/MobileCalendarView';
+import MobileRequestForm from './components/mobile/MobileRequestForm';
+import MobileNotifications from './components/mobile/MobileNotifications';
+import MobileProfile from './components/mobile/MobileProfile';
+import MobileShiftExchange from './components/mobile/MobileShiftExchange';
+import MobileOfflineIndicator from './components/mobile/MobileOfflineIndicator';
+// Enhanced Admin Components - Components 50-54
+import SystemConfigManager from './components/admin-enhanced/SystemConfigManager';
+import AdvancedRoleEditor from './components/admin-enhanced/AdvancedRoleEditor';
+import SecurityAuditDashboard from './components/admin-enhanced/SecurityAuditDashboard';
+import UserActivityMonitor from './components/admin-enhanced/UserActivityMonitor';
+import SystemBackupManager from './components/admin-enhanced/SystemBackupManager';
+// Advanced Analytics Components - Components 55-60
+import AdvancedMetricsAnalyzer from './components/analytics-advanced/AdvancedMetricsAnalyzer';
+import PerformanceForecastDashboard from './components/analytics-advanced/PerformanceForecastDashboard';
+import BusinessIntelligenceDashboard from './components/analytics-advanced/BusinessIntelligenceDashboard';
+import RealTimeDataVisualization from './components/analytics-advanced/RealTimeDataVisualization';
+import ComplianceReportingCenter from './components/analytics-advanced/ComplianceReportingCenter';
+import PredictiveAnalyticsEngine from './components/analytics-advanced/PredictiveAnalyticsEngine';
+// Advanced Forecasting Components - Agent 8 (FINAL)
+import MultiHorizonForecaster from './components/advanced-forecasting/MultiHorizonForecaster';
+import AccuracyMetricsDashboard from './components/advanced-forecasting/AccuracyMetricsDashboard';
+import ScenarioModelingEngine from './components/advanced-forecasting/ScenarioModelingEngine';
+import SeasonalTrendAnalyzer from './components/advanced-forecasting/SeasonalTrendAnalyzer';
+import CapacityPlanningOptimizer from './components/advanced-forecasting/CapacityPlanningOptimizer';
+import DemandVariabilityAnalyzer from './components/advanced-forecasting/DemandVariabilityAnalyzer';
+import PredictiveMaintenanceForecaster from './components/advanced-forecasting/PredictiveMaintenanceForecaster';
 import './index.css';
 
 function App() {
@@ -50,6 +115,14 @@ function App() {
           <Route path="/admin/users" element={<SystemUserManagement />} />
           <Route path="/admin/database" element={<DatabaseAdminDashboard />} />
           <Route path="/admin/services" element={<ServiceManagementConsole />} />
+          
+          {/* New Admin Components - Components 21-26 */}
+          <Route path="/admin/system-settings" element={<SystemSettings />} />
+          <Route path="/admin/role-manager" element={<RoleManager />} />
+          <Route path="/admin/audit-log" element={<AuditLog />} />
+          <Route path="/admin/user-permissions" element={<UserPermissions />} />
+          <Route path="/admin/config-editor" element={<ConfigEditor />} />
+          <Route path="/admin/system-health" element={<SystemHealth />} />
           
           {/* Real-time Monitoring - BDD Feature 15 */}
           <Route path="/monitoring/operational" element={<OperationalControlDashboard />} />
@@ -88,8 +161,89 @@ function App() {
           {/* Vacancy Planning Module - BDD Feature 27 */}
           <Route path="/vacancy-planning/*" element={<VacancyPlanningModule />} />
           
+          {/* Employee Portal - For Vacation Request BDD Scenario */}
+          <Route path="/employee-portal" element={<EmployeePortal />} />
+          
           {/* Integration Tester - For INTEGRATION-OPUS */}
           <Route path="/integration-tester" element={<IntegrationTester />} />
+          
+          {/* Pending Requests - Component 11 */}
+          <Route path="/requests/pending" element={<PendingRequestsList />} />
+          
+          {/* Employee Components - Components 13 & 14 */}
+          <Route path="/employees/profile/:id" element={<EmployeeProfile employeeId="" />} />
+          <Route path="/employees/search" element={<EmployeeSearch />} />
+          
+          {/* Workflow Components - Components 15-20 */}
+          <Route path="/workflow/dashboard" element={<WorkflowDashboard />} />
+          <Route path="/workflow/approval-queue" element={<ApprovalQueue />} />
+          <Route path="/workflow/tracker" element={<WorkflowTracker />} />
+          
+          {/* Advanced Workflow Components - Components 40-44 */}
+          <Route path="/workflow-advanced/automation" element={<WorkflowAutomation />} />
+          <Route path="/workflow-advanced/templates" element={<WorkflowTemplates />} />
+          <Route path="/workflow-advanced/reporting" element={<WorkflowReporting />} />
+          <Route path="/workflow-advanced/integrations" element={<WorkflowIntegrations />} />
+          <Route path="/workflow-advanced/optimization" element={<WorkflowOptimization />} />
+          <Route path="/workflow/escalation" element={<EscalationManager />} />
+          <Route path="/workflow/history" element={<WorkflowHistory />} />
+          <Route path="/workflow/metrics" element={<WorkflowMetrics />} />
+          
+          {/* Advanced Workflow Components - Components 40-44 */}
+          <Route path="/workflow-advanced/automation" element={<WorkflowAutomation />} />
+          <Route path="/workflow-advanced/templates" element={<WorkflowTemplates />} />
+          <Route path="/workflow-advanced/reporting" element={<WorkflowReporting />} />
+          <Route path="/workflow-advanced/integrations" element={<WorkflowIntegrations />} />
+          <Route path="/workflow-advanced/optimization" element={<WorkflowOptimization />} />
+          
+          {/* Performance Monitoring Components - Components 27-32 */}
+          <Route path="/performance/realtime-metrics" element={<RealtimeMetrics />} />
+          <Route path="/performance/sla-monitor" element={<SLAMonitor />} />
+          <Route path="/performance/executive-dashboard" element={<ExecutiveDashboard />} />
+          <Route path="/performance/alert-configuration" element={<AlertConfiguration />} />
+          <Route path="/performance/trend-analysis" element={<TrendAnalysis />} />
+          <Route path="/performance/integration-monitor" element={<IntegrationMonitor />} />
+          
+          {/* Mobile Components - Components 33-39 */}
+          <Route path="/mobile/login" element={<MobileLogin onLogin={async () => {}} />} />
+          <Route path="/mobile/calendar" element={<MobileCalendarView employeeId="current" />} />
+          <Route path="/mobile/requests" element={<MobileRequestForm employeeId="current" onSubmit={async () => {}} />} />
+          <Route path="/mobile/notifications" element={<MobileNotifications employeeId="current" />} />
+          <Route path="/mobile/profile" element={<MobileProfile employeeId="current" />} />
+          <Route path="/mobile/shift-exchange" element={<MobileShiftExchange employeeId="current" />} />
+          <Route path="/mobile/offline-status" element={<MobileOfflineIndicator showDetails={true} />} />
+          
+          {/* Enhanced Admin Components - Components 50-54 */}
+          <Route path="/admin-enhanced/config-manager" element={<SystemConfigManager />} />
+          <Route path="/admin-enhanced/role-editor" element={<AdvancedRoleEditor />} />
+          <Route path="/admin-enhanced/security-audit" element={<SecurityAuditDashboard />} />
+          <Route path="/admin-enhanced/user-activity" element={<UserActivityMonitor />} />
+          <Route path="/admin-enhanced/backup-manager" element={<SystemBackupManager />} />
+          
+          {/* Agent 7: Integration & Reporting Components */}
+          <Route path="/integration-reporting/system-health" element={<SystemHealthMonitor />} />
+          <Route path="/integration-reporting/api-tester" element={<ApiEndpointTester />} />
+          <Route path="/integration-reporting/realtime-monitor" element={<RealtimeDataMonitor />} />
+          <Route path="/integration-reporting/data-sync" element={<DataSyncDashboard />} />
+          <Route path="/integration-reporting/query-builder" element={<DatabaseQueryBuilder />} />
+          <Route path="/integration-reporting/business-intelligence" element={<BusinessIntelligenceReports />} />
+          
+          {/* Advanced Analytics Components - Components 55-60 */}
+          <Route path="/analytics-advanced/metrics-analyzer" element={<AdvancedMetricsAnalyzer />} />
+          <Route path="/analytics-advanced/performance-forecast" element={<PerformanceForecastDashboard />} />
+          <Route path="/analytics-advanced/business-intelligence" element={<BusinessIntelligenceDashboard />} />
+          <Route path="/analytics-advanced/realtime-data" element={<RealTimeDataVisualization />} />
+          <Route path="/analytics-advanced/compliance-reporting" element={<ComplianceReportingCenter />} />
+          <Route path="/analytics-advanced/predictive-analytics" element={<PredictiveAnalyticsEngine />} />
+          
+          {/* Advanced Forecasting Components - Agent 8 (FINAL) */}
+          <Route path="/advanced-forecasting/multi-horizon" element={<MultiHorizonForecaster />} />
+          <Route path="/advanced-forecasting/accuracy-metrics" element={<AccuracyMetricsDashboard />} />
+          <Route path="/advanced-forecasting/scenario-modeling" element={<ScenarioModelingEngine />} />
+          <Route path="/advanced-forecasting/seasonal-analysis" element={<SeasonalTrendAnalyzer />} />
+          <Route path="/advanced-forecasting/capacity-planning" element={<CapacityPlanningOptimizer />} />
+          <Route path="/advanced-forecasting/demand-variability" element={<DemandVariabilityAnalyzer />} />
+          <Route path="/advanced-forecasting/predictive-maintenance" element={<PredictiveMaintenanceForecaster />} />
           
           {/* Default redirect to login */}
           <Route path="/" element={<Navigate to="/login" replace />} />
