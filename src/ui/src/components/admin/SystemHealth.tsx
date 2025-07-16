@@ -36,7 +36,7 @@ const SystemHealth: React.FC = () => {
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [autoRefresh, setAutoRefresh] = useState(true);
 
-  const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api/v1';
+  const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
   // Generate mock performance metrics
   const generatePerformanceMetrics = (): PerformanceMetric[] => {

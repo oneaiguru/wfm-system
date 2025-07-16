@@ -90,7 +90,7 @@ interface MetricCard {
   target?: number;
 }
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
 const WorkflowMetrics: React.FC = () => {
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);

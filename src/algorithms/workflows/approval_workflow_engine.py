@@ -31,6 +31,10 @@ import json
 import psycopg2
 import psycopg2.extras
 
+# Import performance tracking and UI transformers
+from ..utils.performance_tracking import tracker
+from ..transformations.ui_transformers import UITransformer
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -238,6 +242,7 @@ class ApprovalWorkflowEngine:
             logger.error(f"Failed to create default workflow: {e}")
             self.db_connection.rollback()
     
+    @tracker.track_performance("approval_workflow")
     def submit_request_for_approval(self, request_type: str, employee_id: str, 
                                    request_data: Dict[str, Any],
                                    urgency_level: str = "normal",
@@ -285,6 +290,7 @@ class ApprovalWorkflowEngine:
         
         return approval_request
     
+    @tracker.track_performance("approval_workflow")
     def process_approval_decision(self, request_id: str, approver_id: str, 
                                  action: ApprovalAction, comments: Optional[str] = None) -> ApprovalDecision:
         """
@@ -605,6 +611,7 @@ class ApprovalWorkflowEngine:
             self.db_connection.rollback()
             raise
     
+    @tracker.track_performance("approval_workflow")
     def get_pending_approvals(self, approver_id: str) -> List[ApprovalRequest]:
         """Get pending approvals for a specific approver"""
         try:
@@ -645,6 +652,79 @@ class ApprovalWorkflowEngine:
         except psycopg2.Error as e:
             logger.error(f"Failed to get pending approvals: {e}")
             return []
+    
+    def get_approval_dashboard_data(self, approver_id: str) -> Dict[str, Any]:
+        """Get approval dashboard data in UI-friendly format"""
+        try:
+            # Get pending approvals
+            pending = self.get_pending_approvals(approver_id)
+            
+            # Get recent decisions
+            with self.db_connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cursor:
+                cursor.execute("""
+                    SELECT 
+                        ad.decision_id,
+                        ad.request_id,
+                        ad.action,
+                        ad.status,
+                        ad.decision_at,
+                        ar.request_type,
+                        ar.employee_id
+                    FROM approval_decisions ad
+                    JOIN approval_requests ar ON ad.request_id = ar.request_id
+                    WHERE ad.approver_id = %s
+                    AND ad.decision_at > NOW() - INTERVAL '7 days'
+                    ORDER BY ad.decision_at DESC
+                    LIMIT 10
+                """, (approver_id,))
+                
+                recent_decisions = cursor.fetchall()
+            
+            # Transform to UI format
+            ui_data = {
+                "pending_approvals": {
+                    "count": len(pending),
+                    "items": [
+                        {
+                            "id": str(req.request_id),
+                            "type": req.request_type,
+                            "employee": req.employee_id,
+                            "submitted": req.submitted_at.isoformat(),
+                            "urgency": req.urgency_level,
+                            "data": req.data
+                        }
+                        for req in pending[:10]  # Limit to 10 for UI
+                    ]
+                },
+                "recent_decisions": {
+                    "count": len(recent_decisions),
+                    "items": [
+                        {
+                            "id": str(dec['decision_id']),
+                            "action": dec['action'],
+                            "status": dec['status'],
+                            "date": dec['decision_at'].isoformat(),
+                            "request_type": dec['request_type']
+                        }
+                        for dec in recent_decisions
+                    ]
+                },
+                "statistics": {
+                    "pending_count": len(pending),
+                    "approved_this_week": sum(1 for d in recent_decisions if d['status'] == 'approved'),
+                    "rejected_this_week": sum(1 for d in recent_decisions if d['status'] == 'rejected')
+                }
+            }
+            
+            return ui_data
+            
+        except Exception as e:
+            logger.error(f"Failed to get dashboard data: {e}")
+            return {
+                "pending_approvals": {"count": 0, "items": []},
+                "recent_decisions": {"count": 0, "items": []},
+                "statistics": {"pending_count": 0, "approved_this_week": 0, "rejected_this_week": 0}
+            }
     
     def __del__(self):
         """Cleanup database connection"""

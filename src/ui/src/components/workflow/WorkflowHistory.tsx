@@ -50,7 +50,7 @@ interface WorkflowHistoryRecord {
 type SortField = 'processed_at' | 'employee_name' | 'processing_time_hours' | 'submitted_at';
 type SortDirection = 'asc' | 'desc';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
 const WorkflowHistory: React.FC = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);

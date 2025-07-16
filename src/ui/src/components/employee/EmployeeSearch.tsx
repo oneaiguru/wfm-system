@@ -33,7 +33,7 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({ onEmployeeSelect, class
   const [hasMoreResults, setHasMoreResults] = useState(false);
   const [totalDisplayed, setTotalDisplayed] = useState(0);
 
-  const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api/v1';
+  const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
   // Debounce search query
   useEffect(() => {

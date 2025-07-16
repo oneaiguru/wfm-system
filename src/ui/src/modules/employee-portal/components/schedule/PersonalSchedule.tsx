@@ -17,7 +17,7 @@ interface ShiftData {
   notes?: string;
 }
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001/api/v1';
 
 const PersonalSchedule: React.FC<PersonalScheduleProps> = ({ employeeId }) => {
   const [shifts, setShifts] = useState<ShiftData[]>([]);
@@ -91,52 +91,6 @@ const PersonalSchedule: React.FC<PersonalScheduleProps> = ({ employeeId }) => {
 
     loadScheduleData();
   }, [employeeId, selectedDate]);
-
-  // Reload schedule when employee or date changes
-          team: 'Customer Support'
-        },
-        {
-          id: '5',
-          date: new Date('2025-07-18'),
-          startTime: '14:00',
-          endTime: '22:00',
-          type: 'regular',
-          location: 'Main Office',
-          status: 'scheduled',
-          duration: 8,
-          team: 'Customer Support'
-        },
-        {
-          id: '6',
-          date: new Date('2025-07-19'),
-          startTime: '10:00',
-          endTime: '16:00',
-          type: 'overtime',
-          location: 'Main Office',
-          status: 'scheduled',
-          duration: 6,
-          team: 'Customer Support',
-          notes: 'Weekend coverage - overtime pay'
-        },
-        {
-          id: '7',
-          date: new Date('2025-07-21'),
-          startTime: '09:00',
-          endTime: '17:00',
-          type: 'regular',
-          location: 'Main Office',
-          status: 'scheduled',
-          duration: 8,
-          team: 'Customer Support'
-        }
-      ];
-      
-      setShifts(mockShifts);
-      setLoading(false);
-    };
-    
-    loadSchedule();
-  }, [employeeId]);
 
   const getStatusColor = (status: string) => {
     switch (status) {

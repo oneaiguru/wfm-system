@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test React App</title>
+    <script>
+        // Check for console errors
+        window.addEventListener('error', function(e) {
+            document.getElementById('errors').innerHTML += '<div>Error: ' + e.message + ' at ' + e.filename + ':' + e.lineno + '</div>';
+        });
+    </script>
+</head>
+<body>
+    <h1>React App Debug</h1>
+    <div id="errors" style="color: red;"></div>
+    <iframe src="http://localhost:3000" width="100%" height="600" onload="checkIframe()"></iframe>
+    
+    <script>
+        function checkIframe() {
+            try {
+                const iframe = document.querySelector('iframe');
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                const rootEl = iframeDoc.getElementById('root');
+                document.getElementById('errors').innerHTML += '<div>Root element: ' + (rootEl ? 'Found' : 'Not found') + '</div>';
+                document.getElementById('errors').innerHTML += '<div>Root innerHTML: ' + (rootEl ? rootEl.innerHTML.substring(0, 100) : 'N/A') + '</div>';
+            } catch (e) {
+                document.getElementById('errors').innerHTML += '<div>Cannot access iframe: ' + e.message + '</div>';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -32,7 +32,7 @@ const SystemSettings: React.FC = () => {
   const [hasChanges, setHasChanges] = useState(false);
   const [employeeStats, setEmployeeStats] = useState({ total: 0, active: 0, inactive: 0 });
 
-  const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api/v1';
+  const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
   // Initialize system configuration with defaults
   const initializeSystemConfig = (): SystemConfig[] => {

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>React Test</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+</head>
+<body>
+    <h1>Direct React Test</h1>
+    <div id="test-root"></div>
+    <hr>
+    <h2>Iframe Test</h2>
+    <iframe id="app-frame" src="http://localhost:3000" width="100%" height="400"></iframe>
+    
+    <script>
+        // Test React directly
+        const e = React.createElement;
+        const domContainer = document.querySelector('#test-root');
+        const root = ReactDOM.createRoot(domContainer);
+        root.render(e('div', null, '✅ React is working!'));
+        
+        // Check iframe after load
+        document.getElementById('app-frame').onload = function() {
+            console.log('Iframe loaded');
+            // Try to check for errors in console
+            setTimeout(() => {
+                alert('Check browser console for any errors. If you see a blank page in the iframe, there may be JavaScript errors.');
+            }, 1000);
+        };
+    </script>
+</body>
+</html>

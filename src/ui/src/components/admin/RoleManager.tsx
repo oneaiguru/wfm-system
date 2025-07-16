@@ -44,7 +44,7 @@ const RoleManager: React.FC = () => {
   const [showCreateRole, setShowCreateRole] = useState(false);
   const [activeTab, setActiveTab] = useState('roles');
 
-  const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api/v1';
+  const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
   // Initialize default roles and permissions
   const initializeRolesAndPermissions = (employeeData: Employee[]) => {

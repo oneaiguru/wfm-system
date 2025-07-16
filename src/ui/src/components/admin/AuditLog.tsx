@@ -44,7 +44,7 @@ const AuditLog: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(25);
 
-  const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api/v1';
+  const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
   // Generate realistic audit log entries based on employee data
   const generateAuditLogs = (employeeData: Employee[]): AuditLogEntry[] => {
