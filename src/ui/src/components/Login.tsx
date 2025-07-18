@@ -83,9 +83,20 @@ const Login: React.FC = () => {
         // Store user name for welcome message
         const userName = result.data.user?.name || email.split('@')[0];
         
+        // Role-based redirect per BDD spec line 24
+        const redirectByRole = (role: string) => {
+          switch(role) {
+            case 'employee': return '/dashboard/employee';
+            case 'manager': return '/dashboard/manager';
+            case 'admin': return '/dashboard/admin';
+            default: return '/dashboard';
+          }
+        };
+        
         // Redirect after showing success
         setTimeout(() => {
-          window.location.href = '/dashboard';
+          const userRole = result.data.user?.role || 'employee';
+          window.location.href = redirectByRole(userRole);
         }, 1500);
       } else {
         // Show real error from API in Russian

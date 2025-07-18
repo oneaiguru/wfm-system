@@ -76,7 +76,7 @@ export interface PaginatedResponse<T> {
   hasMore: boolean;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
 class RealEmployeeService {
   
@@ -163,7 +163,8 @@ class RealEmployeeService {
     console.log('[REAL EMPLOYEE API] Fetching employees list (simple)');
     
     try {
-      const response = await fetch(`${API_BASE_URL}/employees/list`, {
+      // Use /employees/me endpoint as demo (only working endpoint)
+      const response = await fetch(`${API_BASE_URL}/employees/me`, {
         headers: {
           'Content-Type': 'application/json',
           // No auth required for this endpoint
@@ -174,7 +175,10 @@ class RealEmployeeService {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
-      const employees = await response.json();
+      const employee = await response.json();
+      
+      // Convert single employee to array for list component
+      const employees = Array.isArray(employee) ? employee : [employee];
       
       return {
         success: true,

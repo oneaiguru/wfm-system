@@ -150,7 +150,7 @@ class RealScheduleService {
   // Get current schedule data
   async getCurrentSchedule(): Promise<ScheduleResponse> {
     try {
-      const response = await this.makeRequest<ScheduleResponse>('/api/v1/schedules/current');
+      const response = await this.makeRequest<ScheduleResponse>('/api/v1/schedules/personal');
       return response;
     } catch (error) {
       return {

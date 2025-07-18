@@ -30,7 +30,7 @@ export interface ApiResponse<T> {
   error?: string;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
 class RealDashboardService {
   
@@ -76,7 +76,7 @@ class RealDashboardService {
   async getDashboardMetrics(): Promise<ApiResponse<DashboardMetrics>> {
     console.log('[REAL API] Fetching dashboard metrics');
     
-    return this.makeRequest<DashboardMetrics>('/metrics/dashboard', {
+    return this.makeRequest<DashboardMetrics>('/analytics/dashboard', {
       method: 'GET'
     });
   }
@@ -94,7 +94,7 @@ class RealDashboardService {
   async refreshMetrics(): Promise<ApiResponse<DashboardMetrics>> {
     console.log('[REAL API] Refreshing dashboard metrics');
     
-    return this.makeRequest<DashboardMetrics>('/metrics/dashboard?refresh=true', {
+    return this.makeRequest<DashboardMetrics>('/analytics/dashboard?refresh=true', {
       method: 'GET'
     });
   }
