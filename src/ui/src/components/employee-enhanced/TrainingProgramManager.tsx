@@ -39,7 +39,8 @@ interface Employee {
   trainingHistory: string[];
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+// Use I's verified training endpoint on port 8001
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001/api/v1';
 
 const TrainingProgramManager: React.FC = () => {
   const [programs, setPrograms] = useState<TrainingProgram[]>([]);
@@ -57,18 +58,58 @@ const TrainingProgramManager: React.FC = () => {
   const fetchTrainingData = async () => {
     try {
       setLoading(true);
-      const [programsRes, employeesRes] = await Promise.all([
-        fetch(`${API_BASE_URL}/training/programs`),
-        fetch(`${API_BASE_URL}/employees/training/eligibility`)
-      ]);
       
-      const programsData = await programsRes.json();
-      const employeesData = await employeesRes.json();
+      // Use I's verified training programs endpoint with JWT auth
+      const authToken = localStorage.getItem('authToken');
+      console.log('[TRAINING] Calling I\'s verified training endpoint...');
       
-      setPrograms(programsData.programs || []);
-      setEmployees(employeesData.employees || []);
+      const programsRes = await fetch(`${API_BASE_URL}/training/programs`, {
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (programsRes.ok) {
+        const rawData = await programsRes.json();
+        console.log('✅ I-VERIFIED training programs loaded:', rawData);
+        
+        // Parse I's training response format
+        const parsedPrograms: TrainingProgram[] = rawData.programs?.map((prog: any) => ({
+          id: prog.program_id || prog.id,
+          title: prog.title_ru || prog.title_en || prog.title,
+          description: prog.description || 'Описание недоступно',
+          category: prog.category || 'Общее обучение',
+          duration: prog.duration_hours || 8,
+          requiredSkills: prog.required_skills || [],
+          targetSkills: prog.target_skills || [],
+          instructorId: prog.instructor_id || 'instructor_1',
+          instructorName: prog.instructor_name || 'Инструктор',
+          maxParticipants: prog.max_participants || 20,
+          currentParticipants: prog.current_participants || 0,
+          status: prog.status || 'active',
+          startDate: prog.start_date || new Date().toISOString(),
+          endDate: prog.end_date || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+          sessions: []
+        })) || [];
+        
+        setPrograms(parsedPrograms);
+        
+        // Demo employees for enrollment features
+        setEmployees([
+          {
+            id: '1',
+            name: 'Иван Иванов',
+            department: 'Техническая поддержка',
+            currentSkills: ['Customer Service'],
+            trainingHistory: []
+          }
+        ]);
+      } else {
+        console.error(`❌ Training API error: ${programsRes.status}`);
+      }
     } catch (err) {
-      console.error('Ошибка загрузки данных обучения');
+      console.error('❌ Training data fetch error:', err);
     } finally {
       setLoading(false);
     }

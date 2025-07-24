@@ -1,4 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { offlineStorage, addOfflineRequest } from '../offline/OfflineStorage';
+import OfflineIndicator from '../offline/OfflineIndicator';
+import { realMobileService } from '../../services/realMobileService';
 import './MobileRequestForm.css';
 
 interface RequestType {
@@ -50,12 +53,29 @@ const MobileRequestForm: React.FC<MobileRequestFormProps> = ({
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [step, setStep] = useState<'type' | 'form' | 'preview'>('type');
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
+  const [pendingSync, setPendingSync] = useState(0);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
     loadRequestTypes();
+    
+    // Monitor network status
+    const handleOnline = () => setIsOffline(false);
+    const handleOffline = () => setIsOffline(true);
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    // Check pending sync items
+    checkPendingSync();
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
   }, []);
 
   useEffect(() => {
@@ -64,27 +84,68 @@ const MobileRequestForm: React.FC<MobileRequestFormProps> = ({
     }
   }, [selectedType]);
 
+  const checkPendingSync = async () => {
+    const syncStatus = realMobileService.getSyncStatus();
+    setPendingSync(syncStatus.pendingActions);
+  };
+
   const loadRequestTypes = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/v1/mobile/requests/types', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('mobile_auth_token')}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      // Try cache first
+      const cached = await offlineStorage.getCache('request_types');
+      if (cached) {
+        setRequestTypes(cached);
+      }
 
-      if (response.ok) {
-        const types = await response.json();
-        setRequestTypes(types);
-        
-        if (initialRequestType) {
-          const initialType = types.find((t: RequestType) => t.id === initialRequestType);
-          if (initialType) {
-            setSelectedType(initialType);
-            setStep('form');
+      // Try network if online
+      if (navigator.onLine) {
+        const response = await fetch('/api/v1/mobile/requests/types', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('mobile_auth_token')}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          const types = await response.json();
+          setRequestTypes(types);
+          
+          // Cache for offline use
+          await offlineStorage.setCache('request_types', types, 3600); // 1 hour
+          
+          if (initialRequestType) {
+            const initialType = types.find((t: RequestType) => t.id === initialRequestType);
+            if (initialType) {
+              setSelectedType(initialType);
+              setStep('form');
+            }
           }
         }
+      } else if (!cached) {
+        // Provide default request types for offline use
+        const defaultTypes: RequestType[] = [
+          {
+            id: 'vacation',
+            name: 'Отпуск',
+            description: 'Заявка на отпуск',
+            icon: '🏖️',
+            requires_approval: true,
+            max_advance_days: 30,
+            allow_recurring: false
+          },
+          {
+            id: 'sick_leave',
+            name: 'Больничный',
+            description: 'Заявка на больничный',
+            icon: '🏥',
+            requires_approval: false,
+            max_advance_days: 0,
+            allow_recurring: false
+          }
+        ];
+        setRequestTypes(defaultTypes);
+        await offlineStorage.setCache('request_types', defaultTypes, 3600);
       }
     } catch (error) {
       console.error('Ошибка загрузки типов запросов:', error);
@@ -204,29 +265,70 @@ const MobileRequestForm: React.FC<MobileRequestFormProps> = ({
     
     setSubmitting(true);
     try {
-      const formDataToSubmit = new FormData();
-      
-      // Add form fields
-      formDataToSubmit.append('employee_id', employeeId);
-      formDataToSubmit.append('request_type_id', selectedType!.id);
-      formDataToSubmit.append('form_data', JSON.stringify(formData));
-      
-      // Add attachments
-      attachments.forEach((attachment, index) => {
-        formDataToSubmit.append(`attachment_${index}`, attachment.file);
-      });
-      
-      const response = await fetch('/api/v1/mobile/requests/submit', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('mobile_auth_token')}`,
-        },
-        body: formDataToSubmit
-      });
-      
-      if (response.ok) {
-        const result = await response.json();
-        await onSubmit(result);
+      const requestData = {
+        employee_id: employeeId,
+        request_type_id: selectedType!.id,
+        form_data: formData,
+        attachments: attachments.map(a => ({
+          name: a.file.name,
+          size: a.file.size,
+          type: a.file.type
+        })),
+        created_offline: !navigator.onLine,
+        timestamp: new Date().toISOString()
+      };
+
+      if (navigator.onLine) {
+        // Online submission
+        const formDataToSubmit = new FormData();
+        
+        // Add form fields
+        formDataToSubmit.append('employee_id', employeeId);
+        formDataToSubmit.append('request_type_id', selectedType!.id);
+        formDataToSubmit.append('form_data', JSON.stringify(formData));
+        
+        // Add attachments
+        attachments.forEach((attachment, index) => {
+          formDataToSubmit.append(`attachment_${index}`, attachment.file);
+        });
+        
+        const response = await fetch('/api/v1/mobile/requests/submit', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('mobile_auth_token')}`,
+          },
+          body: formDataToSubmit
+        });
+        
+        if (response.ok) {
+          const result = await response.json();
+          await onSubmit(result);
+          
+          // Reset form
+          setFormData({});
+          setAttachments([]);
+          setStep('type');
+          setSelectedType(null);
+          
+          alert('Заявка успешно отправлена!');
+        } else {
+          throw new Error('Ошибка отправки заявки');
+        }
+      } else {
+        // Offline submission - queue for sync
+        const offlineId = await addOfflineRequest(requestData);
+        
+        // Queue in mobile service for sync
+        await realMobileService.queueOfflineAction({
+          type: 'request',
+          data: requestData
+        });
+        
+        await onSubmit({
+          id: offlineId,
+          status: 'pending_sync',
+          ...requestData
+        });
         
         // Reset form
         setFormData({});
@@ -234,14 +336,17 @@ const MobileRequestForm: React.FC<MobileRequestFormProps> = ({
         setStep('type');
         setSelectedType(null);
         
-        alert('Заявка успешно отправлена!');
-      } else {
-        const error = await response.json();
-        throw new Error(error.message || 'Ошибка отправки заявки');
+        // Update pending count
+        await checkPendingSync();
+        
+        alert('Заявка сохранена для отправки при подключении к сети!');
       }
     } catch (error) {
       console.error('Ошибка отправки заявки:', error);
-      alert('Ошибка отправки заявки. Попробуйте позже.');
+      alert(isOffline 
+        ? 'Заявка сохранена для отправки при подключении к сети!' 
+        : 'Ошибка отправки заявки. Попробуйте позже.'
+      );
     } finally {
       setSubmitting(false);
     }
@@ -347,6 +452,12 @@ const MobileRequestForm: React.FC<MobileRequestFormProps> = ({
       <div className="mobile-form__header">
         <h2>Создать заявку</h2>
         <p>Выберите тип заявки</p>
+        <OfflineIndicator className="mobile-form__offline-indicator" />
+        {pendingSync > 0 && (
+          <div className="mobile-form__pending-sync">
+            📤 {pendingSync} заявок ожидает синхронизации
+          </div>
+        )}
       </div>
       
       <div className="mobile-form__types">
@@ -488,7 +599,12 @@ const MobileRequestForm: React.FC<MobileRequestFormProps> = ({
           onClick={submitRequest}
           disabled={submitting}
         >
-          {submitting ? 'Отправка...' : 'Отправить заявку'}
+          {submitting 
+            ? 'Отправка...' 
+            : isOffline 
+              ? '💾 Сохранить для синхронизации' 
+              : 'Отправить заявку'
+          }
         </button>
       </div>
     </div>
@@ -556,7 +672,12 @@ const MobileRequestForm: React.FC<MobileRequestFormProps> = ({
           onClick={submitRequest}
           disabled={submitting}
         >
-          {submitting ? 'Отправка...' : 'Отправить заявку'}
+          {submitting 
+            ? 'Отправка...' 
+            : isOffline 
+              ? '💾 Сохранить для синхронизации' 
+              : 'Отправить заявку'
+          }
         </button>
       </div>
     </div>

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { format, startOfWeek, addDays, isSameDay } from 'date-fns';
-import { Calendar, Clock, ArrowLeft, ArrowRight, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Calendar, Clock, ArrowLeft, ArrowRight, AlertTriangle, CheckCircle, ArrowLeftRight } from 'lucide-react';
+import realScheduleService from '../services/realScheduleService';
+import ShiftSwapModal from './modals/ShiftSwapModal';
 
 interface Shift {
   id: string;
@@ -14,13 +16,12 @@ interface Shift {
   notes?: string;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
-
 export const ScheduleView: React.FC = () => {
   const [shifts, setShifts] = useState<Shift[]>([]);
   const [currentWeek, setCurrentWeek] = useState(new Date());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
+  const [showShiftSwapModal, setShowShiftSwapModal] = useState(false);
 
   useEffect(() => {
     fetchSchedule();
@@ -31,55 +32,81 @@ export const ScheduleView: React.FC = () => {
     setError('');
     
     try {
-      const response = await fetch(`${API_BASE_URL}/schedules/personal`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-        }
-      });
+      // Check API health first
+      const healthCheck = await realScheduleService.checkApiHealth();
+      if (!healthCheck.healthy) {
+        setError('Schedule API is not available. Please ensure the backend server is running.');
+        console.error('API Health Check Failed:', healthCheck.message);
+        setLoading(false);
+        return;
+      }
+
+      // Get current personal schedule using real service - NO MOCK FALLBACK
+      const scheduleResponse = await realScheduleService.getCurrentSchedule();
       
-      if (response.ok) {
-        const data = await response.json();
-        // Transform API data to shifts array
-        const transformedShifts = data.shifts || [];
+      if (scheduleResponse.success && scheduleResponse.data) {
+        // Transform API data to component format
+        const transformedShifts: Shift[] = scheduleResponse.data.shifts.map(shift => ({
+          id: shift.id,
+          date: shift.date,
+          startTime: shift.startTime,
+          endTime: shift.endTime,
+          department: 'Customer Service', // Default department
+          role: 'Customer Service Representative', // Default role
+          status: shift.status,
+          location: 'Call Center Floor 2',
+          notes: undefined
+        }));
+        
         setShifts(transformedShifts);
+        console.log('✅ Real schedule loaded from API:', transformedShifts.length, 'shifts');
       } else {
-        throw new Error('Failed to fetch schedule');
+        // Show real error - NO DEMO FALLBACK
+        const errorMsg = scheduleResponse.error || 'Failed to load schedule';
+        setError(errorMsg);
+        console.error('Schedule API Error:', errorMsg);
+        
+        // If 404 or employee not found, try alternative endpoint
+        if (errorMsg.includes('404') || errorMsg.includes('Employee')) {
+          console.log('Trying alternative schedule endpoint...');
+          
+          // Try team schedule endpoint instead
+          const startDate = format(startOfWeek(currentWeek), 'yyyy-MM-dd');
+          const endDate = format(addDays(startOfWeek(currentWeek), 6), 'yyyy-MM-dd');
+          
+          const teamSchedule = await realScheduleService.getScheduleData({
+            startDate,
+            endDate,
+            includeShifts: true
+          });
+          
+          if (teamSchedule.success && teamSchedule.data) {
+            const transformedShifts: Shift[] = teamSchedule.data.shifts.map(shift => ({
+              id: shift.id,
+              date: shift.date,
+              startTime: shift.startTime,
+              endTime: shift.endTime,
+              department: 'Customer Service',
+              role: 'Customer Service Representative',
+              status: shift.status,
+              location: 'Call Center Floor 2',
+              notes: undefined
+            }));
+            
+            setShifts(transformedShifts);
+            console.log('✅ Team schedule loaded as fallback:', transformedShifts.length, 'shifts');
+            setError(''); // Clear error if fallback worked
+          }
+        }
       }
     } catch (err) {
       console.error('Schedule fetch error:', err);
-      setError('Failed to load schedule data');
-      
-      // Generate demo schedule data
-      generateDemoSchedule();
+      setError('Failed to connect to schedule service. Please check if the API server is running.');
     } finally {
       setLoading(false);
     }
   };
 
-  const generateDemoSchedule = () => {
-    const weekStart = startOfWeek(currentWeek);
-    const demoShifts: Shift[] = [];
-    
-    // Generate demo shifts for Monday to Friday
-    for (let i = 0; i < 5; i++) {
-      if (i !== 2) { // Skip Wednesday (day off)
-        const date = addDays(weekStart, i + 1); // Skip Sunday (i+1 for Monday start)
-        demoShifts.push({
-          id: `shift-${i}`,
-          date: format(date, 'yyyy-MM-dd'),
-          startTime: i === 0 ? '08:00' : i === 1 ? '09:00' : '10:00', // Varied start times
-          endTime: i === 0 ? '16:00' : i === 1 ? '17:00' : '18:00',   // Varied end times
-          department: 'Customer Service',
-          role: 'Customer Service Representative',
-          status: 'confirmed',
-          location: 'Call Center Floor 2',
-          notes: i === 4 ? 'Training session at 2 PM' : undefined
-        });
-      }
-    }
-    
-    setShifts(demoShifts);
-  };
 
   const getShiftForDate = (date: Date) => {
     const dateStr = format(date, 'yyyy-MM-dd');
@@ -132,6 +159,13 @@ export const ScheduleView: React.FC = () => {
             </div>
             <div className="flex items-center gap-3">
               <button
+                onClick={() => setShowShiftSwapModal(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                <ArrowLeftRight className="h-4 w-4" />
+                <span>Request Shift Swap</span>
+              </button>
+              <button
                 onClick={() => setCurrentWeek(addDays(currentWeek, -7))}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
               >
@@ -157,13 +191,12 @@ export const ScheduleView: React.FC = () => {
       {/* Content */}
       <div className="max-w-7xl mx-auto px-4 py-6">
         {error && (
-          <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
             <div className="flex items-center">
-              <AlertTriangle className="h-5 w-5 text-yellow-600 mr-2" />
+              <AlertTriangle className="h-5 w-5 text-red-600 mr-2" />
               <div>
-                <p className="text-yellow-800 font-medium">Schedule Loading Issue</p>
-                <p className="text-yellow-700 text-sm">{error}</p>
-                <p className="text-yellow-700 text-sm">Showing demo schedule for demonstration</p>
+                <p className="text-red-800 font-medium">Schedule Loading Error</p>
+                <p className="text-red-700 text-sm">{error}</p>
               </div>
             </div>
           </div>
@@ -268,14 +301,24 @@ export const ScheduleView: React.FC = () => {
           </div>
         </div>
 
-        {/* BDD Compliance Note */}
+        {/* API Status and BDD Compliance */}
         <div className="mt-6 text-center">
           <div className="inline-flex items-center px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm">
             <Calendar className="h-4 w-4 mr-2" />
-            BDD Compliant: Personal Schedule View
+            BDD Compliant: Personal Schedule View - Real API Integration
           </div>
         </div>
       </div>
+
+      {/* Shift Swap Modal */}
+      <ShiftSwapModal
+        isOpen={showShiftSwapModal}
+        onClose={() => setShowShiftSwapModal(false)}
+        onSuccess={() => {
+          setShowShiftSwapModal(false);
+          fetchSchedule(); // Refresh schedule after successful swap
+        }}
+      />
     </div>
   );
 };

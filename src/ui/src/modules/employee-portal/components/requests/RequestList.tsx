@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import realRequestService from '../../../../services/realRequestService';
+import RequestEditor from '../../../../components/requests/RequestEditor';
+import CancelDialog from '../../../../components/requests/CancelDialog';
 
 interface RequestListProps {
   employeeId: string;
@@ -45,15 +48,44 @@ const RequestList: React.FC<RequestListProps> = ({
   const [filters, setFilters] = useState<RequestFilters>({});
   const [sortBy, setSortBy] = useState<'date' | 'type' | 'status'>('date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [editingRequest, setEditingRequest] = useState<Request | null>(null);
+  const [cancellingRequest, setCancellingRequest] = useState<Request | null>(null);
 
-  // Mock data
+  // Load real request history
   useEffect(() => {
     const loadRequests = async () => {
       setLoading(true);
       
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      const mockRequests: Request[] = [
+      try {
+        // Load from real API
+        const response = await realRequestService.getEmployeeRequestHistory(employeeId);
+        
+        if (response.success && response.data) {
+          const formattedRequests: Request[] = response.data.map((req: any) => ({
+            id: req.id || req.request_id,
+            type: req.type || 'vacation',
+            title: req.title || `${req.type || 'Vacation'} Request`,
+            status: req.status || 'submitted',
+            priority: req.priority || 'normal',
+            startDate: new Date(req.start_date),
+            endDate: req.end_date ? new Date(req.end_date) : undefined,
+            reason: req.description || req.reason || '',
+            submittedAt: new Date(req.created_at || req.submittedAt || Date.now()),
+            daysRequested: req.days_requested,
+            actionRequired: ['submitted', 'pending_approval'].includes(req.status),
+            approver: req.approver ? {
+              name: req.approver.name || req.approved_by,
+              comments: req.approver.comments || req.approval_comments
+            } : undefined
+          }));
+          
+          setRequests(formattedRequests);
+        } else {
+          // Fall back to mock data if API fails
+          console.warn('Failed to load real data, using mock data');
+          await new Promise(resolve => setTimeout(resolve, 800));
+          
+          const mockRequests: Request[] = [
         {
           id: '1',
           type: 'vacation',
@@ -138,7 +170,12 @@ const RequestList: React.FC<RequestListProps> = ({
       ];
       
       setRequests(mockRequests);
-      setLoading(false);
+        }
+      } catch (error) {
+        console.error('Error loading requests:', error);
+      } finally {
+        setLoading(false);
+      }
     };
     
     loadRequests();
@@ -271,18 +308,10 @@ const RequestList: React.FC<RequestListProps> = ({
         onViewRequest?.(request);
         break;
       case 'edit':
-        onEditRequest?.(request);
+        setEditingRequest(request);
         break;
       case 'cancel':
-        if (window.confirm('Are you sure you want to cancel this request?')) {
-          setRequests(prev => 
-            prev.map(r => 
-              r.id === requestId 
-                ? { ...r, status: 'cancelled' as const }
-                : r
-            )
-          );
-        }
+        setCancellingRequest(request);
         break;
       case 'submit':
         setRequests(prev => 
@@ -294,6 +323,26 @@ const RequestList: React.FC<RequestListProps> = ({
         );
         break;
     }
+  };
+
+  const handleEditSave = (updatedRequest: Request) => {
+    setRequests(prev => 
+      prev.map(r => r.id === updatedRequest.id ? updatedRequest : r)
+    );
+    setEditingRequest(null);
+  };
+
+  const handleCancelConfirm = (reason: string) => {
+    if (cancellingRequest) {
+      setRequests(prev => 
+        prev.map(r => 
+          r.id === cancellingRequest.id 
+            ? { ...r, status: 'cancelled' as const }
+            : r
+        )
+      );
+    }
+    setCancellingRequest(null);
   };
 
   const formatDate = (date: Date) => {
@@ -526,6 +575,15 @@ const RequestList: React.FC<RequestListProps> = ({
                     
                     {['submitted', 'pending_approval'].includes(request.status) && (
                       <button
+                        onClick={() => handleRequestAction(request.id, 'edit')}
+                        className="px-3 py-1 text-sm border border-blue-300 text-blue-600 rounded hover:bg-blue-50 transition-colors"
+                      >
+                        Edit
+                      </button>
+                    )}
+                    
+                    {['approved'].includes(request.status) && (
+                      <button
                         onClick={() => handleRequestAction(request.id, 'cancel')}
                         className="px-3 py-1 text-sm border border-red-300 text-red-600 rounded hover:bg-red-50 transition-colors"
                       >
@@ -539,6 +597,24 @@ const RequestList: React.FC<RequestListProps> = ({
           </div>
         )}
       </div>
+
+      {/* Edit Request Modal */}
+      {editingRequest && (
+        <RequestEditor
+          request={editingRequest}
+          onSave={handleEditSave}
+          onCancel={() => setEditingRequest(null)}
+        />
+      )}
+
+      {/* Cancel Request Dialog */}
+      {cancellingRequest && (
+        <CancelDialog
+          request={cancellingRequest}
+          onConfirm={handleCancelConfirm}
+          onCancel={() => setCancellingRequest(null)}
+        />
+      )}
     </div>
   );
 };

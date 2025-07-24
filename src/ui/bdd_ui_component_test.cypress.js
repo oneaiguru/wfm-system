@@ -9,7 +9,7 @@ describe('BDD Vacation Request Workflow', () => {
   // Test Setup - Verify API endpoints are available
   beforeEach(() => {
     // Ensure backend API is running
-    cy.request('GET', 'http://localhost:8000/api/v1/employees')
+    cy.request('GET', 'http://localhost:8001/api/v1/employees')
       .then((response) => {
         expect(response.status).to.eq(200);
         expect(response.body.employees).to.have.length.greaterThan(0);
@@ -144,7 +144,7 @@ describe('BDD Vacation Request Workflow', () => {
   it('Should verify API integration for vacation requests', () => {
     
     // Test employee data endpoint
-    cy.request('GET', 'http://localhost:8000/api/v1/employees')
+    cy.request('GET', 'http://localhost:8001/api/v1/employees')
       .then((response) => {
         expect(response.status).to.eq(200);
         expect(response.body.employees).to.be.an('array');
@@ -161,7 +161,7 @@ describe('BDD Vacation Request Workflow', () => {
       description: "Тестовая заявка на больничный через Cypress"
     };
     
-    cy.request('POST', 'http://localhost:8000/api/v1/requests/vacation', requestData)
+    cy.request('POST', 'http://localhost:8001/api/v1/requests/vacation', requestData)
       .then((response) => {
         expect(response.status).to.eq(200);
         expect(response.body.status).to.eq('success');
@@ -177,7 +177,7 @@ describe('BDD Vacation Request Workflow', () => {
     
     // Test request status retrieval
     cy.get('@requestId').then((requestId) => {
-      cy.request('GET', `http://localhost:8000/api/v1/requests/${requestId}`)
+      cy.request('GET', `http://localhost:8001/api/v1/requests/${requestId}`)
         .then((response) => {
           expect(response.status).to.eq(200);
           expect(response.body.id).to.eq(requestId);

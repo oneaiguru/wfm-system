@@ -1,243 +1,193 @@
-"""Transform complex algorithm outputs to simple UI formats"""
+"""
+UI Data Transformation Layer
+
+Transforms complex algorithm outputs to simple UI-consumable formats.
+Addresses the problem: Algorithms return complex objects, UI needs simple formats.
+
+Key transformations:
+- Forecast objects → Chart data
+- Schedule results → Grid format  
+- Metrics aggregations → Dashboard KPIs
+- Complex nested data → Flat JSON structures
+
+Performance: Sub-second transformations for real-time UI updates
+"""
 
 from typing import Dict, List, Any, Union, Optional
 from datetime import datetime, date
 from dataclasses import dataclass
 import json
 
-
-# Define the data models that algorithms use
+# Type definitions for algorithm outputs
 @dataclass
 class IntervalForecast:
+    """Single interval forecast data"""
     start_time: datetime
     end_time: datetime
     predicted_calls: float
     confidence_lower: float
     confidence_upper: float
-
+    skill_requirements: Optional[Dict[str, float]] = None
 
 @dataclass
 class ForecastMetadata:
+    """Forecast metadata"""
     confidence_score: float
-    algorithm_version: str
-    parameters: Dict[str, Any]
-
+    model_version: str
+    generated_at: datetime
 
 @dataclass
 class ForecastOutput:
+    """Complex forecast output from algorithms"""
     forecast_date: date
     intervals: List[IntervalForecast]
     metadata: ForecastMetadata
 
-
 @dataclass
-class ShiftAssignment:
-    employee_id: str
+class ScheduleAssignment:
+    """Individual schedule assignment"""
+    employee_id: int
     shift_date: date
-    shift_type: str
     start_time: datetime
     end_time: datetime
-    skills: List[str]
-
+    shift_type: str
+    skill_assignments: List[str]
 
 @dataclass
 class ScheduleOptimizationResult:
-    assignments: List[ShiftAssignment]
+    """Complex schedule optimization result"""
+    assignments: List[ScheduleAssignment]
     optimization_score: float
-    coverage_analysis: Dict[str, Any]
-    constraint_violations: List[str]
-
-
+    constraints_satisfied: List[str]
+    violations: List[str]
+    
 @dataclass
 class MetricsAggregation:
+    """Complex metrics aggregation"""
     service_level: float
     avg_wait_time_seconds: float
     abandonment_rate: float
     agent_occupancy: float
-    trend_direction: float
-    interval_start: datetime
-    interval_end: datetime
-
-
-@dataclass
-class GapAnalysisResult:
-    gaps: List[Dict[str, Any]]
-    total_gap_minutes: float
-    severity_score: float
-    recommendations: List[str]
+    trend_direction: float  # -1 to +1
 
 
 class UITransformer:
-    """Transform complex algorithm outputs to simple UI formats"""
+    """
+    Transform complex algorithm outputs to simple UI formats
+    
+    Handles the gap between algorithmic complexity and UI simplicity.
+    All transformations are optimized for front-end consumption.
+    """
     
     @staticmethod
-    def transform_forecast(forecast_output: Union[ForecastOutput, Dict[str, Any]]) -> Dict[str, Any]:
+    def transform_forecast(forecast_output: ForecastOutput) -> Dict[str, Any]:
         """
         Transform complex forecast to simple chart data
         
-        From:
-        ForecastOutput(
-            forecast_date=date(2025, 7, 20),
-            intervals=[
-                IntervalForecast(
-                    start_time=datetime(...),
-                    end_time=datetime(...),
-                    predicted_calls=142.5,
-                    confidence_lower=130.2,
-                    confidence_upper=154.8
-                ), ...
-            ],
-            metadata=ForecastMetadata(...)
-        )
+        From: ForecastOutput with complex interval objects
+        To: Simple chart-ready JSON
         
-        To:
-        {
-            "labels": ["00:00", "00:30", "01:00", ...],
-            "values": [120, 135, 142, ...],
-            "confidence": 0.90,
-            "date": "2025-07-20"
-        }
+        Args:
+            forecast_output: Complex forecast result from algorithm
+            
+        Returns:
+            Dict with labels, values, confidence for chart display
         """
-        # Handle both dataclass and dict inputs
-        if isinstance(forecast_output, dict):
-            if not forecast_output or 'intervals' not in forecast_output:
-                return {"labels": [], "values": [], "confidence": 0, "date": ""}
-                
-            intervals = forecast_output['intervals']
-            forecast_date = forecast_output.get('forecast_date', '')
-            confidence = forecast_output.get('metadata', {}).get('confidence_score', 0)
+        if not forecast_output or not forecast_output.intervals:
+            return {
+                "labels": [], 
+                "values": [], 
+                "confidence": 0, 
+                "date": "",
+                "total_calls": 0,
+                "peak_hour": "",
+                "trend": "stable"
+            }
+            
+        # Extract chart data
+        labels = [
+            interval.start_time.strftime("%H:%M") 
+            for interval in forecast_output.intervals
+        ]
+        
+        values = [
+            round(interval.predicted_calls) 
+            for interval in forecast_output.intervals
+        ]
+        
+        total_calls = sum(interval.predicted_calls for interval in forecast_output.intervals)
+        
+        # Find peak hour
+        peak_interval = max(forecast_output.intervals, key=lambda x: x.predicted_calls)
+        peak_hour = peak_interval.start_time.strftime("%H:%M")
+        
+        # Simple trend calculation
+        if len(values) >= 2:
+            trend = "up" if values[-1] > values[0] else "down" if values[-1] < values[0] else "stable"
         else:
-            if not forecast_output or not forecast_output.intervals:
-                return {"labels": [], "values": [], "confidence": 0, "date": ""}
-                
-            intervals = forecast_output.intervals
-            forecast_date = forecast_output.forecast_date
-            confidence = forecast_output.metadata.confidence_score
-        
-        # Transform intervals to UI format
-        labels = []
-        values = []
-        confidence_bands = {"lower": [], "upper": []}
-        
-        for interval in intervals:
-            if isinstance(interval, dict):
-                start_time = interval.get('start_time')
-                if isinstance(start_time, str):
-                    start_time = datetime.fromisoformat(start_time)
-                labels.append(start_time.strftime("%H:%M"))
-                values.append(round(interval.get('predicted_calls', 0)))
-                confidence_bands["lower"].append(round(interval.get('confidence_lower', 0)))
-                confidence_bands["upper"].append(round(interval.get('confidence_upper', 0)))
-            else:
-                labels.append(interval.start_time.strftime("%H:%M"))
-                values.append(round(interval.predicted_calls))
-                confidence_bands["lower"].append(round(interval.confidence_lower))
-                confidence_bands["upper"].append(round(interval.confidence_upper))
-        
-        # Format date
-        if isinstance(forecast_date, date):
-            date_str = forecast_date.isoformat()
-        else:
-            date_str = str(forecast_date)
-        
+            trend = "stable"
+            
         return {
             "labels": labels,
             "values": values,
-            "confidence": round(confidence, 2) if confidence else 0,
-            "confidence_bands": confidence_bands,
-            "date": date_str,
-            "total_calls": sum(values)
+            "confidence": round(forecast_output.metadata.confidence_score * 100, 1),
+            "date": forecast_output.forecast_date.isoformat(),
+            "total_calls": round(total_calls),
+            "peak_hour": peak_hour,
+            "trend": trend,
+            "generated_at": forecast_output.metadata.generated_at.isoformat()
         }
     
     @staticmethod
-    def transform_schedule(schedule_result: Union[ScheduleOptimizationResult, Dict[str, Any]]) -> Dict[str, Any]:
+    def transform_schedule(schedule_result: ScheduleOptimizationResult) -> Dict[str, Any]:
         """
         Transform optimized schedule to grid format for UI
         
         From: Complex optimization result with constraints
-        To: Simple grid for display
+        To: Simple grid for calendar/table display
+        
+        Args:
+            schedule_result: Complex schedule optimization result
+            
+        Returns:
+            Dict with employees, dates, grid data for UI display
         """
-        # Handle both dataclass and dict inputs
-        if isinstance(schedule_result, dict):
-            if not schedule_result or 'assignments' not in schedule_result:
-                return {"employees": [], "dates": [], "shifts": [], "coverage_score": 0}
-                
-            assignments = schedule_result['assignments']
-            optimization_score = schedule_result.get('optimization_score', 0)
-        else:
-            if not schedule_result or not schedule_result.assignments:
-                return {"employees": [], "dates": [], "shifts": [], "coverage_score": 0}
-                
-            assignments = schedule_result.assignments
-            optimization_score = schedule_result.optimization_score
-        
+        if not schedule_result or not schedule_result.assignments:
+            return {
+                "employees": [], 
+                "dates": [], 
+                "shifts": [],
+                "coverage_score": 0,
+                "total_assignments": 0,
+                "violations": []
+            }
+            
         # Extract unique employees and dates
-        employees = set()
-        dates = set()
-        
-        for assignment in assignments:
-            if isinstance(assignment, dict):
-                employees.add(assignment['employee_id'])
-                shift_date = assignment.get('shift_date')
-                if isinstance(shift_date, str):
-                    dates.add(shift_date)
-                else:
-                    dates.add(shift_date.isoformat())
-            else:
-                employees.add(assignment.employee_id)
-                dates.add(assignment.shift_date.isoformat())
-        
-        employees = sorted(employees)
-        dates = sorted(dates)
+        employees = sorted(set(a.employee_id for a in schedule_result.assignments))
+        dates = sorted(set(a.shift_date.isoformat() for a in schedule_result.assignments))
         
         # Build grid data
         grid = []
         for emp_id in employees:
             employee_shifts = []
-            for date in dates:
-                # Find assignment for this employee and date
-                assignment = None
-                for a in assignments:
-                    if isinstance(a, dict):
-                        a_date = a.get('shift_date')
-                        if isinstance(a_date, date):
-                            a_date = a_date.isoformat()
-                        if a['employee_id'] == emp_id and a_date == date:
-                            assignment = a
-                            break
-                    else:
-                        if a.employee_id == emp_id and a.shift_date.isoformat() == date:
-                            assignment = a
-                            break
+            for date_str in dates:
+                # Find assignment for this employee on this date
+                assignment = next(
+                    (a for a in schedule_result.assignments 
+                     if a.employee_id == emp_id and a.shift_date.isoformat() == date_str),
+                    None
+                )
                 
                 if assignment:
-                    if isinstance(assignment, dict):
-                        start_time = assignment.get('start_time')
-                        end_time = assignment.get('end_time')
-                        if isinstance(start_time, datetime):
-                            start_str = start_time.strftime("%H:%M")
-                        else:
-                            start_str = start_time
-                        if isinstance(end_time, datetime):
-                            end_str = end_time.strftime("%H:%M")
-                        else:
-                            end_str = end_time
-                            
-                        employee_shifts.append({
-                            "shift": assignment.get('shift_type', 'standard'),
-                            "start": start_str,
-                            "end": end_str,
-                            "skills": assignment.get('skills', [])
-                        })
-                    else:
-                        employee_shifts.append({
-                            "shift": assignment.shift_type,
-                            "start": assignment.start_time.strftime("%H:%M"),
-                            "end": assignment.end_time.strftime("%H:%M"),
-                            "skills": assignment.skills
-                        })
+                    employee_shifts.append({
+                        "shift": assignment.shift_type,
+                        "start": assignment.start_time.strftime("%H:%M"),
+                        "end": assignment.end_time.strftime("%H:%M"),
+                        "skills": assignment.skill_assignments,
+                        "duration_hours": (assignment.end_time - assignment.start_time).total_seconds() / 3600
+                    })
                 else:
-                    employee_shifts.append(None)
+                    employee_shifts.append(None)  # No assignment
             
             grid.append({
                 "employee_id": emp_id,
@@ -248,260 +198,177 @@ class UITransformer:
             "employees": employees,
             "dates": dates,
             "grid": grid,
-            "coverage_score": round(optimization_score * 100, 1) if optimization_score else 0
+            "coverage_score": round(schedule_result.optimization_score * 100, 1),
+            "total_assignments": len(schedule_result.assignments),
+            "violations": schedule_result.violations[:5],  # Limit violations for UI
+            "constraints_satisfied": len(schedule_result.constraints_satisfied),
+            "efficiency_rating": "high" if schedule_result.optimization_score > 0.8 else "medium" if schedule_result.optimization_score > 0.6 else "low"
         }
     
     @staticmethod
-    def transform_metrics(metrics: Union[MetricsAggregation, Dict[str, Any]]) -> Dict[str, Any]:
-        """Transform complex metrics to dashboard format"""
-        # Handle both dataclass and dict inputs
-        if isinstance(metrics, dict):
-            service_level = metrics.get('service_level', 0)
-            avg_wait = metrics.get('avg_wait_time_seconds', 0)
-            abandonment = metrics.get('abandonment_rate', 0)
-            occupancy = metrics.get('agent_occupancy', 0)
-            trend = metrics.get('trend_direction', 0)
-        else:
-            service_level = metrics.service_level
-            avg_wait = metrics.avg_wait_time_seconds
-            abandonment = metrics.abandonment_rate
-            occupancy = metrics.agent_occupancy
-            trend = metrics.trend_direction
+    def transform_metrics(metrics: MetricsAggregation) -> Dict[str, Any]:
+        """
+        Transform complex metrics to dashboard format
+        
+        From: Complex metrics aggregation with raw values
+        To: Dashboard-ready KPI format with percentages and indicators
+        
+        Args:
+            metrics: Complex metrics aggregation
+            
+        Returns:
+            Dict with KPI values, trends, and status indicators
+        """
+        if not metrics:
+            return {
+                "kpi": {},
+                "trend": "stable",
+                "timestamp": datetime.now().isoformat(),
+                "status": "unknown"
+            }
+        
+        # Convert to percentage and round for display
+        service_level_pct = round(metrics.service_level * 100, 1)
+        abandonment_rate_pct = round(metrics.abandonment_rate * 100, 1)
+        occupancy_pct = round(metrics.agent_occupancy * 100, 1)
+        
+        # Determine overall status
+        status = "good"
+        if service_level_pct < 80 or abandonment_rate_pct > 5:
+            status = "warning"
+        if service_level_pct < 70 or abandonment_rate_pct > 10:
+            status = "critical"
         
         return {
             "kpi": {
-                "service_level": round(service_level * 100, 1),
-                "average_wait": round(avg_wait),
-                "abandonment_rate": round(abandonment * 100, 1),
-                "occupancy": round(occupancy * 100, 1)
+                "service_level": service_level_pct,
+                "average_wait": round(metrics.avg_wait_time_seconds),
+                "abandonment_rate": abandonment_rate_pct,
+                "occupancy": occupancy_pct
             },
-            "trend": "up" if trend > 0 else "down" if trend < 0 else "stable",
-            "timestamp": datetime.now().isoformat()
+            "trend": "up" if metrics.trend_direction > 0.1 else "down" if metrics.trend_direction < -0.1 else "stable",
+            "status": status,
+            "timestamp": datetime.now().isoformat(),
+            "alerts": [
+                f"Service level below target: {service_level_pct}%" if service_level_pct < 80 else None,
+                f"High abandonment rate: {abandonment_rate_pct}%" if abandonment_rate_pct > 5 else None,
+                f"Low occupancy: {occupancy_pct}%" if occupancy_pct < 60 else None,
+                f"High occupancy: {occupancy_pct}%" if occupancy_pct > 90 else None
+            ]
         }
     
     @staticmethod
-    def transform_gap_analysis(gap_result: Union[GapAnalysisResult, Dict[str, Any]]) -> Dict[str, Any]:
-        """Transform gap analysis results to UI format"""
-        # Handle both dataclass and dict inputs
-        if isinstance(gap_result, dict):
-            gaps = gap_result.get('gaps', [])
-            total_gap = gap_result.get('total_gap_minutes', 0)
-            severity = gap_result.get('severity_score', 0)
-            recommendations = gap_result.get('recommendations', [])
+    def transform_employee_request(request_data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Transform employee request validation result to UI format
+        
+        From: Complex validation result with technical details
+        To: Simple status and user-friendly messages
+        """
+        if not request_data:
+            return {"status": "unknown", "message": "No data available"}
+        
+        # Extract key information
+        is_valid = request_data.get('is_valid', False)
+        errors = request_data.get('errors', [])
+        warnings = request_data.get('warnings', [])
+        
+        # Determine status
+        if is_valid and not errors:
+            status = "approved" if not warnings else "approved_with_warnings"
+        elif errors:
+            status = "rejected"
         else:
-            gaps = gap_result.gaps
-            total_gap = gap_result.total_gap_minutes
-            severity = gap_result.severity_score
-            recommendations = gap_result.recommendations
+            status = "pending"
         
-        # Transform gaps to timeline format
-        timeline_gaps = []
-        for gap in gaps:
-            timeline_gaps.append({
-                "start": gap.get('start_time', ''),
-                "end": gap.get('end_time', ''),
-                "shortage": gap.get('shortage_count', 0),
-                "severity": gap.get('severity', 'low')
-            })
+        # Create user-friendly messages
+        messages = []
+        if errors:
+            messages.extend([f"❌ {error}" for error in errors])
+        if warnings:
+            messages.extend([f"⚠️ {warning}" for warning in warnings])
+        if is_valid and not errors and not warnings:
+            messages.append("✅ Request approved")
         
         return {
-            "summary": {
-                "total_gap_hours": round(total_gap / 60, 1),
-                "severity_percentage": round(severity * 100, 1),
-                "gap_count": len(gaps)
-            },
-            "timeline": timeline_gaps,
-            "recommendations": recommendations[:5],  # Top 5 recommendations
-            "chart_data": {
-                "labels": [gap.get('start_time', '') for gap in gaps],
-                "values": [gap.get('shortage_count', 0) for gap in gaps]
-            }
+            "status": status,
+            "messages": messages,
+            "can_submit": is_valid and not errors,
+            "requires_approval": request_data.get('requires_approval', True),
+            "estimated_processing_time": "2-4 business days" if status == "pending" else "immediate",
+            "next_steps": [
+                "Wait for supervisor approval" if status == "pending" else None,
+                "Check calendar for updates" if status == "approved" else None,
+                "Revise request and resubmit" if status == "rejected" else None
+            ]
         }
     
     @staticmethod
-    def transform_batch_results(results: List[Dict[str, Any]]) -> Dict[str, Any]:
-        """Transform batch algorithm results for UI summary view"""
-        if not results:
-            return {"total": 0, "successful": 0, "failed": 0, "results": []}
+    def batch_transform(data_batch: List[Dict[str, Any]], transform_type: str) -> List[Dict[str, Any]]:
+        """
+        Transform multiple items efficiently
         
-        successful = [r for r in results if r.get('status') == 'success']
-        failed = [r for r in results if r.get('status') == 'error']
-        
-        return {
-            "total": len(results),
-            "successful": len(successful),
-            "failed": len(failed),
-            "results": [
-                {
-                    "id": r.get('id', ''),
-                    "status": r.get('status', 'unknown'),
-                    "execution_time": r.get('execution_time_ms', 0),
-                    "summary": r.get('summary', '')
-                }
-                for r in results
-            ],
-            "avg_execution_time": sum(r.get('execution_time_ms', 0) for r in results) / len(results) if results else 0
-        }
-    
-    @staticmethod
-    def transform_cost_data(cost_data: Union[Dict[str, Any], Any]) -> Dict[str, Any]:
-        """Transform cost calculation data for UI display"""
-        if isinstance(cost_data, dict):
-            total_cost = cost_data.get('total_cost', 0)
-            cost_per_agent = cost_data.get('cost_per_agent', 0)
-            overtime_cost = cost_data.get('overtime_cost', 0)
-            breakdown = cost_data.get('cost_breakdown', {})
-        else:
-            # Handle object with attributes
-            total_cost = getattr(cost_data, 'total_cost', 0)
-            cost_per_agent = getattr(cost_data, 'cost_per_agent', 0)
-            overtime_cost = getattr(cost_data, 'overtime_cost', 0)
-            breakdown = getattr(cost_data, 'cost_breakdown', {})
-        
-        return {
-            "total_cost_display": f"${total_cost:,.2f}",
-            "cost_per_agent_display": f"${cost_per_agent:,.2f}",
-            "overtime_cost_display": f"${overtime_cost:,.2f}",
-            "overtime_percentage": round((overtime_cost / total_cost * 100) if total_cost > 0 else 0, 1),
-            "breakdown": {
-                key: f"${value:,.2f}" for key, value in breakdown.items()
-            },
-            "raw_values": {
-                "total_cost": total_cost,
-                "cost_per_agent": cost_per_agent,
-                "overtime_cost": overtime_cost
-            }
-        }
-    
-    @staticmethod
-    def transform_forecast_for_chart(forecast_data: Union[Dict[str, Any], Any]) -> Dict[str, Any]:
-        """Transform forecast data specifically for Chart.js components"""
-        # First use the standard transformer
-        ui_data = UITransformer.transform_forecast(forecast_data)
-        
-        # Then format for Chart.js
-        return {
-            "datasets": [
-                {
-                    "label": "Forecast",
-                    "data": ui_data.get('values', []),
-                    "borderColor": "rgb(59, 130, 246)",
-                    "backgroundColor": "rgba(59, 130, 246, 0.1)",
-                    "tension": 0.4
-                },
-                {
-                    "label": "Confidence Upper",
-                    "data": ui_data.get('confidence_bands', {}).get('upper', []),
-                    "borderColor": "rgb(251, 146, 60)",
-                    "borderDash": [5, 5],
-                    "fill": False
-                },
-                {
-                    "label": "Confidence Lower", 
-                    "data": ui_data.get('confidence_bands', {}).get('lower', []),
-                    "borderColor": "rgb(251, 146, 60)",
-                    "borderDash": [5, 5],
-                    "fill": False
-                }
-            ],
-            "labels": ui_data.get('labels', []),
-            "options": {
-                "responsive": True,
-                "scales": {
-                    "y": {
-                        "beginAtZero": True,
-                        "title": {
-                            "display": True,
-                            "text": "Call Volume"
-                        }
-                    }
-                }
-            },
-            "metadata": {
-                "confidence": ui_data.get('confidence', 0),
-                "total_calls": ui_data.get('total_calls', 0),
-                "date": ui_data.get('date', '')
-            }
-        }
-    
-    @staticmethod
-    def transform_schedule_for_grid(schedule_data: Union[Dict[str, Any], Any]) -> Dict[str, Any]:
-        """Transform schedule data specifically for ScheduleGridBDD component"""
-        # First use the standard transformer
-        ui_data = UITransformer.transform_schedule(schedule_data)
-        
-        # Then format for ScheduleGrid
-        schedule_cells = []
-        for employee in ui_data.get('grid', []):
-            employee_id = employee.get('employee_id', '')
-            shifts = employee.get('shifts', [])
+        Args:
+            data_batch: List of items to transform
+            transform_type: Type of transformation ('forecast', 'schedule', 'metrics', 'request')
             
-            for i, shift in enumerate(shifts):
-                date = ui_data.get('dates', [])[i] if i < len(ui_data.get('dates', [])) else ''
-                
-                if shift:  # Not None
-                    schedule_cells.append({
-                        "employeeId": employee_id,
-                        "date": date,
-                        "type": "work",
-                        "startTime": shift.get('start', ''),
-                        "endTime": shift.get('end', ''),
-                        "shiftType": shift.get('shift', 'standard'),
-                        "skills": shift.get('skills', []),
-                        "overtime": False,  # Could be calculated
-                        "violations": []  # Could be populated from constraint violations
-                    })
-                else:
-                    schedule_cells.append({
-                        "employeeId": employee_id,
-                        "date": date,
-                        "type": "rest",
-                        "startTime": None,
-                        "endTime": None,
-                        "shiftType": None,
-                        "skills": [],
-                        "overtime": False,
-                        "violations": []
-                    })
-        
-        return {
-            "employees": [
-                {
-                    "id": emp_id,
-                    "name": f"Employee {emp_id}",  # Would need real name lookup
-                    "position": "Operator",
-                    "skills": []
-                }
-                for emp_id in ui_data.get('employees', [])
-            ],
-            "dates": ui_data.get('dates', []),
-            "cells": schedule_cells,
-            "coverage_score": ui_data.get('coverage_score', 0),
-            "metadata": {
-                "total_employees": len(ui_data.get('employees', [])),
-                "total_shifts": len([cell for cell in schedule_cells if cell['type'] == 'work']),
-                "optimization_score": ui_data.get('coverage_score', 0)
-            }
+        Returns:
+            List of transformed items
+        """
+        transformers = {
+            'forecast': UITransformer.transform_forecast,
+            'schedule': UITransformer.transform_schedule,
+            'metrics': UITransformer.transform_metrics,
+            'request': UITransformer.transform_employee_request
         }
+        
+        transformer = transformers.get(transform_type)
+        if not transformer:
+            raise ValueError(f"Unknown transform type: {transform_type}")
+        
+        return [transformer(item) for item in data_batch if item]
     
     @staticmethod
-    def transform_optimization_result(optimization_data: Union[Dict[str, Any], Any]) -> Dict[str, Any]:
-        """Transform optimization results for OptimizationPanel component"""
-        if isinstance(optimization_data, dict):
-            total_gaps = optimization_data.get('total_gaps', 0)
-            coverage_score = optimization_data.get('coverage_score', 0)
-            recommendations = optimization_data.get('recommendations', [])
-        else:
-            total_gaps = getattr(optimization_data, 'total_gaps', 0)
-            coverage_score = getattr(optimization_data, 'coverage_score', 0)
-            recommendations = getattr(optimization_data, 'recommendations', [])
+    def create_summary_dashboard(forecasts: List[Dict], schedules: List[Dict], metrics: List[Dict]) -> Dict[str, Any]:
+        """
+        Create executive summary dashboard from multiple data sources
         
-        return {
-            "total_gaps": total_gaps,
-            "coverage_score": round(coverage_score, 1),
-            "average_gap_percentage": round((total_gaps / 480) * 100, 1) if total_gaps > 0 else 0,  # 480 = 8 hours * 60 minutes
-            "critical_intervals": [],  # Would need to be calculated from gap data
-            "recommendations": recommendations[:5],  # Top 5 recommendations
-            "status": "good" if coverage_score > 80 else "warning" if coverage_score > 60 else "critical",
-            "trend": "stable"  # Would need historical comparison
-        }
+        Combines forecast, schedule, and metrics data into a single dashboard view
+        """
+        try:
+            # Aggregate forecast data
+            total_predicted_calls = sum(f.get('total_calls', 0) for f in forecasts)
+            
+            # Aggregate schedule data
+            total_employees_scheduled = len(set(
+                emp_id for schedule in schedules 
+                for emp_id in schedule.get('employees', [])
+            ))
+            
+            # Get latest metrics
+            latest_metrics = metrics[-1] if metrics else {}
+            
+            return {
+                "overview": {
+                    "total_predicted_calls": total_predicted_calls,
+                    "employees_scheduled": total_employees_scheduled,
+                    "current_service_level": latest_metrics.get('kpi', {}).get('service_level', 0),
+                    "status": latest_metrics.get('status', 'unknown')
+                },
+                "trends": {
+                    "call_volume": "up" if any(f.get('trend') == 'up' for f in forecasts) else "stable",
+                    "performance": latest_metrics.get('trend', 'stable')
+                },
+                "alerts": [
+                    alert for metric in metrics 
+                    for alert in metric.get('alerts', []) 
+                    if alert is not None
+                ],
+                "timestamp": datetime.now().isoformat()
+            }
+            
+        except Exception as e:
+            return {
+                "error": f"Failed to create dashboard: {str(e)}",
+                "timestamp": datetime.now().isoformat()
+            }

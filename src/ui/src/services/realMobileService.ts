@@ -70,8 +70,9 @@ export interface MobileData {
   }>;
 }
 
-const API_BASE_URL = 'http://localhost:8000/api/v1';
-const WS_BASE_URL = 'ws://localhost:8000/ws';
+// Use INTEGRATION-OPUS verified endpoints on port 8001
+const API_BASE_URL = 'http://localhost:8001/api/v1';
+const WS_BASE_URL = 'ws://localhost:8001/ws';
 
 class RealMobileService {
   private ws: WebSocket | null = null;
@@ -130,10 +131,33 @@ class RealMobileService {
     return token;
   }
 
+  // Wire to I's verified mobile cabinet endpoints
   async getMobileData(): Promise<ApiResponse<MobileData>> {
-    console.log('[REAL MOBILE API] Fetching mobile data...');
+    console.log('[REAL MOBILE API] Fetching mobile cabinet data...');
     
-    return this.makeRequest<MobileData>('/mobile/data');
+    // Use I's verified mobile cabinet dashboard endpoint
+    return this.makeRequest<MobileData>('/mobile/cabinet/dashboard');
+  }
+
+  async getMobileCalendar(): Promise<ApiResponse<any>> {
+    console.log('[REAL MOBILE API] Fetching mobile calendar...');
+    
+    // Use I's verified mobile calendar endpoint
+    return this.makeRequest<any>('/mobile/cabinet/calendar/month');
+  }
+
+  async getMobileNotifications(): Promise<ApiResponse<any>> {
+    console.log('[REAL MOBILE API] Fetching mobile notifications...');
+    
+    // Use I's verified mobile notifications endpoint
+    return this.makeRequest<any>('/mobile/cabinet/notifications');
+  }
+
+  async getMobilePersonal(): Promise<ApiResponse<any>> {
+    console.log('[REAL MOBILE API] Fetching mobile personal data...');
+    
+    // Use I's verified mobile personal endpoint
+    return this.makeRequest<any>('/mobile/cabinet/personal');
   }
 
   async syncOfflineData(): Promise<ApiResponse<{ synced: number; failed: number }>> {

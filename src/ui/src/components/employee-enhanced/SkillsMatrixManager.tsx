@@ -16,7 +16,7 @@ interface Employee {
   skills: Skill[];
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001/api/v1';
 
 const SkillsMatrixManager: React.FC = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);

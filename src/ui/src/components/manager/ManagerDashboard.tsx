@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import realDashboardService, { DashboardMetrics } from '../../services/realDashboardService';
 import { realAuthService } from '../../services/realAuthService';
+import { realManagerService, ManagerDashboardResponse } from '../../services/realManagerService';
 
 interface ManagerDashboardProps {
   managerId: number;
@@ -140,24 +141,54 @@ const ManagerDashboard: React.FC<ManagerDashboardProps> = ({ managerId }) => {
   const [lastUpdate, setLastUpdate] = useState(new Date());
   const [isUpdating, setIsUpdating] = useState(false);
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
+  const [managerData, setManagerData] = useState<ManagerDashboardResponse | null>(null);
   const [teamMetrics, setTeamMetrics] = useState<KPIMetric[]>([]);
   const [teamOverview, setTeamOverview] = useState<TeamOverview | null>(null);
   const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [apiError, setApiError] = useState<string>('');
   const [isConnecting, setIsConnecting] = useState(false);
+  const [hasError, setHasError] = useState(false);
+  
+  // Global error handler to catch unhandled JavaScript errors
+  React.useEffect(() => {
+    const handleError = (error: ErrorEvent) => {
+      console.error('[MANAGER DASHBOARD] Global error:', error);
+      setHasError(true);
+    };
+    
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      console.error('[MANAGER DASHBOARD] Unhandled promise rejection:', event.reason);
+      setApiError(event.reason?.message || 'An unexpected error occurred');
+    };
+    
+    window.addEventListener('error', handleError);
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+    
+    return () => {
+      window.removeEventListener('error', handleError);
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+    };
+  }, []);
   
   // Load initial metrics
   useEffect(() => {
-    loadMetrics();
-    loadTeamData();
+    try {
+      loadMetrics();
+      if (managerId && managerId !== 0) {
+        loadTeamData();
+      }
+    } catch (error) {
+      console.error('[MANAGER DASHBOARD] useEffect error:', error);
+      setApiError('Failed to initialize dashboard');
+    }
   }, [managerId]);
   
   const loadMetrics = async () => {
-    setApiError('');
-    setIsConnecting(true);
-    
     try {
+      setApiError('');
+      setIsConnecting(true);
+      
       // Check API health first
       const isApiHealthy = await realDashboardService.checkApiHealth();
       if (!isApiHealthy) {
@@ -186,91 +217,102 @@ const ManagerDashboard: React.FC<ManagerDashboardProps> = ({ managerId }) => {
 
   const loadTeamData = async () => {
     try {
-      // TODO: Replace with real API call when manager endpoints are available
-      // const teamData = await managerService.getTeamDashboard(managerId);
+      // Validate managerId before making the call
+      if (!managerId || managerId === 0 || isNaN(managerId)) {
+        console.warn('[MANAGER DASHBOARD] Invalid managerId:', managerId);
+        return;
+      }
       
-      // Mock team data for now
-      const mockTeamOverview: TeamOverview = {
-        total_members: 12,
-        active_today: 10,
-        on_vacation: 2,
-        pending_requests: 3
+      // Use real manager service to get dashboard data
+      const dashboardData = await realManagerService.getManagerDashboard(managerId);
+      console.log('[MANAGER DASHBOARD] Dashboard data loaded:', dashboardData);
+      setManagerData(dashboardData);
+      
+      // Check if metrics exist before accessing properties
+      if (!dashboardData || !dashboardData.metrics) {
+        throw new Error('Dashboard data or metrics not available');
+      }
+      
+      // Extract team overview from real data with null checks
+      const teamOverview: TeamOverview = {
+        total_members: dashboardData.metrics.teamSize || 0,
+        active_today: dashboardData.metrics.activeEmployees || 0,
+        on_vacation: dashboardData.metrics.onVacation || 0,
+        pending_requests: dashboardData.metrics.pendingRequests || 0
       };
+      setTeamOverview(teamOverview);
 
-      const mockTeamMetrics: KPIMetric[] = [
+      // Convert dashboard metrics to KPI format with safe access
+      const teamMetrics: KPIMetric[] = [
         {
-          id: 'team-service-level',
-          name: 'Team Service Level',
-          value: 89.2,
-          target: 85.0,
-          unit: '%',
-          status: 'excellent',
-          trend: 'up',
-          changePercent: 3.1,
-          lastUpdated: new Date()
-        },
-        {
-          id: 'team-adherence',
-          name: 'Schedule Adherence',
-          value: 94.7,
-          target: 95.0,
-          unit: '%',
+          id: 'team-size',
+          name: 'Team Size',
+          value: dashboardData.metrics.teamSize || 0,
+          unit: 'members',
           status: 'good',
           trend: 'stable',
-          changePercent: 0.2,
-          lastUpdated: new Date()
+          changePercent: 0,
+          lastUpdated: new Date(dashboardData.lastUpdated || new Date())
         },
         {
-          id: 'approval-rate',
-          name: 'Request Approval Rate',
-          value: 91.5,
-          target: 90.0,
-          unit: '%',
-          status: 'excellent',
+          id: 'pending-requests',
+          name: 'Pending Requests',
+          value: dashboardData.metrics.pendingRequests || 0,
+          target: 5,
+          unit: 'requests',
+          status: (dashboardData.metrics.pendingRequests || 0) > 5 ? 'warning' : 'good',
+          trend: 'stable',
+          changePercent: 0,
+          lastUpdated: new Date(dashboardData.lastUpdated || new Date())
+        },
+        {
+          id: 'approved-this-month',
+          name: 'Approved This Month',
+          value: dashboardData.metrics.approvedThisMonth || 0,
+          unit: 'requests',
+          status: 'good',
           trend: 'up',
-          changePercent: 2.3,
-          lastUpdated: new Date()
+          changePercent: 10,
+          lastUpdated: new Date(dashboardData.lastUpdated || new Date())
         },
         {
-          id: 'response-time',
-          name: 'Avg Response Time',
-          value: 1.8,
-          target: 2.0,
-          unit: 'hours',
-          status: 'excellent',
+          id: 'rejected-this-month',
+          name: 'Rejected This Month',
+          value: dashboardData.metrics.rejectedThisMonth || 0,
+          unit: 'requests',
+          status: (dashboardData.metrics.rejectedThisMonth || 0) > 10 ? 'warning' : 'good',
           trend: 'down',
-          changePercent: -12.5,
-          lastUpdated: new Date()
+          changePercent: -5,
+          lastUpdated: new Date(dashboardData.lastUpdated || new Date())
         }
       ];
+      setTeamMetrics(teamMetrics);
 
-      const mockRecentActivity: RecentActivity[] = [
-        {
-          type: 'Vacation Request',
-          employee: 'John Smith',
-          date: '2 hours ago',
-          status: 'approved'
-        },
-        {
-          type: 'Shift Change',
-          employee: 'Sarah Johnson',
-          date: '4 hours ago', 
-          status: 'pending'
-        },
-        {
-          type: 'Sick Leave',
-          employee: 'Mike Chen',
-          date: '6 hours ago',
-          status: 'approved'
-        }
-      ];
-
-      setTeamOverview(mockTeamOverview);
-      setTeamMetrics(mockTeamMetrics);
-      setRecentActivity(mockRecentActivity);
+      // Convert pending requests to recent activity with null checks
+      const recentActivity: RecentActivity[] = (dashboardData.pendingRequests || []).slice(0, 5).map(req => ({
+        type: req.type === 'vacation' ? 'Vacation Request' : 
+              req.type === 'sick_leave' ? 'Sick Leave' : 
+              req.type === 'shift_swap' ? 'Shift Swap' : 'Request',
+        employee: req.employeeName || 'Unknown Employee',
+        date: req.submittedDate ? new Date(req.submittedDate).toLocaleString() : 'Unknown Date',
+        status: 'pending'
+      }));
+      
+      setRecentActivity(recentActivity);
       
     } catch (error) {
       console.error('[MANAGER DASHBOARD] Team data load error:', error);
+      setApiError(error instanceof Error ? error.message : 'Failed to load manager dashboard data');
+      
+      // Set fallback empty data to prevent rendering errors
+      setTeamOverview({
+        total_members: 0,
+        active_today: 0,
+        on_vacation: 0,
+        pending_requests: 0
+      });
+      setTeamMetrics([]);
+      setRecentActivity([]);
     }
   };
 
@@ -284,7 +326,9 @@ const ManagerDashboard: React.FC<ManagerDashboardProps> = ({ managerId }) => {
         if (result.success && result.data) {
           setMetrics(result.data);
         }
-        await loadTeamData(); // Refresh team data too
+        if (managerId && managerId !== 0) {
+          await loadTeamData(); // Refresh team data too
+        }
       } catch (error) {
         console.warn('[MANAGER DASHBOARD] Auto-refresh failed:', error);
       }
@@ -380,6 +424,67 @@ const ManagerDashboard: React.FC<ManagerDashboardProps> = ({ managerId }) => {
     }
   };
 
+  // Error boundary for the entire component
+  if (hasError) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="bg-white rounded-lg shadow p-8 max-w-md">
+          <div className="flex items-center mb-4">
+            <XCircle className="h-8 w-8 text-red-600 mr-2" />
+            <h2 className="text-xl font-semibold text-gray-900">Dashboard Error</h2>
+          </div>
+          <p className="text-gray-600 mb-4">
+            The manager dashboard encountered an unexpected error. Please refresh the page or try again later.
+          </p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+          >
+            Refresh Page
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Show API error with retry option
+  if (apiError && !isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="bg-white rounded-lg shadow p-8 max-w-md">
+          <div className="flex items-center mb-4">
+            <AlertTriangle className="h-8 w-8 text-yellow-600 mr-2" />
+            <h2 className="text-xl font-semibold text-gray-900">Connection Error</h2>
+          </div>
+          <p className="text-gray-600 mb-4">
+            {apiError}
+          </p>
+          <div className="space-y-2">
+            <button 
+              onClick={() => {
+                setApiError('');
+                setIsLoading(true);
+                loadMetrics();
+                if (managerId && managerId !== 0) {
+                  loadTeamData();
+                }
+              }}
+              className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+            >
+              Retry Connection
+            </button>
+            <button 
+              onClick={() => window.location.href = '/login'}
+              className="w-full px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors"
+            >
+              Back to Login
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -411,7 +516,7 @@ const ManagerDashboard: React.FC<ManagerDashboardProps> = ({ managerId }) => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Team Overview Cards */}
-        {teamOverview && (
+        {teamOverview ? (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             <div className="bg-white rounded-lg shadow p-6">
               <div className="flex items-center">
@@ -420,7 +525,7 @@ const ManagerDashboard: React.FC<ManagerDashboardProps> = ({ managerId }) => {
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Team Members</p>
-                  <p className="text-2xl font-bold text-blue-600">{teamOverview.total_members}</p>
+                  <p className="text-2xl font-bold text-blue-600">{teamOverview.total_members || 0}</p>
                 </div>
               </div>
             </div>
@@ -432,7 +537,7 @@ const ManagerDashboard: React.FC<ManagerDashboardProps> = ({ managerId }) => {
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Active Today</p>
-                  <p className="text-2xl font-bold text-green-600">{teamOverview.active_today}</p>
+                  <p className="text-2xl font-bold text-green-600">{teamOverview.active_today || 0}</p>
                 </div>
               </div>
             </div>
@@ -444,7 +549,7 @@ const ManagerDashboard: React.FC<ManagerDashboardProps> = ({ managerId }) => {
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">On Vacation</p>
-                  <p className="text-2xl font-bold text-orange-600">{teamOverview.on_vacation}</p>
+                  <p className="text-2xl font-bold text-orange-600">{teamOverview.on_vacation || 0}</p>
                 </div>
               </div>
             </div>
@@ -456,10 +561,18 @@ const ManagerDashboard: React.FC<ManagerDashboardProps> = ({ managerId }) => {
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Pending Requests</p>
-                  <p className="text-2xl font-bold text-red-600">{teamOverview.pending_requests}</p>
+                  <p className="text-2xl font-bold text-red-600">{teamOverview.pending_requests || 0}</p>
                 </div>
               </div>
             </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            {[1,2,3,4].map((i) => (
+              <div key={i} className="bg-white rounded-lg shadow p-6 animate-pulse">
+                <div className="h-20 bg-gray-200 rounded"></div>
+              </div>
+            ))}
           </div>
         )}
 
@@ -472,7 +585,7 @@ const ManagerDashboard: React.FC<ManagerDashboardProps> = ({ managerId }) => {
               </div>
             ))}
           </div>
-        ) : (
+        ) : displayMetrics.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {displayMetrics.map((metric) => {
               const Icon = metric.icon;
@@ -491,15 +604,34 @@ const ManagerDashboard: React.FC<ManagerDashboardProps> = ({ managerId }) => {
               );
             })}
           </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="col-span-full bg-white rounded-lg shadow p-8 text-center">
+              <AlertTriangle className="h-12 w-12 text-yellow-500 mx-auto mb-4" />
+              <p className="text-gray-600">No dashboard metrics available</p>
+              <button 
+                onClick={loadMetrics}
+                className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+              >
+                Retry Loading
+              </button>
+            </div>
+          </div>
         )}
 
         {/* Team Performance KPIs */}
         <div className="mb-8">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Team Performance KPIs</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {teamMetrics.map((metric) => (
-              <KPICard key={metric.id} metric={metric} />
-            ))}
+            {teamMetrics && teamMetrics.length > 0 ? (
+              teamMetrics.map((metric) => (
+                <KPICard key={metric.id} metric={metric} />
+              ))
+            ) : (
+              <div className="col-span-full text-center py-8">
+                <p className="text-gray-500">No KPI data available</p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -546,27 +678,33 @@ const ManagerDashboard: React.FC<ManagerDashboardProps> = ({ managerId }) => {
             <div className="bg-white rounded-lg shadow">
               <div className="p-6">
                 <div className="space-y-4">
-                  {recentActivity.map((activity, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div className="flex items-center space-x-3">
-                        {getActivityStatusIcon(activity.status)}
-                        <div>
-                          <p className="font-medium text-gray-900">{activity.employee}</p>
-                          <p className="text-sm text-gray-600">{activity.type}</p>
+                  {recentActivity && recentActivity.length > 0 ? (
+                    recentActivity.map((activity, index) => (
+                      <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div className="flex items-center space-x-3">
+                          {getActivityStatusIcon(activity.status)}
+                          <div>
+                            <p className="font-medium text-gray-900">{activity.employee || 'Unknown Employee'}</p>
+                            <p className="text-sm text-gray-600">{activity.type || 'Unknown Type'}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm text-gray-500">{activity.date || 'Unknown Date'}</p>
+                          <p className={`text-xs font-medium ${
+                            activity.status === 'approved' ? 'text-green-600' :
+                            activity.status === 'rejected' ? 'text-red-600' :
+                            'text-yellow-600'
+                          }`}>
+                            {activity.status ? activity.status.charAt(0).toUpperCase() + activity.status.slice(1) : 'Unknown'}
+                          </p>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-sm text-gray-500">{activity.date}</p>
-                        <p className={`text-xs font-medium ${
-                          activity.status === 'approved' ? 'text-green-600' :
-                          activity.status === 'rejected' ? 'text-red-600' :
-                          'text-yellow-600'
-                        }`}>
-                          {activity.status.charAt(0).toUpperCase() + activity.status.slice(1)}
-                        </p>
-                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-8">
+                      <p className="text-gray-500">No recent activity</p>
                     </div>
-                  ))}
+                  )}
                 </div>
               </div>
               <div className="border-t border-gray-200 p-4">

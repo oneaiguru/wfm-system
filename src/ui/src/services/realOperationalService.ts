@@ -148,7 +148,7 @@ export interface RealTimeUpdate {
   timestamp: string;
 }
 
-const API_BASE_URL = 'http://localhost:8000/api/v1';
+const API_BASE_URL = 'http://localhost:8001/api/v1';
 
 class RealOperationalService {
   private ws: WebSocket | null = null;
@@ -333,7 +333,7 @@ class RealOperationalService {
       this.ws.close();
     }
 
-    const wsUrl = `ws://localhost:8000/ws/operational`;
+    const wsUrl = `ws://localhost:8001/ws/operational`;
     console.log(`[REAL API] Connecting to WebSocket: ${wsUrl}`);
 
     this.ws = new WebSocket(wsUrl);

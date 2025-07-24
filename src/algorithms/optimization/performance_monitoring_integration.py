@@ -501,19 +501,28 @@ class LoadTestHelper:
         }
     
     async def _simulate_single_call(self, call_id: str) -> Dict[str, Any]:
-        """Simulate a single algorithm call."""
+        """Execute a real algorithm call for load testing."""
         start_time = time.perf_counter()
         
         try:
-            # Simulate Erlang C calculation
-            await asyncio.sleep(0.001)  # 1ms simulated processing
+            # Execute real Erlang C calculation with realistic parameters
+            from ..core.erlang_c_enhanced import enhanced_erlang_c
+            
+            # Use realistic call center parameters
+            agents = 10
+            arrival_rate = 50  # calls per hour
+            service_time = 6   # minutes average
+            
+            # Real calculation instead of sleep
+            result = enhanced_erlang_c(agents, arrival_rate, service_time)
             
             response_time = (time.perf_counter() - start_time) * 1000
             
             return {
                 "call_id": call_id,
                 "response_time_ms": response_time,
-                "success": True
+                "success": True,
+                "calculation_result": result
             }
         
         except Exception as e:

@@ -61,7 +61,7 @@ const RequestForm: React.FC<RequestFormProps> = ({
     const loadEmployees = async () => {
       try {
         console.log('[BDD COMPLIANT] Loading real employees from API...');
-        const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+        const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001/api/v1';
         const response = await fetch(`${API_BASE_URL}/employees`);
         
         if (!response.ok) {

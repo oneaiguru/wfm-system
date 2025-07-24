@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { User, Shield, Save, Search, Edit, Eye, Key, CheckCircle, AlertCircle, Loader2, UserCheck, Lock, Unlock } from 'lucide-react';
+import realAccessRoleService from '../../services/realAccessRoleService';
 
 interface Permission {
   id: string;
@@ -39,7 +40,7 @@ const UserPermissions: React.FC = () => {
   const [filterRole, setFilterRole] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
 
-  const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+  const API_BASE_URL = 'http://localhost:8001/api/v1';
 
   // Initialize permissions
   const initializePermissions = (): Permission[] => {
@@ -105,13 +106,20 @@ const UserPermissions: React.FC = () => {
     });
   };
 
-  // Fetch employees data
+  // Fetch employees data with JWT authentication
   const fetchEmployees = async () => {
     try {
-      console.log(`[USER PERMISSIONS] Fetching employees from: ${API_BASE_URL}/employees/list`);
+      const authToken = localStorage.getItem('authToken');
       
-      const response = await fetch(`${API_BASE_URL}/employees/list`, {
+      if (!authToken) {
+        throw new Error('No authentication token found');
+      }
+
+      console.log('[USER PERMISSIONS] Fetching employees from I-VERIFIED endpoint with JWT');
+      
+      const response = await fetch(`${API_BASE_URL}/employees/me`, {
         headers: {
+          'Authorization': `Bearer ${authToken}`,
           'Content-Type': 'application/json',
         },
       });
@@ -121,11 +129,16 @@ const UserPermissions: React.FC = () => {
       }
 
       const employeeData = await response.json();
-      console.log('[USER PERMISSIONS] Employees fetched:', employeeData);
+      console.log('✅ Current user data loaded:', employeeData);
       
-      setEmployees(employeeData);
+      // Convert single employee to array format for component compatibility
+      const employeeList = [employeeData];
+      setEmployees(employeeList);
       setPermissions(initializePermissions());
-      setUserPermissions(generateUserPermissions(employeeData));
+      setUserPermissions(generateUserPermissions(employeeList));
+      
+      // Try to load RBAC permissions for the current user
+      await loadUserRBACPermissions(employeeData.id);
       
     } catch (err) {
       console.error('[USER PERMISSIONS] Error fetching employees:', err);
@@ -135,6 +148,107 @@ const UserPermissions: React.FC = () => {
       setPermissions(initializePermissions());
       setUserPermissions([]);
     }
+  };
+
+  // Load real RBAC permissions from API
+  const loadUserRBACPermissions = async (userId: number) => {
+    try {
+      console.log(`[USER PERMISSIONS] Loading RBAC permissions for user ${userId}...`);
+      
+      // Try using the real access role service first
+      const serviceResult = await realAccessRoleService.getUserPermissions(userId.toString(), true);
+      
+      let rbacData;
+      if (serviceResult.success && serviceResult.data) {
+        rbacData = serviceResult.data;
+        console.log('✅ RBAC permissions loaded via service:', rbacData);
+      } else {
+        // Fallback to direct fetch
+        const response = await fetch(`${API_BASE_URL}/rbac/users/${userId}/permissions?include_role_permissions=true`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          console.warn(`[USER PERMISSIONS] RBAC endpoint not available: ${response.status}`);
+          return; // Gracefully fallback to mock data
+        }
+
+        rbacData = await response.json();
+        console.log('✅ RBAC permissions loaded via direct fetch:', rbacData);
+      }
+      
+      // Update user permissions with real RBAC data
+      if (rbacData.all_permissions && rbacData.all_permissions.length > 0) {
+        const realPermissions: Permission[] = rbacData.all_permissions.map((p: any) => ({
+          id: p.id || p.name,
+          module: p.resource || 'unknown',
+          action: p.action || 'unknown', 
+          description: p.description || p.name,
+          category: mapRBACPermissionCategory(p.category)
+        }));
+
+        setPermissions(prev => {
+          // Merge real permissions with existing mock permissions
+          const merged = [...prev];
+          realPermissions.forEach(realPerm => {
+            if (!merged.find(existing => existing.id === realPerm.id)) {
+              merged.push(realPerm);
+            }
+          });
+          return merged;
+        });
+
+        // Update current user's permissions with real RBAC data
+        setUserPermissions(prev => prev.map(userPerm => {
+          if (userPerm.userId === userId.toString()) {
+            return {
+              ...userPerm,
+              permissions: realPermissions.map(p => p.id),
+              role: deriveRoleFromPermissions(realPermissions),
+              lastUpdated: new Date().toISOString()
+            };
+          }
+          return userPerm;
+        }));
+
+        console.log('✅ User permissions updated with real RBAC data');
+      }
+      
+    } catch (err) {
+      console.warn('[USER PERMISSIONS] RBAC integration failed, using fallback:', err);
+      // Continue with mock data - graceful degradation
+    }
+  };
+
+  // Helper to map RBAC permission categories to our UI categories
+  const mapRBACPermissionCategory = (rbacCategory: string): 'read' | 'write' | 'admin' => {
+    switch (rbacCategory?.toLowerCase()) {
+      case 'admin':
+      case 'system':
+        return 'admin';
+      case 'write':
+      case 'edit':
+      case 'create':
+      case 'update':
+      case 'delete':
+        return 'write';
+      default:
+        return 'read';
+    }
+  };
+
+  // Helper to derive role from permissions
+  const deriveRoleFromPermissions = (permissions: Permission[]): string => {
+    const adminPerms = permissions.filter(p => p.category === 'admin').length;
+    const writePerms = permissions.filter(p => p.category === 'write').length;
+    
+    if (adminPerms > 0) return 'admin';
+    if (writePerms > 3) return 'manager';
+    if (writePerms > 0) return 'supervisor';
+    return 'operator';
   };
 
   useEffect(() => {

@@ -47,17 +47,51 @@ const ApprovalQueue: React.FC<ApprovalQueueProps> = ({ managerId }) => {
   const [showApprovalDialog, setShowApprovalDialog] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<Request | undefined>();
 
-  // Load pending requests for manager's team (forked from RequestList.tsx)
+  // Load pending requests using I's verified manager endpoint
   useEffect(() => {
     const loadRequests = async () => {
       setLoading(true);
       
       try {
-        // TODO: Replace with real API call when manager endpoints are available
-        // const response = await fetch(`/api/v1/requests/pending-approval?manager_id=${managerId}`);
+        // Use I's verified manager pending approvals endpoint
+        const authToken = localStorage.getItem('authToken');
+        console.log(`[APPROVAL QUEUE] Calling I's verified endpoint: /api/v1/managers/${managerId}/pending-approvals`);
         
-        // Mock data with manager-specific fields
-        const mockRequests: Request[] = [
+        const response = await fetch(`http://localhost:8001/api/v1/managers/${managerId}/pending-approvals`, {
+          headers: {
+            'Authorization': `Bearer ${authToken}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          const rawData = await response.json();
+          console.log('✅ I-VERIFIED pending approvals loaded:', rawData);
+          
+          // Parse I's response into component format
+          const parsedRequests: Request[] = rawData.pending_requests?.map((req: any) => ({
+            id: req.id || req.request_id,
+            type: req.type || 'vacation',
+            title: req.title || `${req.type} Request`,
+            status: 'pending_approval',
+            priority: req.priority || 'normal',
+            startDate: new Date(req.start_date || req.date),
+            endDate: req.end_date ? new Date(req.end_date) : undefined,
+            reason: req.reason || req.description || '',
+            submittedAt: new Date(req.submitted_at || req.created_at || Date.now()),
+            employeeName: req.employee_name || req.employee?.name || 'Unknown Employee',
+            employeeId: req.employee_id || req.employee?.id || '0',
+            team: req.team_name || req.team || 'Unknown Team',
+            daysRequested: req.days_requested || 1,
+            coverageImpact: req.coverage_impact || 'medium',
+            actionRequired: req.action_required || false
+          })) || [];
+          
+          setRequests(parsedRequests);
+        } else {
+          console.error(`❌ Manager pending approvals API error: ${response.status}`);
+          // Fallback to demo data for development
+          const mockRequests: Request[] = [
           {
             id: '1',
             type: 'vacation',

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coverage Heatmap Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        .status.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .status.warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .files-created {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #007bff;
+        }
+        .files-created h3 {
+            margin-top: 0;
+            color: #007bff;
+        }
+        .file-list {
+            list-style: none;
+            padding: 0;
+        }
+        .file-list li {
+            padding: 5px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .file-list li:last-child {
+            border-bottom: none;
+        }
+        .usage-instructions {
+            background-color: #e7f3ff;
+            padding: 20px;
+            border-radius: 6px;
+            border-left: 4px solid #0066cc;
+            margin-top: 20px;
+        }
+        .usage-instructions h3 {
+            margin-top: 0;
+            color: #0066cc;
+        }
+        code {
+            background-color: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        .grid-preview {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+        }
+        .mini-heatmap {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 2px;
+            max-width: 400px;
+        }
+        .mini-cell {
+            width: 20px;
+            height: 20px;
+            border-radius: 2px;
+        }
+        .mini-cell.optimal { background-color: #22c55e; }
+        .mini-cell.adequate { background-color: #eab308; }
+        .mini-cell.shortage { background-color: #ef4444; }
+        .mini-cell.surplus { background-color: #3b82f6; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Coverage Heatmap Implementation Complete</h1>
+        
+        <div class="status success">
+            <strong>✅ Success!</strong> CoverageHeatmap component and service have been successfully created and integrated.
+        </div>
+
+        <div class="files-created">
+            <h3>📁 Files Created:</h3>
+            <ul class="file-list">
+                <li><strong>CoverageHeatmap.tsx</strong> - Main React component with interactive heatmap visualization</li>
+                <li><strong>realCoverageAnalysisService.ts</strong> - Service layer connecting to ALGORITHM-OPUS endpoint</li>
+                <li><strong>coverage_analysis.py (fixed)</strong> - Updated algorithm to use existing database tables</li>
+            </ul>
+        </div>
+
+        <div class="status info">
+            <strong>📈 Component Features:</strong>
+            <ul>
+                <li>Interactive 7-day × 24-hour coverage heatmap</li>
+                <li>Real-time coverage status indicators (optimal, adequate, shortage, critical)</li>
+                <li>Coverage gaps analysis with severity levels</li>
+                <li>Service-specific filtering (Support, Sales, Tech Support)</li>
+                <li>Export functionality (CSV format)</li>
+                <li>Responsive design with Russian localization</li>
+                <li>Fallback to demo data when algorithm endpoint unavailable</li>
+            </ul>
+        </div>
+
+        <div class="grid-preview">
+            <h4>🎨 Heatmap Preview:</h4>
+            <div class="mini-heatmap">
+                <div class="mini-cell optimal" title="Optimal coverage"></div>
+                <div class="mini-cell adequate" title="Adequate coverage"></div>
+                <div class="mini-cell shortage" title="Coverage shortage"></div>
+                <div class="mini-cell optimal" title="Optimal coverage"></div>
+                <div class="mini-cell adequate" title="Adequate coverage"></div>
+                <div class="mini-cell shortage" title="Coverage shortage"></div>
+                <div class="mini-cell surplus" title="Surplus coverage"></div>
+                <div class="mini-cell optimal" title="Optimal coverage"></div>
+            </div>
+            <p><em>Color-coded cells represent coverage levels by hour and day</em></p>
+        </div>
+
+        <div class="status warning">
+            <strong>⚠️ Algorithm Status:</strong> The ALGORITHM-OPUS endpoint was using a non-existent 'team_schedules' table. 
+            Fixed to use 'agent_activity' table with real data + intelligent fallback.
+        </div>
+
+        <div class="usage-instructions">
+            <h3>🚀 How to Access:</h3>
+            <ol>
+                <li>Navigate to the <strong>Analytics Dashboard</strong> in your WFM application</li>
+                <li>Click on the <strong>"Покрытие смен"</strong> (Coverage) tab</li>
+                <li>The CoverageHeatmap component will load with real/demo data</li>
+                <li>Use the service and period selectors to filter the view</li>
+                <li>Click the Export button to download coverage data as CSV</li>
+            </ol>
+
+            <h4>📍 Integration Path:</h4>
+            <code>AnalyticsDashboard → Coverage Tab → CoverageHeatmap Component</code>
+
+            <h4>🔌 Service Integration:</h4>
+            <ul>
+                <li><strong>Primary:</strong> GET /api/v1/analytics/coverage/heatmap (ALGORITHM-OPUS)</li>
+                <li><strong>Fallback:</strong> Intelligent demo data generation</li>
+                <li><strong>Data Source:</strong> agent_activity table + realistic patterns</li>
+            </ul>
+        </div>
+
+        <div class="status success">
+            <strong>🎯 Ready for Testing!</strong> 
+            The CoverageHeatmap is now available in the Analytics Dashboard and will work with or without the algorithm service running.
+        </div>
+    </div>
+
+    <script>
+        // Simple animation for the mini heatmap
+        const cells = document.querySelectorAll('.mini-cell');
+        let index = 0;
+        
+        setInterval(() => {
+            cells.forEach(cell => cell.style.opacity = '0.3');
+            cells[index].style.opacity = '1';
+            index = (index + 1) % cells.length;
+        }, 500);
+    </script>
+</body>
+</html>

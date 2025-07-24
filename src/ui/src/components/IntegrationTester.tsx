@@ -66,7 +66,7 @@ export const IntegrationTester: React.FC = () => {
         description: 'WebSocket and real-time update testing',
         icon: Zap,
         tests: [
-          { name: 'WebSocket Connection', endpoint: 'ws://localhost:8000/ws', status: 'pending' },
+          { name: 'WebSocket Connection', endpoint: 'ws://localhost:8001/ws', status: 'pending' },
           { name: 'Real-time Metrics', endpoint: '/monitoring/operational', status: 'pending' },
           { name: 'Agent Status Updates', endpoint: '/monitoring/agents', status: 'pending' },
           { name: 'Schedule Changes', endpoint: '/schedules/current', status: 'pending' }
@@ -102,7 +102,7 @@ export const IntegrationTester: React.FC = () => {
         result = await apiIntegrationService.getIntegrationStatus();
       } else {
         // Generic API test
-        result = await fetch(`http://localhost:8000/api/v1${test.endpoint}`);
+        result = await fetch(`http://localhost:8001/api/v1${test.endpoint}`);
         result = await result.json();
       }
 
@@ -366,7 +366,7 @@ export const IntegrationTester: React.FC = () => {
               <li>Failed tests indicate missing or broken API endpoints</li>
               <li>Test results are saved to localStorage for your analysis</li>
               <li>Check console for detailed error messages</li>
-              <li>API base URL: http://localhost:8000/api/v1</li>
+              <li>API base URL: http://localhost:8001/api/v1</li>
             </ul>
           </div>
         </div>

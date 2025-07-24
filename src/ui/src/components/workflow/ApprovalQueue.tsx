@@ -27,7 +27,7 @@ interface PendingRequest {
 type SortField = 'submitted_at' | 'employee_name' | 'duration_days' | 'start_date';
 type SortDirection = 'asc' | 'desc';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001/api/v1';
 
 const ApprovalQueue: React.FC = () => {
   const [pendingRequests, setPendingRequests] = useState<PendingRequest[]>([]);

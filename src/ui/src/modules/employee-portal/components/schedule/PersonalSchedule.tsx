@@ -41,21 +41,34 @@ const PersonalSchedule: React.FC<PersonalScheduleProps> = ({ employeeId }) => {
       try {
         console.log('[BDD COMPLIANT] Loading real schedule for employee:', employeeId);
         
-        // Load employee info first
-        const employeeResponse = await fetch(`${API_BASE_URL}/employees/${employeeId}`);
+        // Use I's verified employee endpoint
+        const authToken = localStorage.getItem('authToken');
+        const employeeResponse = await fetch(`${API_BASE_URL}/employees/me`, {
+          headers: {
+            'Authorization': `Bearer ${authToken}`,
+            'Content-Type': 'application/json'
+          }
+        });
         if (!employeeResponse.ok) {
           throw new Error(`Failed to load employee: ${employeeResponse.status}`);
         }
         const employeeData = await employeeResponse.json();
         setEmployee(employeeData);
         
-        // Load real schedule data for employee
-        const scheduleResponse = await fetch(`${API_BASE_URL}/schedules/employee/${employeeId}?month=${selectedDate.getMonth() + 1}&year=${selectedDate.getFullYear()}`);
+        // Use I's verified personal schedule endpoint
+        console.log('[PERSONAL SCHEDULE] Using I\'s verified weekly schedule endpoint...');
+        const scheduleResponse = await fetch(`${API_BASE_URL}/schedules/personal/weekly`, {
+          headers: {
+            'Authorization': `Bearer ${authToken}`,
+            'Content-Type': 'application/json'
+          }
+        });
         if (!scheduleResponse.ok) {
           throw new Error(`Failed to load schedule: ${scheduleResponse.status}`);
         }
         
         const scheduleData = await scheduleResponse.json();
+        console.log('✅ I-VERIFIED personal schedule loaded:', scheduleData);
         const realShifts = (scheduleData.shifts || scheduleData || []).map((shift: any) => ({
           id: shift.id || `shift-${Date.now()}`,
           date: new Date(shift.date || shift.schedule_date),

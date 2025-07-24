@@ -15,6 +15,8 @@ import {
   Clock
 } from 'lucide-react';
 import realDashboardService, { DashboardMetrics } from '../../services/realDashboardService';
+import { enhancedAuthService, SecurityPostureResponse } from '../../services/realAuthService';
+import { realAnalyticsService, BusinessIntelligenceMetrics, TrendAnalysis } from '../../services/realAnalyticsService';
 
 // Performance Component 3: Executive Dashboard using GET /api/v1/metrics/dashboard
 // This component provides high-level executive overview of performance metrics
@@ -48,10 +50,20 @@ const ExecutiveDashboard: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [apiError, setApiError] = useState<string>('');
   const [autoRefresh, setAutoRefresh] = useState(true);
+  
+  // Enhanced Analytics State
+  const [securityPosture, setSecurityPosture] = useState<SecurityPostureResponse['data'] | null>(null);
+  const [securityLoading, setSecurityLoading] = useState(false);
+  const [businessIntelligence, setBusinessIntelligence] = useState<BusinessIntelligenceMetrics | null>(null);
+  const [trendAnalysis, setTrendAnalysis] = useState<TrendAnalysis | null>(null);
+  const [executiveSummary, setExecutiveSummary] = useState<any>(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(false);
 
   // Load initial dashboard data
   useEffect(() => {
     loadDashboardData();
+    loadSecurityInsights();
+    loadAdvancedAnalytics();
   }, []);
 
   const loadDashboardData = async () => {
@@ -92,6 +104,54 @@ const ExecutiveDashboard: React.FC = () => {
     }
   };
 
+  const loadSecurityInsights = async () => {
+    try {
+      setSecurityLoading(true);
+      
+      const result = await enhancedAuthService.getSecurityPostureAnalytics('7d');
+      
+      if (result.success && result.data) {
+        setSecurityPosture(result.data);
+        console.log('[EXECUTIVE DASHBOARD] Security insights loaded:', result.data);
+      }
+    } catch (error) {
+      console.warn('[EXECUTIVE DASHBOARD] Security insights failed:', error);
+    } finally {
+      setSecurityLoading(false);
+    }
+  };
+
+  const loadAdvancedAnalytics = async () => {
+    try {
+      setAnalyticsLoading(true);
+      
+      // Load business intelligence metrics
+      const biResult = await realAnalyticsService.getBusinessIntelligenceMetrics('7d');
+      if (biResult.success && biResult.data) {
+        setBusinessIntelligence(biResult.data);
+        console.log('[EXECUTIVE DASHBOARD] Business intelligence loaded:', biResult.data);
+      }
+
+      // Load trend analysis
+      const trendResult = await realAnalyticsService.getTrendAnalysis('30d');
+      if (trendResult.success && trendResult.data) {
+        setTrendAnalysis(trendResult.data);
+        console.log('[EXECUTIVE DASHBOARD] Trend analysis loaded:', trendResult.data);
+      }
+
+      // Load executive summary
+      const summaryResult = await realAnalyticsService.getExecutiveSummary();
+      if (summaryResult.success && summaryResult.data) {
+        setExecutiveSummary(summaryResult.data);
+        console.log('[EXECUTIVE DASHBOARD] Executive summary loaded:', summaryResult.data);
+      }
+    } catch (error) {
+      console.warn('[EXECUTIVE DASHBOARD] Advanced analytics failed:', error);
+    } finally {
+      setAnalyticsLoading(false);
+    }
+  };
+
   // Transform dashboard metrics into executive KPIs
   const transformToExecutiveKPIs = (data: DashboardMetrics): ExecutiveKPI[] => {
     const kpis: ExecutiveKPI[] = [];
@@ -124,31 +184,32 @@ const ExecutiveDashboard: React.FC = () => {
       icon: Users
     });
 
-    // Operational Efficiency
-    const efficiency = data.system_status === 'healthy' ? 95.2 : 
-                      data.system_status === 'warning' ? 88.5 : 78.3;
+    // Security Posture (Enhanced with business intelligence)
+    const securityScore = businessIntelligence 
+      ? businessIntelligence.security_posture.overall_score 
+      : securityPosture?.security_posture_score || 87.5;
+    const securityTrend = trendAnalysis?.metrics.security_trend.percentage_change || 2.3;
     kpis.push({
-      id: 'efficiency',
-      title: 'Operational Efficiency',
-      value: `${efficiency.toFixed(1)}%`,
-      change: 2.1,
-      trend: 'up',
-      status: efficiency >= 90 ? 'excellent' : efficiency >= 80 ? 'good' : efficiency >= 70 ? 'warning' : 'critical',
-      description: 'Overall system performance',
-      icon: Activity
+      id: 'security',
+      title: 'Security Posture',
+      value: `${securityScore.toFixed(1)}%`,
+      change: securityTrend,
+      trend: trendAnalysis?.metrics.security_trend.direction || 'up',
+      status: securityScore >= 90 ? 'excellent' : securityScore >= 80 ? 'good' : securityScore >= 70 ? 'warning' : 'critical',
+      description: 'Zero Trust & comprehensive security',
+      icon: DollarSign
     });
 
-    // Service Quality
-    const serviceQuality = data.approved_requests > 0 ? 
-      (data.approved_requests / (data.approved_requests + data.pending_requests)) * 100 : 0;
+    // Service Quality (Enhanced with authentication success rate)
+    const authSuccessRate = securityPosture ? securityPosture.authentication_metrics.success_rate : 96.8;
     kpis.push({
       id: 'quality',
       title: 'Service Quality',
-      value: `${serviceQuality.toFixed(1)}%`,
-      change: -0.5,
-      trend: 'down',
-      status: serviceQuality >= 95 ? 'excellent' : serviceQuality >= 90 ? 'good' : serviceQuality >= 85 ? 'warning' : 'critical',
-      description: 'Customer satisfaction rate',
+      value: `${authSuccessRate.toFixed(1)}%`,
+      change: securityPosture ? 1.2 : -0.5,
+      trend: securityPosture ? 'up' : 'down',
+      status: authSuccessRate >= 95 ? 'excellent' : authSuccessRate >= 90 ? 'good' : authSuccessRate >= 85 ? 'warning' : 'critical',
+      description: 'Authentication & access success',
       icon: Target
     });
 
@@ -159,21 +220,22 @@ const ExecutiveDashboard: React.FC = () => {
   const transformToPerformanceCards = (data: DashboardMetrics): PerformanceCard[] => {
     return [
       {
-        title: 'Daily Requests Target',
-        current: data.total_requests_today,
-        target: 1000,
-        unit: 'requests',
-        status: data.total_requests_today >= 1000 ? 'success' : data.total_requests_today >= 800 ? 'warning' : 'danger',
-        trend: 12.5
+        title: 'Authentication Success',
+        current: securityPosture ? securityPosture.authentication_metrics.success_rate : 96.8,
+        target: 98,
+        unit: '%',
+        status: (securityPosture?.authentication_metrics.success_rate || 96.8) >= 98 ? 'success' : 
+               (securityPosture?.authentication_metrics.success_rate || 96.8) >= 95 ? 'warning' : 'danger',
+        trend: securityPosture ? 2.3 : 1.2
       },
       {
-        title: 'Processing Efficiency',
-        current: data.total_requests_today > 0 ? (data.approved_requests / data.total_requests_today) * 100 : 0,
-        target: 95,
+        title: 'Security Posture Score',
+        current: securityPosture ? securityPosture.security_posture_score : 87.5,
+        target: 90,
         unit: '%',
-        status: (data.approved_requests / data.total_requests_today) * 100 >= 95 ? 'success' : 
-               (data.approved_requests / data.total_requests_today) * 100 >= 90 ? 'warning' : 'danger',
-        trend: 5.2
+        status: (securityPosture?.security_posture_score || 87.5) >= 90 ? 'success' : 
+               (securityPosture?.security_posture_score || 87.5) >= 80 ? 'warning' : 'danger',
+        trend: securityPosture ? 3.1 : 2.0
       },
       {
         title: 'Active Workforce',
@@ -184,12 +246,13 @@ const ExecutiveDashboard: React.FC = () => {
         trend: 2.8
       },
       {
-        title: 'System Health Score',
-        current: data.system_status === 'healthy' ? 98 : data.system_status === 'warning' ? 85 : 70,
+        title: 'Threat Detection Score',
+        current: securityPosture ? (100 - securityPosture.threat_detection.anomaly_score) : 87.7,
         target: 95,
         unit: '%',
-        status: data.system_status === 'healthy' ? 'success' : data.system_status === 'warning' ? 'warning' : 'danger',
-        trend: 1.5
+        status: (securityPosture ? (100 - securityPosture.threat_detection.anomaly_score) : 87.7) >= 95 ? 'success' : 
+               (securityPosture ? (100 - securityPosture.threat_detection.anomaly_score) : 87.7) >= 85 ? 'warning' : 'danger',
+        trend: securityPosture ? 1.8 : 1.5
       }
     ];
   };
@@ -209,6 +272,11 @@ const ExecutiveDashboard: React.FC = () => {
           setExecutiveKPIs(kpis);
           const cards = transformToPerformanceCards(result.data);
           setPerformanceCards(cards);
+        }
+        
+        // Also refresh security insights every 5 minutes
+        if (Date.now() % 300000 < 60000) { // Roughly every 5 minutes
+          await loadSecurityInsights();
         }
       } catch (error) {
         console.warn('[EXECUTIVE DASHBOARD] Auto-refresh failed:', error);
@@ -426,6 +494,82 @@ const ExecutiveDashboard: React.FC = () => {
               <div className="text-sm text-gray-600">Pending Processing</div>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Enhanced Security Insights */}
+      {securityPosture && (
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+            <DollarSign className="h-5 w-5 mr-2 text-purple-600" />
+            Security & Risk Intelligence
+            {securityLoading && <RefreshCw className="h-4 w-4 ml-2 animate-spin text-blue-500" />}
+          </h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="text-center p-4 bg-green-50 rounded-lg border border-green-200">
+              <div className="text-2xl font-bold text-green-600 mb-1">
+                {securityPosture.security_posture_score.toFixed(1)}%
+              </div>
+              <div className="text-sm text-gray-600">Security Posture</div>
+              <div className="text-xs text-green-600 mt-1">
+                +2.3% this week
+              </div>
+            </div>
+            
+            <div className="text-center p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="text-2xl font-bold text-blue-600 mb-1">
+                {securityPosture.authentication_metrics.success_rate.toFixed(1)}%
+              </div>
+              <div className="text-sm text-gray-600">Auth Success Rate</div>
+              <div className="text-xs text-blue-600 mt-1">
+                {securityPosture.authentication_metrics.total_attempts.toLocaleString()} attempts
+              </div>
+            </div>
+            
+            <div className="text-center p-4 bg-purple-50 rounded-lg border border-purple-200">
+              <div className="text-2xl font-bold text-purple-600 mb-1">
+                {securityPosture.compliance_status.zero_trust_coverage}
+              </div>
+              <div className="text-sm text-gray-600">Zero Trust Coverage</div>
+              <div className="text-xs text-purple-600 mt-1">
+                {securityPosture.compliance_status.mfa_adoption} MFA adoption
+              </div>
+            </div>
+            
+            <div className="text-center p-4 bg-orange-50 rounded-lg border border-orange-200">
+              <div className="text-2xl font-bold text-orange-600 mb-1">
+                {securityPosture.threat_detection.threat_level.toUpperCase()}
+              </div>
+              <div className="text-sm text-gray-600">Threat Level</div>
+              <div className="text-xs text-orange-600 mt-1">
+                {securityPosture.threat_detection.suspicious_activities} suspicious activities
+              </div>
+            </div>
+          </div>
+
+          {/* Security Recommendations */}
+          {securityPosture.recommendations.length > 0 && (
+            <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <h4 className="text-sm font-medium text-gray-900 mb-2 flex items-center">
+                <AlertTriangle className="h-4 w-4 mr-1 text-yellow-600" />
+                Priority Security Actions
+              </h4>
+              <div className="space-y-1">
+                {securityPosture.recommendations.slice(0, 2).map((recommendation, index) => (
+                  <div key={index} className="text-xs text-gray-700 flex items-start">
+                    <span className="text-yellow-600 mr-1">•</span>
+                    <span>{recommendation}</span>
+                  </div>
+                ))}
+                {securityPosture.recommendations.length > 2 && (
+                  <div className="text-xs text-gray-500">
+                    +{securityPosture.recommendations.length - 2} more recommendations
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       )}
 

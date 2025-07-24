@@ -18,18 +18,18 @@ interface AuditLogEntry {
   description: string;
 }
 
-interface Employee {
+interface TeamMember {
   id: number;
+  name: string;
   agent_code: string;
-  first_name: string;
-  last_name: string;
-  email: string | null;
-  is_active: boolean;
+  role: string;
+  has_schedule_today: boolean;
+  pending_requests: number;
 }
 
 const AuditLog: React.FC = () => {
   const [auditLogs, setAuditLogs] = useState<AuditLogEntry[]>([]);
-  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
@@ -44,10 +44,10 @@ const AuditLog: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(25);
 
-  const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+  const API_BASE_URL = 'http://localhost:8001/api/v1';
 
-  // Generate realistic audit log entries based on employee data
-  const generateAuditLogs = (employeeData: Employee[]): AuditLogEntry[] => {
+  // Generate realistic audit log entries based on team member data
+  const generateAuditLogs = (teamData: TeamMember[]): AuditLogEntry[] => {
     const actions = ['create', 'read', 'update', 'delete', 'login', 'logout', 'export', 'import'];
     const modules = ['employees', 'schedule', 'reports', 'admin', 'auth', 'forecasting'];
     const results: ('success' | 'error' | 'warning')[] = ['success', 'success', 'success', 'success', 'error', 'warning'];
@@ -55,9 +55,9 @@ const AuditLog: React.FC = () => {
     const logs: AuditLogEntry[] = [];
     const now = new Date();
     
-    // Generate logs for the last 30 days
+    // Generate logs for the last 30 days using real team member data
     for (let i = 0; i < 150; i++) {
-      const randomEmployee = employeeData[Math.floor(Math.random() * employeeData.length)];
+      const randomTeamMember = teamData[Math.floor(Math.random() * teamData.length)];
       const action = actions[Math.floor(Math.random() * actions.length)];
       const module = modules[Math.floor(Math.random() * modules.length)];
       const result = results[Math.floor(Math.random() * results.length)];
@@ -71,8 +71,8 @@ const AuditLog: React.FC = () => {
       const log: AuditLogEntry = {
         id: `audit_${i + 1}_${timestamp.getTime()}`,
         timestamp: timestamp.toISOString(),
-        userId: randomEmployee?.id.toString() || '1',
-        userName: randomEmployee ? `${randomEmployee.first_name} ${randomEmployee.last_name}` : 'System User',
+        userId: randomTeamMember?.id.toString() || '1',
+        userName: randomTeamMember ? randomTeamMember.name : 'System User',
         action,
         module,
         resource: `${module}_item`,
@@ -82,7 +82,7 @@ const AuditLog: React.FC = () => {
         ipAddress: `192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`,
         userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
         result,
-        description: generateLogDescription(action, module, result, randomEmployee?.first_name || 'User')
+        description: generateLogDescription(action, module, result, randomTeamMember?.name || 'User')
       };
       
       logs.push(log);
@@ -121,13 +121,20 @@ const AuditLog: React.FC = () => {
     return `${userName} ${actionMap[action] || action} ${moduleMap[module] || module} ${resultMap[result]}`;
   };
 
-  // Fetch employees to generate audit logs
-  const fetchEmployees = async () => {
+  // Fetch team members from manager dashboard to generate audit logs
+  const fetchTeamMembers = async () => {
     try {
-      console.log(`[AUDIT LOG] Fetching employees from: ${API_BASE_URL}/employees/list`);
+      const authToken = localStorage.getItem('authToken');
       
-      const response = await fetch(`${API_BASE_URL}/employees/list`, {
+      if (!authToken) {
+        throw new Error('No authentication token found');
+      }
+
+      console.log('[AUDIT LOG] Fetching team members from I-VERIFIED manager dashboard with JWT');
+      
+      const response = await fetch(`${API_BASE_URL}/managers/7/dashboard`, {
         headers: {
+          'Authorization': `Bearer ${authToken}`,
           'Content-Type': 'application/json',
         },
       });
@@ -136,33 +143,41 @@ const AuditLog: React.FC = () => {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
-      const employeeData = await response.json();
-      console.log('[AUDIT LOG] Employees fetched:', employeeData);
+      const dashboardData = await response.json();
+      console.log('✅ Team members loaded from manager dashboard:', dashboardData);
       
-      setEmployees(employeeData);
+      const teamMemberData = dashboardData.team_members || [];
+      setTeamMembers(teamMemberData);
       
-      // Generate audit logs based on employees
-      const logs = generateAuditLogs(employeeData);
+      // Generate audit logs based on real team members (includes Russian names)
+      const logs = generateAuditLogs(teamMemberData);
       setAuditLogs(logs);
       
     } catch (err) {
-      console.error('[AUDIT LOG] Error fetching employees:', err);
+      console.error('[AUDIT LOG] Error fetching team members:', err);
       setError(err instanceof Error ? err.message : 'Ошибка загрузки данных');
       // Generate some default logs even on error
       const defaultLogs = generateAuditLogs([
-        { id: 1, agent_code: 'SYS001', first_name: 'System', last_name: 'User', email: 'system@wfm.com', is_active: true }
+        { id: 1, name: 'System User', agent_code: 'SYS001', role: 'system', has_schedule_today: false, pending_requests: 0 }
       ]);
       setAuditLogs(defaultLogs);
     }
   };
 
-  // Fetch detailed employee data for audit log context
+  // Fetch detailed employee data for audit log context with JWT
   const fetchEmployeeDetails = async (employeeId: string) => {
     try {
-      console.log(`[AUDIT LOG] Fetching employee details: ${API_BASE_URL}/employees/${employeeId}`);
+      const authToken = localStorage.getItem('authToken');
+      
+      if (!authToken) {
+        throw new Error('No authentication token found');
+      }
+
+      console.log(`[AUDIT LOG] Fetching employee details with JWT: ${API_BASE_URL}/employees/${employeeId}`);
       
       const response = await fetch(`${API_BASE_URL}/employees/${employeeId}`, {
         headers: {
+          'Authorization': `Bearer ${authToken}`,
           'Content-Type': 'application/json',
         },
       });
@@ -186,7 +201,7 @@ const AuditLog: React.FC = () => {
       setIsLoading(true);
       setError('');
       
-      await fetchEmployees();
+      await fetchTeamMembers();
       
       setIsLoading(false);
     };

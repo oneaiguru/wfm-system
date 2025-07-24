@@ -38,7 +38,7 @@ export interface SubmissionResult {
   submittedAt: string;
 }
 
-const API_BASE_URL = 'http://localhost:8000/api/v1';
+const API_BASE_URL = 'http://localhost:8001/api/v1';
 
 class RealRequestService {
   
@@ -143,9 +143,9 @@ class RealRequestService {
 
       // BDD Compliance: Use real UUID from employee selection, no hardcoded fallback
       const payload = {
-        employee_id: requestData.employee_id || requestData.employeeId as string,
-        start_date: requestData.start_date || requestData.startDate,
-        end_date: requestData.end_date || requestData.endDate,
+        employee_id: requestData.employee_id as string,
+        start_date: requestData.start_date,
+        end_date: requestData.end_date,
         description: requestData.description || requestData.reason || requestData.title || 'Vacation request'
       };
 
@@ -197,6 +197,37 @@ class RealRequestService {
     return this.makeRequest<{ success: boolean }>(`/requests/${requestId}/cancel`, {
       method: 'POST'
     });
+  }
+
+  // Update request - for editing pending requests
+  async updateRequest(requestId: string, data: {
+    start_date?: string;
+    end_date?: string;
+    description?: string;
+  }): Promise<ApiResponse<any>> {
+    console.log(`[REAL API] Updating request: ${requestId}`, data);
+    
+    return this.makeRequest<any>(`/requests/${requestId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    });
+  }
+
+  // Delete request - for canceling approved requests with reason
+  async deleteRequest(requestId: string, reason: string): Promise<ApiResponse<any>> {
+    console.log(`[REAL API] Deleting request: ${requestId} with reason: ${reason}`);
+    
+    return this.makeRequest<any>(`/requests/${requestId}`, {
+      method: 'DELETE',
+      body: JSON.stringify({ reason })
+    });
+  }
+
+  // Get employee request history
+  async getEmployeeRequestHistory(employeeId: string): Promise<ApiResponse<VacationRequestData[]>> {
+    console.log(`[REAL API] Fetching request history for employee: ${employeeId}`);
+    
+    return this.makeRequest<VacationRequestData[]>(`/requests/employee/${employeeId}/history`);
   }
 
   // Health check to verify API connectivity

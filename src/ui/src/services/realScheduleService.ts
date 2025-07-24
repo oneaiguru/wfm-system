@@ -91,13 +91,13 @@ interface ScheduleOptimizationRequest {
   };
 }
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = 'http://localhost:8001';
 
 class RealScheduleService {
   private token: string | null = null;
 
   constructor() {
-    this.token = localStorage.getItem('authToken');
+    this.token = localStorage.getItem('wfm_auth_token');
   }
 
   private async makeRequest<T>(
@@ -134,7 +134,7 @@ class RealScheduleService {
   // Health check to verify API connectivity
   async checkApiHealth(): Promise<{ healthy: boolean; message: string }> {
     try {
-      const response = await this.makeRequest<{ status: string; service: string }>('/health');
+      const response = await this.makeRequest<{ status: string; service: string }>('/api/v1/health');
       return {
         healthy: response.status === 'healthy',
         message: `API Health: ${response.status} - ${response.service}`
@@ -150,8 +150,63 @@ class RealScheduleService {
   // Get current schedule data
   async getCurrentSchedule(): Promise<ScheduleResponse> {
     try {
-      const response = await this.makeRequest<ScheduleResponse>('/api/v1/schedules/personal');
-      return response;
+      // Get current user from localStorage (set during login)
+      const user = localStorage.getItem('user');
+      const username = user ? JSON.parse(user).name : 'john.doe';
+      
+      // Use the working personal weekly schedule endpoint from INTEGRATION-OPUS
+      // GET /api/v1/schedules/personal/weekly
+      const response = await this.makeRequest<any>('/api/v1/schedules/personal/weekly');
+      
+      // Transform the working API response format: {"employee_id":1,"shifts":[...],"summary":{...}}
+      if (response && response.shifts) {
+        const transformedShifts: Shift[] = response.shifts.map((entry: any) => ({
+          id: `shift-${response.employee_id}-${entry.date}`,
+          employeeId: response.employee_id,
+          startTime: entry.shift_start,
+          endTime: entry.shift_end,
+          date: entry.date,
+          shiftType: 'regular',
+          status: entry.status === 'scheduled' ? 'scheduled' : 'confirmed',
+          skills: entry.activities || [],
+          breakTimes: entry.break_start ? [{
+            start: entry.break_start,
+            end: `${parseInt(entry.break_start.split(':')[0])}:${(parseInt(entry.break_start.split(':')[1]) + entry.break_duration).toString().padStart(2, '0')}:00`,
+            type: 'break' as const
+          }] : undefined
+        }));
+        
+        return {
+          success: true,
+          data: {
+            employees: [{
+              id: response.employee_id,
+              employeeId: response.employee_id.toString(),
+              firstName: 'Employee',
+              lastName: response.employee_id.toString(),
+              fullName: `Employee ${response.employee_id}`,
+              role: 'Customer Service Representative',
+              scheduledHours: response.summary?.total_hours || 40,
+              plannedHours: response.summary?.total_hours || 40,
+              skills: [],
+              isActive: true,
+              department: 'Customer Service'
+            }],
+            shifts: transformedShifts,
+            metadata: {
+              totalEmployees: 1,
+              totalShifts: response.shifts.length,
+              coverage: 100,
+              generatedAt: new Date().toISOString()
+            }
+          }
+        };
+      }
+      
+      return {
+        success: false,
+        error: 'No schedule data found'
+      };
     } catch (error) {
       return {
         success: false,

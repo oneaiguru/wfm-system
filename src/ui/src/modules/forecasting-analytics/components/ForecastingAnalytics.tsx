@@ -3,6 +3,7 @@ import { TrendingUp, BarChart3, Settings, RefreshCw, AlertCircle } from 'lucide-
 import TimeSeriesChart from './forecasting/TimeSeriesChart';
 import AccuracyDashboard from './accuracy/AccuracyDashboard';
 import AlgorithmSelector from './forecasting/AlgorithmSelector';
+import ScenarioBuilder from './scenarios/ScenarioBuilder';
 import realForecastingService, { type ForecastDataPoint, type AccuracyMetrics } from '../../../services/realForecastingService';
 
 interface ForecastingAnalyticsProps {
@@ -14,7 +15,7 @@ const ForecastingAnalytics: React.FC<ForecastingAnalyticsProps> = ({
   onDataChange,
   className = ''
 }) => {
-  const [activeTab, setActiveTab] = useState<'chart' | 'accuracy' | 'algorithms'>('chart');
+  const [activeTab, setActiveTab] = useState<'chart' | 'accuracy' | 'algorithms' | 'scenarios'>('chart');
   const [selectedAlgorithm, setSelectedAlgorithm] = useState('enhanced-arima');
   const [forecastData, setForecastData] = useState<ForecastDataPoint[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -99,7 +100,8 @@ const ForecastingAnalytics: React.FC<ForecastingAnalyticsProps> = ({
   const tabs = [
     { id: 'chart', label: 'Forecast Chart', icon: TrendingUp },
     { id: 'accuracy', label: 'Accuracy Dashboard', icon: BarChart3 },
-    { id: 'algorithms', label: 'Algorithm Selection', icon: Settings }
+    { id: 'algorithms', label: 'Algorithm Selection', icon: Settings },
+    { id: 'scenarios', label: 'What-If Scenarios', icon: Settings }
   ];
 
   return (
@@ -276,6 +278,19 @@ const ForecastingAnalytics: React.FC<ForecastingAnalyticsProps> = ({
               onAlgorithmChange={handleAlgorithmChange}
               isCalculating={isLoading}
               className="border-0 shadow-none"
+            />
+          )}
+
+          {activeTab === 'scenarios' && (
+            <ScenarioBuilder
+              className="border-0 shadow-none"
+              onScenarioGenerated={(scenario) => {
+                console.log('New scenario generated:', scenario);
+                // Could update forecast data based on scenario
+              }}
+              onScenarioSaved={(scenario) => {
+                console.log('Scenario saved:', scenario);
+              }}
             />
           )}
         </div>

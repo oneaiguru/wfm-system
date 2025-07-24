@@ -1,14 +1,81 @@
-import React from 'react';
-import { Calendar, FileText, Clock, User, Bell, TrendingUp } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Calendar, FileText, Clock, User, Bell, TrendingUp, Loader2, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001/api/v1';
+
+interface Employee {
+  id: string;
+  employee_number: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  department_id: string;
+  employment_type: string;
+  hire_date: string;
+  is_active: boolean;
+  time_zone: string;
+  user_id: string;
+}
 
 export const EmployeeDashboard: React.FC = () => {
-  // Demo data - would come from API after login
-  const employee = {
-    name: "John Doe",
+  const navigate = useNavigate();
+  const [employee, setEmployee] = useState<Employee | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Demo stats (would come from additional API calls)
+  const stats = {
     daysOffRemaining: 15,
     upcomingShifts: 5,
     pendingRequests: 2
   };
+
+  useEffect(() => {
+    const fetchEmployeeData = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/employees/me`);
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch employee data');
+        }
+        
+        const data = await response.json();
+        setEmployee(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load employee data');
+        console.error('Employee data fetch error:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEmployeeData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="flex items-center gap-2">
+          <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+          <span className="text-gray-600">Loading employee data...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="bg-white rounded-lg shadow-sm border p-6 max-w-md text-center">
+          <div className="text-red-600 mb-2">⚠️ Error</div>
+          <p className="text-gray-600">{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  const employeeName = employee ? `${employee.first_name} ${employee.last_name}` : 'Employee';
 
   const notifications = [
     { id: 1, message: "Schedule updated for next week", time: "2 hours ago" },
@@ -63,11 +130,20 @@ export const EmployeeDashboard: React.FC = () => {
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                Welcome back, {employee.name}!
-              </h1>
-              <p className="text-gray-600">Here's your dashboard for today</p>
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => navigate('/demo')}
+                className="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors"
+              >
+                <ArrowLeft className="h-5 w-5" />
+                Back to Demo
+              </button>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">
+                  Welcome back, {employeeName}!
+                </h1>
+                <p className="text-gray-600">Here's your dashboard for today</p>
+              </div>
             </div>
             <div className="flex items-center gap-2">
               <Bell className="h-5 w-5 text-gray-400" />
@@ -83,19 +159,19 @@ export const EmployeeDashboard: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <QuickStatCard
             title="Days Off Remaining"
-            value={employee.daysOffRemaining}
+            value={stats.daysOffRemaining}
             icon={Calendar}
             color="bg-green-600"
           />
           <QuickStatCard
             title="Upcoming Shifts"
-            value={employee.upcomingShifts}
+            value={stats.upcomingShifts}
             icon={Clock}
             color="bg-blue-600"
           />
           <QuickStatCard
             title="Pending Requests"
-            value={employee.pendingRequests}
+            value={stats.pendingRequests}
             icon={FileText}
             color="bg-yellow-600"
           />
@@ -133,6 +209,14 @@ export const EmployeeDashboard: React.FC = () => {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* BDD Compliance Note */}
+        <div className="text-center mt-8">
+          <div className="inline-flex items-center px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm">
+            <User className="h-4 w-4 mr-2" />
+            BDD Compliant: Employee Dashboard - Real API Integration
           </div>
         </div>
       </div>

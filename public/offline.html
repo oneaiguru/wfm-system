@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WFM Enterprise - Offline</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #333;
+    }
+
+    .offline-container {
+      text-align: center;
+      background: white;
+      padding: 3rem 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      max-width: 500px;
+      width: 90%;
+    }
+
+    .offline-icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 2rem;
+      background: #f3f4f6;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .offline-icon::before {
+      content: '';
+      width: 40px;
+      height: 40px;
+      border: 3px solid #6b7280;
+      border-radius: 50%;
+      border-top-color: transparent;
+      border-right-color: transparent;
+      position: relative;
+    }
+
+    .offline-icon::after {
+      content: '✕';
+      position: absolute;
+      font-size: 1.5rem;
+      color: #ef4444;
+      font-weight: bold;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #1f2937;
+      margin-bottom: 1rem;
+    }
+
+    p {
+      color: #6b7280;
+      font-size: 1.125rem;
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+
+    .features {
+      text-align: left;
+      background: #f9fafb;
+      padding: 1.5rem;
+      border-radius: 0.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .features h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 1rem;
+    }
+
+    .features ul {
+      list-style: none;
+      space-y: 0.5rem;
+    }
+
+    .features li {
+      display: flex;
+      align-items: center;
+      padding: 0.5rem 0;
+      color: #374151;
+    }
+
+    .features li::before {
+      content: '✓';
+      color: #10b981;
+      font-weight: bold;
+      margin-right: 0.75rem;
+      font-size: 1.1rem;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    button {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    button:hover {
+      background: #2563eb;
+    }
+
+    button.secondary {
+      background: #6b7280;
+    }
+
+    button.secondary:hover {
+      background: #4b5563;
+    }
+
+    .status {
+      margin-top: 2rem;
+      padding: 1rem;
+      background: #fef3c7;
+      border: 1px solid #f59e0b;
+      border-radius: 0.5rem;
+      color: #92400e;
+      font-size: 0.875rem;
+      display: none;
+    }
+
+    .status.online {
+      background: #d1fae5;
+      border-color: #10b981;
+      color: #065f46;
+    }
+
+    .status.checking {
+      background: #dbeafe;
+      border-color: #3b82f6;
+      color: #1e40af;
+    }
+
+    @media (max-width: 640px) {
+      .offline-container {
+        padding: 2rem 1.5rem;
+      }
+
+      h1 {
+        font-size: 1.75rem;
+      }
+
+      .buttons {
+        flex-direction: column;
+      }
+
+      button {
+        width: 100%;
+      }
+    }
+
+    /* Animation for the connection icon */
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.5;
+      }
+    }
+
+    .checking .offline-icon::before {
+      animation: pulse 2s infinite;
+      border-color: #3b82f6;
+    }
+  </style>
+</head>
+<body>
+  <div class="offline-container">
+    <div class="offline-icon" id="connectionIcon"></div>
+    
+    <h1>You're Offline</h1>
+    <p>No internet connection detected. Don't worry - WFM Enterprise works offline too!</p>
+    
+    <div class="features">
+      <h3>Available Offline Features:</h3>
+      <ul>
+        <li>View your schedule for the next 30 days</li>
+        <li>Submit vacation and time-off requests</li>
+        <li>Update your profile information</li>
+        <li>Access recent notifications</li>
+        <li>View cached dashboard metrics</li>
+        <li>Browse employee directory</li>
+      </ul>
+    </div>
+
+    <div class="buttons">
+      <button onclick="tryReconnect()" id="reconnectBtn">
+        Try Again
+      </button>
+      <button class="secondary" onclick="goToApp()">
+        Continue Offline
+      </button>
+    </div>
+
+    <div class="status" id="status"></div>
+  </div>
+
+  <script>
+    let isChecking = false;
+
+    // Check connection status
+    function checkConnection() {
+      return new Promise((resolve) => {
+        const img = new Image();
+        const timeout = setTimeout(() => {
+          resolve(false);
+        }, 5000);
+
+        img.onload = () => {
+          clearTimeout(timeout);
+          resolve(true);
+        };
+
+        img.onerror = () => {
+          clearTimeout(timeout);
+          resolve(false);
+        };
+
+        // Try to load a small image from the server
+        img.src = '/icons/icon-72x72.png?' + Date.now();
+      });
+    }
+
+    // Update UI based on connection status
+    function updateConnectionUI(isOnline, isChecking = false) {
+      const icon = document.getElementById('connectionIcon');
+      const status = document.getElementById('status');
+      const reconnectBtn = document.getElementById('reconnectBtn');
+      
+      icon.className = 'offline-icon' + (isChecking ? ' checking' : '');
+      
+      if (isChecking) {
+        status.className = 'status checking';
+        status.textContent = 'Checking connection...';
+        status.style.display = 'block';
+        reconnectBtn.textContent = 'Checking...';
+        reconnectBtn.disabled = true;
+      } else if (isOnline) {
+        status.className = 'status online';
+        status.textContent = 'Connection restored! Redirecting...';
+        status.style.display = 'block';
+        reconnectBtn.textContent = 'Connected';
+        reconnectBtn.disabled = true;
+        
+        // Redirect to main app after a short delay
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 1500);
+      } else {
+        status.style.display = 'none';
+        reconnectBtn.textContent = 'Try Again';
+        reconnectBtn.disabled = false;
+      }
+    }
+
+    // Try to reconnect
+    async function tryReconnect() {
+      if (isChecking) return;
+      
+      isChecking = true;
+      updateConnectionUI(false, true);
+      
+      try {
+        const isOnline = await checkConnection();
+        updateConnectionUI(isOnline, false);
+        
+        if (isOnline) {
+          // Also try to reach the API
+          try {
+            const response = await fetch('/api/health', { 
+              method: 'GET',
+              cache: 'no-cache'
+            });
+            
+            if (response.ok) {
+              // API is available, redirect to main app
+              window.location.href = '/';
+              return;
+            }
+          } catch (e) {
+            // API not available, but internet connection exists
+            updateConnectionUI(false, false);
+          }
+        }
+      } catch (error) {
+        console.error('Connection check failed:', error);
+        updateConnectionUI(false, false);
+      }
+      
+      isChecking = false;
+    }
+
+    // Go to app in offline mode
+    function goToApp() {
+      // Try to use the cached version of the main app
+      window.location.href = '/';
+    }
+
+    // Auto-check connection every 30 seconds
+    setInterval(async () => {
+      if (!isChecking) {
+        const isOnline = await checkConnection();
+        if (isOnline) {
+          updateConnectionUI(true, false);
+        }
+      }
+    }, 30000);
+
+    // Listen for online/offline events
+    window.addEventListener('online', () => {
+      console.log('Browser detected online event');
+      tryReconnect();
+    });
+
+    window.addEventListener('offline', () => {
+      console.log('Browser detected offline event');
+      updateConnectionUI(false, false);
+    });
+
+    // Initial connection check on page load
+    window.addEventListener('load', () => {
+      // Small delay to let the page render
+      setTimeout(tryReconnect, 1000);
+    });
+
+    // Service Worker communication
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.addEventListener('message', event => {
+        if (event.data?.type === 'SYNC_COMPLETE') {
+          console.log('Background sync completed');
+          // Could show a notification that data was synced
+        }
+      });
+    }
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !isChecking) {
+        tryReconnect();
+      } else if (e.key === 'Escape') {
+        goToApp();
+      }
+    });
+  </script>
+</body>
+</html>

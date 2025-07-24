@@ -1,21 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { User, Mail, Calendar, MapPin, Edit, AlertCircle, UserCheck, Clock } from 'lucide-react';
 
-// API Response type based on the actual endpoint response
+// API Response type based on I's /employees/me endpoint
 interface ApiEmployee {
   id: number;
-  agent_code: string;
-  first_name: string;
-  last_name: string;
+  username: string;
+  full_name: string;
   email: string;
-  employee_id: string | null;
-  is_active: boolean;
-  primary_group_id: number | null;
-  primary_group_name: string | null;
-  hire_date: string | null;
-  time_zone: string;
-  default_shift_start: string | null;
-  default_shift_end: string | null;
+  employee_number: string;
+  hire_date: string;
+  department: string;
+  position: string;
+  role: string;
+  skills: string[];
 }
 
 export interface EmployeeProfileProps {
@@ -28,7 +25,7 @@ const EmployeeProfile: React.FC<EmployeeProfileProps> = ({ employeeId, onEdit })
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+  const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001/api/v1';
 
   useEffect(() => {
     fetchEmployee();
@@ -39,11 +36,14 @@ const EmployeeProfile: React.FC<EmployeeProfileProps> = ({ employeeId, onEdit })
     setError('');
 
     try {
-      console.log(`[EMPLOYEE PROFILE] Fetching employee ${employeeId} from: ${API_BASE_URL}/employees/${employeeId}`);
+      // Use I's verified current employee endpoint
+      console.log(`[EMPLOYEE PROFILE] Fetching current employee from: ${API_BASE_URL}/employees/me`);
+      const token = localStorage.getItem('authToken');
       
-      const response = await fetch(`${API_BASE_URL}/employees/${employeeId}`, {
+      const response = await fetch(`${API_BASE_URL}/employees/me`, {
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
       });
 

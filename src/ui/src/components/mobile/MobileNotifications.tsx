@@ -95,21 +95,39 @@ const MobileNotifications: React.FC<MobileNotificationsProps> = ({
     }
 
     try {
-      const response = await fetch('/api/v1/mobile/notifications/list', {
+      // Use I's verified mobile notifications endpoint
+      console.log('[MOBILE NOTIFICATIONS] Loading from I\'s verified endpoint...');
+      const authToken = localStorage.getItem('authToken');
+      
+      const response = await fetch('http://localhost:8001/api/v1/mobile/cabinet/notifications', {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('mobile_auth_token')}`,
+          'Authorization': `Bearer ${authToken}`,
           'Content-Type': 'application/json'
-        },
-        params: new URLSearchParams({
-          employee_id: employeeId,
-          limit: '50',
-          include_read: 'true'
-        })
+        }
       });
 
       if (response.ok) {
-        const data = await response.json();
-        setNotifications(data.notifications || []);
+        const rawData = await response.json();
+        console.log('✅ I-VERIFIED mobile notifications loaded:', rawData);
+        
+        // Parse I's notifications format
+        const parsedNotifications: Notification[] = (rawData.notifications || []).map((notif: any) => ({
+          id: notif.id || `notif_${Date.now()}`,
+          type: notif.type || 'system',
+          title: notif.title || 'Уведомление',
+          message: notif.message || notif.content || '',
+          timestamp: notif.timestamp || notif.created_at || new Date().toISOString(),
+          read: notif.read || false,
+          priority: notif.priority || 'medium',
+          action_url: notif.action_url,
+          action_text: notif.action_text || 'Открыть',
+          metadata: notif.metadata || {},
+          sender: notif.sender || 'Система'
+        }));
+        
+        setNotifications(parsedNotifications);
+      } else {
+        console.error(`❌ Mobile notifications API error: ${response.status}`);
       }
     } catch (error) {
       console.error('Ошибка загрузки уведомлений:', error);
@@ -139,7 +157,7 @@ const MobileNotifications: React.FC<MobileNotificationsProps> = ({
 
   const setupWebSocket = () => {
     const token = localStorage.getItem('mobile_auth_token');
-    const wsUrl = `ws://localhost:8000/ws/notifications/${employeeId}?token=${token}`;
+    const wsUrl = `ws://localhost:8001/ws/notifications/${employeeId}?token=${token}`;
     
     wsRef.current = new WebSocket(wsUrl);
     

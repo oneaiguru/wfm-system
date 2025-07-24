@@ -30,7 +30,7 @@ export interface ApiResponse<T> {
   error?: string;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001/api/v1';
 
 class RealDashboardService {
   
@@ -76,7 +76,8 @@ class RealDashboardService {
   async getDashboardMetrics(): Promise<ApiResponse<DashboardMetrics>> {
     console.log('[REAL API] Fetching dashboard metrics');
     
-    return this.makeRequest<DashboardMetrics>('/analytics/dashboard', {
+    // Use the working advanced analytics endpoint from INTEGRATION-OPUS
+    return this.makeRequest<DashboardMetrics>('/analytics/dashboard/advanced', {
       method: 'GET'
     });
   }
@@ -94,7 +95,16 @@ class RealDashboardService {
   async refreshMetrics(): Promise<ApiResponse<DashboardMetrics>> {
     console.log('[REAL API] Refreshing dashboard metrics');
     
-    return this.makeRequest<DashboardMetrics>('/analytics/dashboard?refresh=true', {
+    // Use the working advanced analytics endpoint with refresh
+    return this.makeRequest<DashboardMetrics>('/analytics/dashboard/advanced?refresh=true', {
+      method: 'GET'
+    });
+  }
+
+  async getOptimizationAnalysis(): Promise<ApiResponse<any>> {
+    console.log('[REAL API] Getting optimization analysis');
+    
+    return this.makeRequest<any>('/analytics/optimization', {
       method: 'GET'
     });
   }

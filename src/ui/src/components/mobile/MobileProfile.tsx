@@ -1,5 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './MobileProfile.css';
+import LoadingSpinner from '../LoadingSpinner';
+import { Input } from '../common/Input';
+import { Button, PrimaryButton, SecondaryButton } from '../common/Button';
+import ErrorBoundary from '../ErrorBoundary';
+import { useToastHelpers } from '../common/Toast';
 
 interface EmployeeProfile {
   id: string;
@@ -73,6 +78,7 @@ const MobileProfile: React.FC<MobileProfileProps> = ({
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
+  const { success, error, warning } = useToastHelpers();
 
   useEffect(() => {
     loadProfileData();
@@ -118,6 +124,10 @@ const MobileProfile: React.FC<MobileProfileProps> = ({
       }
     } catch (error) {
       console.error('Ошибка загрузки профиля:', error);
+      error('Не удалось загрузить данные профиля', {
+        title: 'Ошибка загрузки',
+        duration: 5000
+      });
     } finally {
       setLoading(false);
     }
@@ -185,14 +195,20 @@ const MobileProfile: React.FC<MobileProfileProps> = ({
           onProfileUpdate(updatedProfile);
         }
         
-        alert('Профиль успешно обновлен');
+        success('Профиль успешно обновлен', {
+          title: 'Сохранено',
+          duration: 3000
+        });
       } else {
         const error = await response.json();
         throw new Error(error.message || 'Ошибка сохранения профиля');
       }
     } catch (error) {
       console.error('Ошибка сохранения профиля:', error);
-      alert('Ошибка сохранения профиля');
+      error('Не удалось сохранить изменения профиля', {
+        title: 'Ошибка сохранения',
+        duration: 5000
+      });
     } finally {
       setSaving(false);
     }
@@ -223,6 +239,10 @@ const MobileProfile: React.FC<MobileProfileProps> = ({
       }
     } catch (error) {
       console.error('Ошибка сохранения настроек:', error);
+      error('Не удалось сохранить настройки', {
+        title: 'Ошибка',
+        duration: 5000
+      });
     }
   };
 
@@ -230,12 +250,18 @@ const MobileProfile: React.FC<MobileProfileProps> = ({
     const file = event.target.files?.[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        alert('Файл слишком большой. Максимальный размер: 5MB');
+        warning('Файл слишком большой. Максимальный размер: 5MB', {
+          title: 'Размер файла',
+          duration: 4000
+        });
         return;
       }
       
       if (!file.type.startsWith('image/')) {
-        alert('Пожалуйста, выберите изображение');
+        warning('Пожалуйста, выберите изображение', {
+          title: 'Неверный тип файла',
+          duration: 4000
+        });
         return;
       }
       
@@ -322,31 +348,45 @@ const MobileProfile: React.FC<MobileProfileProps> = ({
         
         <div className="mobile-profile__actions">
           {!editMode ? (
-            <button
-              className="mobile-profile__edit-button"
+            <SecondaryButton
               onClick={() => setEditMode(true)}
+              leftIcon={
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+              }
             >
-              ✏️ Редактировать
-            </button>
+              Редактировать
+            </SecondaryButton>
           ) : (
             <div className="mobile-profile__edit-actions">
-              <button
-                className="mobile-profile__save-button"
+              <PrimaryButton
                 onClick={saveProfile}
-                disabled={saving}
+                loading={saving}
+                loadingText="Сохранение..."
+                leftIcon={
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l-3 3m3-3v12" />
+                  </svg>
+                }
               >
-                {saving ? 'Сохранение...' : '💾 Сохранить'}
-              </button>
-              <button
-                className="mobile-profile__cancel-button"
+                Сохранить
+              </PrimaryButton>
+              <Button
+                variant="ghost"
                 onClick={() => {
                   setEditMode(false);
                   setPhotoUpload(null);
                   setErrors({});
                 }}
+                leftIcon={
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                }
               >
-                ❌ Отмена
-              </button>
+                Отмена
+              </Button>
             </div>
           )}
         </div>
@@ -357,61 +397,66 @@ const MobileProfile: React.FC<MobileProfileProps> = ({
           <h3>Личная информация</h3>
           
           <div className="mobile-profile__field">
-            <label>Фамилия *</label>
-            <input
+            <Input
+              label="Фамилия"
               type="text"
               value={profile?.last_name || ''}
               onChange={(e) => setProfile(prev => prev ? { ...prev, last_name: e.target.value } : null)}
               disabled={!editMode}
-              className={errors.last_name ? 'error' : ''}
+              error={errors.last_name}
+              required
+              size="md"
             />
-            {errors.last_name && <span className="mobile-profile__error">{errors.last_name}</span>}
           </div>
           
           <div className="mobile-profile__field">
-            <label>Имя *</label>
-            <input
+            <Input
+              label="Имя"
               type="text"
               value={profile?.first_name || ''}
               onChange={(e) => setProfile(prev => prev ? { ...prev, first_name: e.target.value } : null)}
               disabled={!editMode}
-              className={errors.first_name ? 'error' : ''}
+              error={errors.first_name}
+              required
+              size="md"
             />
-            {errors.first_name && <span className="mobile-profile__error">{errors.first_name}</span>}
           </div>
           
           <div className="mobile-profile__field">
-            <label>Отчество</label>
-            <input
+            <Input
+              label="Отчество"
               type="text"
               value={profile?.middle_name || ''}
               onChange={(e) => setProfile(prev => prev ? { ...prev, middle_name: e.target.value } : null)}
               disabled={!editMode}
+              size="md"
             />
           </div>
           
           <div className="mobile-profile__field">
-            <label>Email *</label>
-            <input
+            <Input
+              label="Email"
               type="email"
               value={profile?.email || ''}
               onChange={(e) => setProfile(prev => prev ? { ...prev, email: e.target.value } : null)}
               disabled={!editMode}
-              className={errors.email ? 'error' : ''}
+              error={errors.email}
+              required
+              size="md"
             />
-            {errors.email && <span className="mobile-profile__error">{errors.email}</span>}
           </div>
           
           <div className="mobile-profile__field">
-            <label>Телефон *</label>
-            <input
+            <Input
+              label="Телефон"
               type="tel"
               value={profile?.phone || ''}
               onChange={(e) => setProfile(prev => prev ? { ...prev, phone: e.target.value } : null)}
               disabled={!editMode}
-              className={errors.phone ? 'error' : ''}
+              error={errors.phone}
+              required
+              size="md"
             />
-            {errors.phone && <span className="mobile-profile__error">{errors.phone}</span>}
           </div>
         </div>
         
@@ -419,38 +464,42 @@ const MobileProfile: React.FC<MobileProfileProps> = ({
           <h3>Рабочая информация</h3>
           
           <div className="mobile-profile__field">
-            <label>Должность</label>
-            <input
+            <Input
+              label="Должность"
               type="text"
               value={profile?.position || ''}
               disabled
+              size="md"
             />
           </div>
           
           <div className="mobile-profile__field">
-            <label>Отдел</label>
-            <input
+            <Input
+              label="Отдел"
               type="text"
               value={profile?.department || ''}
               disabled
+              size="md"
             />
           </div>
           
           <div className="mobile-profile__field">
-            <label>Дата трудоустройства</label>
-            <input
+            <Input
+              label="Дата трудоустройства"
               type="text"
               value={profile?.hire_date ? formatDate(profile.hire_date) : ''}
               disabled
+              size="md"
             />
           </div>
           
           <div className="mobile-profile__field">
-            <label>Стаж работы</label>
-            <input
+            <Input
+              label="Стаж работы"
               type="text"
               value={profile?.hire_date ? `${calculateWorkingYears(profile.hire_date)} лет` : ''}
               disabled
+              size="md"
             />
           </div>
         </div>
@@ -490,8 +539,8 @@ const MobileProfile: React.FC<MobileProfileProps> = ({
           <h3>Экстренный контакт</h3>
           
           <div className="mobile-profile__field">
-            <label>Имя</label>
-            <input
+            <Input
+              label="Имя"
               type="text"
               value={profile?.emergency_contact.name || ''}
               onChange={(e) => setProfile(prev => prev ? {
@@ -499,12 +548,13 @@ const MobileProfile: React.FC<MobileProfileProps> = ({
                 emergency_contact: { ...prev.emergency_contact, name: e.target.value }
               } : null)}
               disabled={!editMode}
+              size="md"
             />
           </div>
           
           <div className="mobile-profile__field">
-            <label>Телефон</label>
-            <input
+            <Input
+              label="Телефон"
               type="tel"
               value={profile?.emergency_contact.phone || ''}
               onChange={(e) => setProfile(prev => prev ? {
@@ -512,12 +562,13 @@ const MobileProfile: React.FC<MobileProfileProps> = ({
                 emergency_contact: { ...prev.emergency_contact, phone: e.target.value }
               } : null)}
               disabled={!editMode}
+              size="md"
             />
           </div>
           
           <div className="mobile-profile__field">
-            <label>Степень родства</label>
-            <input
+            <Input
+              label="Степень родства"
               type="text"
               value={profile?.emergency_contact.relationship || ''}
               onChange={(e) => setProfile(prev => prev ? {
@@ -525,6 +576,7 @@ const MobileProfile: React.FC<MobileProfileProps> = ({
                 emergency_contact: { ...prev.emergency_contact, relationship: e.target.value }
               } : null)}
               disabled={!editMode}
+              size="md"
             />
           </div>
         </div>
@@ -772,48 +824,75 @@ const MobileProfile: React.FC<MobileProfileProps> = ({
   if (loading) {
     return (
       <div className="mobile-profile__loading">
-        <div className="mobile-profile__spinner"></div>
-        <p>Загрузка профиля...</p>
+        <LoadingSpinner 
+          message="Загрузка профиля..."
+          size="lg"
+          variant="spinner"
+        />
       </div>
     );
   }
 
   if (!profile) {
     return (
-      <div className="mobile-profile__error">
-        <h3>Ошибка загрузки профиля</h3>
-        <button onClick={loadProfileData}>Попробовать снова</button>
-      </div>
+      <ErrorBoundary level="section">
+        <div className="mobile-profile__error">
+          <h3>Ошибка загрузки профиля</h3>
+          <PrimaryButton onClick={loadProfileData}>
+            Попробовать снова
+          </PrimaryButton>
+        </div>
+      </ErrorBoundary>
     );
   }
 
   return (
-    <div className="mobile-profile">
-      <div className="mobile-profile__tabs">
-        <button
-          className={`mobile-profile__tab ${activeTab === 'profile' ? 'active' : ''}`}
-          onClick={() => setActiveTab('profile')}
-        >
-          👤 Профиль
-        </button>
-        <button
-          className={`mobile-profile__tab ${activeTab === 'preferences' ? 'active' : ''}`}
-          onClick={() => setActiveTab('preferences')}
-        >
-          ⚙️ Настройки
-        </button>
-        <button
-          className={`mobile-profile__tab ${activeTab === 'stats' ? 'active' : ''}`}
-          onClick={() => setActiveTab('stats')}
-        >
-          📊 Статистика
-        </button>
-      </div>
+    <ErrorBoundary level="section">
+      <div className="mobile-profile">
+        <div className="mobile-profile__tabs">
+          <button
+            className={`mobile-profile__tab ${activeTab === 'profile' ? 'active' : ''}`}
+            onClick={() => setActiveTab('profile')}
+            aria-selected={activeTab === 'profile'}
+            role="tab"
+          >
+            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            Профиль
+          </button>
+          <button
+            className={`mobile-profile__tab ${activeTab === 'preferences' ? 'active' : ''}`}
+            onClick={() => setActiveTab('preferences')}
+            aria-selected={activeTab === 'preferences'}
+            role="tab"
+          >
+            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            Настройки
+          </button>
+          <button
+            className={`mobile-profile__tab ${activeTab === 'stats' ? 'active' : ''}`}
+            onClick={() => setActiveTab('stats')}
+            aria-selected={activeTab === 'stats'}
+            role="tab"
+          >
+            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+            Статистика
+          </button>
+        </div>
 
-      {activeTab === 'profile' && renderProfileTab()}
-      {activeTab === 'preferences' && renderPreferencesTab()}
-      {activeTab === 'stats' && renderStatsTab()}
-    </div>
+        <div role="tabpanel">
+          {activeTab === 'profile' && renderProfileTab()}
+          {activeTab === 'preferences' && renderPreferencesTab()}
+          {activeTab === 'stats' && renderStatsTab()}
+        </div>
+      </div>
+    </ErrorBoundary>
   );
 };
 

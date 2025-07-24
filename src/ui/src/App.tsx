@@ -8,6 +8,24 @@ import Dashboard from './components/Dashboard';
 import { EmployeePortal } from './modules/employee-portal';
 import { IntegrationTester } from './components/IntegrationTester';
 
+// Import our demo components
+import DemoShowcase from './components/DemoShowcase';
+import EmployeeDashboard from './components/EmployeeDashboard';
+import ScheduleView from './components/ScheduleView';
+import RequestForm from './components/RequestForm';
+import ManagerDashboard from './components/manager/ManagerDashboard';
+import NotificationCenter from './components/NotificationCenter';
+import TeamScheduleView from './components/manager/TeamScheduleView';
+import ShiftSwapModal from './components/modals/ShiftSwapModal';
+import Spec39ReportingDashboard from './components/reports/Spec39ReportingDashboard';
+import TimeAttendanceSystem from './components/time-attendance/TimeAttendanceSystem';
+import TrainingProgramManager from './components/employee-enhanced/TrainingProgramManager';
+import ShiftTradingManagement from './components/shift-trading/ShiftTradingManagement';
+
+// Import mobile components
+import MobileLogin from './components/mobile/MobileLogin';
+import MobileCalendar from './components/mobile/MobileCalendar';
+
 // Loading component
 const Loading = () => <div style={{ padding: '20px', textAlign: 'center' }}>Loading...</div>;
 
@@ -32,11 +50,44 @@ function App() {
                   <a href="/dashboard" className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                     Dashboard
                   </a>
+                  <a href="/schedule" className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                    My Schedule
+                  </a>
                   <a href="/employee-portal" className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                     Employee Portal
                   </a>
-                  <a href="/vacation-test" className="border-indigo-500 text-indigo-600 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                    Vacation Test
+                  <a href="/team-calendar" className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                    Team Calendar
+                  </a>
+                  <a href="/manager-dashboard" className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                    Manager Dashboard
+                  </a>
+                  <a href="/demo" className="border-indigo-500 text-indigo-600 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                    Demo Showcase
+                  </a>
+                  <a href="/demo/spec39-reporting" className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                    SPEC-39 Reports
+                  </a>
+                  <a href="/demo/spec38-attendance" className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                    SPEC-38 Attendance
+                  </a>
+                  <a href="/demo/spec40-training" className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                    SPEC-40 Training
+                  </a>
+                  <a href="/demo/spec37-shifts" className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                    SPEC-37 Shifts
+                  </a>
+                  <a href="/demo/spec41-training-portal" className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                    SPEC-41 Portal
+                  </a>
+                  <a href="/mobile/login" className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                    Mobile Login
+                  </a>
+                  <a href="/mobile/schedule" className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                    Mobile Schedule
+                  </a>
+                  <a href="/vacation-test" className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                    API Test
                   </a>
                 </div>
               </div>
@@ -51,8 +102,47 @@ function App() {
               {/* Core routes */}
               <Route path="/login" element={<Login />} />
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/schedule" element={<ScheduleView />} />
               <Route path="/employee-portal/*" element={<EmployeePortal />} />
               <Route path="/integration-tester" element={<IntegrationTester />} />
+              <Route path="/team-calendar" element={<TeamScheduleView managerId={7} />} />
+              <Route path="/manager-dashboard" element={<ManagerDashboard managerId={7} />} />
+              
+              {/* Demo showcase routes */}
+              <Route path="/demo" element={<DemoShowcase />} />
+              <Route path="/demo/employee-dashboard" element={<EmployeeDashboard />} />
+              <Route path="/demo/schedule-view" element={<ScheduleView />} />
+              <Route path="/demo/request-form" element={<RequestForm />} />
+              <Route path="/demo/manager-dashboard" element={<ManagerDashboard managerId={7} />} />
+              <Route path="/demo/notifications" element={<NotificationCenter />} />
+              <Route path="/demo/spec39-reporting" element={<Spec39ReportingDashboard />} />
+              <Route path="/demo/spec38-attendance" element={<TimeAttendanceSystem />} />
+              <Route path="/demo/spec40-training" element={<TrainingProgramManager />} />
+              <Route path="/demo/spec37-shifts" element={<ShiftTradingManagement />} />
+              <Route path="/demo/spec41-training-portal" element={<TrainingProgramManager />} />
+              
+              {/* Mobile routes */}
+              <Route path="/mobile/login" element={<MobileLogin onLogin={async (credentials) => {
+                console.log('Mobile login attempt:', credentials);
+                try {
+                  const response = await fetch('http://localhost:8001/api/v1/mobile/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(credentials)
+                  });
+                  const data = await response.json();
+                  if (response.ok) {
+                    alert('✅ Mobile login successful!');
+                    console.log('Mobile login response:', data);
+                  } else {
+                    alert('❌ Mobile login failed: ' + data.detail);
+                  }
+                } catch (error) {
+                  alert('❌ Error: ' + error);
+                  console.error('Mobile login error:', error);
+                }
+              }} />} />
+              <Route path="/mobile/schedule" element={<MobileCalendar />} />
               
               {/* Vacation test route */}
               <Route path="/vacation-test" element={
@@ -75,7 +165,7 @@ function App() {
                         <button
                           onClick={async () => {
                             try {
-                              const response = await fetch('http://localhost:8000/api/v1/requests/vacation', {
+                              const response = await fetch('http://localhost:8001/api/v1/requests/vacation', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({

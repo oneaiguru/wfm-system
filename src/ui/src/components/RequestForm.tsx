@@ -10,7 +10,7 @@ interface RequestFormData {
   coverageNotes?: string;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001/api/v1';
 
 export const RequestForm: React.FC = () => {
   const navigate = useNavigate();
@@ -31,19 +31,19 @@ export const RequestForm: React.FC = () => {
     setSubmitting(true);
 
     try {
+      // Use I's verified vacation request endpoint and format
+      const token = localStorage.getItem('authToken');
       const response = await fetch(`${API_BASE_URL}/requests/vacation`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          employee_id: '1', // Demo user ID
           start_date: formData.startDate.toISOString().split('T')[0],
           end_date: formData.endDate.toISOString().split('T')[0],
-          description: formData.reason,
-          type: formData.type,
-          coverage_notes: formData.coverageNotes
+          request_type: formData.type,
+          reason: formData.reason
         })
       });
 

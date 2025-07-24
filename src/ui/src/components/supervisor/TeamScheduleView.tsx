@@ -35,7 +35,7 @@ interface ScheduleMetrics {
   coveragePercentage: number;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001/api/v1';
 
 // Russian translations per BDD spec
 const translations = {

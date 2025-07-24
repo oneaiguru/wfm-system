@@ -2,15 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { CheckCircle, XCircle, Clock, Calendar, User, AlertCircle } from 'lucide-react';
 
 interface PendingRequest {
-  request_id: string;
-  employee_id: number;
-  employee_name: string;
+  request_id: number;
   request_type: string;
+  request_type_english: string;
   start_date: string;
   end_date: string;
   duration_days: number;
-  submitted_at: string;
   status: string;
+  status_english: string;
+  created_date: string;
+  reason: string;
+  actions_available: string[];
 }
 
 interface ApiResponse<T> {
@@ -19,7 +21,7 @@ interface ApiResponse<T> {
   error?: string;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001/api/v1';
 
 const PendingRequestsList: React.FC = () => {
   const [pendingRequests, setPendingRequests] = useState<PendingRequest[]>([]);
@@ -36,14 +38,22 @@ const PendingRequestsList: React.FC = () => {
     setError('');
     
     try {
-      const response = await fetch(`${API_BASE_URL}/requests/pending`);
+      // Use working my-requests API from INTEGRATION-OPUS
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`${API_BASE_URL}/requests/my-requests`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
       
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
       
-      const data: PendingRequest[] = await response.json();
-      setPendingRequests(data);
+      const data = await response.json();
+      // Parse the actual API response format: {"requests": [...], "total_count": 2}
+      setPendingRequests(data.requests || []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load pending requests');
       console.error('[PendingRequestsList] Error:', err);
@@ -113,10 +123,10 @@ const PendingRequestsList: React.FC = () => {
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold text-gray-800 flex items-center">
             <Clock className="h-5 w-5 mr-2 text-blue-600" />
-            Pending Vacation Requests
+            My Requests
           </h2>
           <span className="text-sm text-gray-500">
-            {pendingRequests.length} pending
+            {pendingRequests.length} requests
           </span>
         </div>
       </div>
@@ -141,9 +151,9 @@ const PendingRequestsList: React.FC = () => {
                 <div className="flex-1">
                   <div className="flex items-center mb-2">
                     <User className="h-5 w-5 text-gray-400 mr-2" />
-                    <h3 className="font-semibold text-gray-900">{request.employee_name}</h3>
+                    <h3 className="font-semibold text-gray-900">{request.request_type_english} Request #{request.request_id}</h3>
                     <span className="ml-3 px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">
-                      {request.status}
+                      {request.status_english}
                     </span>
                   </div>
                   
@@ -158,10 +168,10 @@ const PendingRequestsList: React.FC = () => {
                       <span className="font-medium">{request.duration_days}</span> days
                     </div>
                     <div>
-                      Type: <span className="font-medium">{request.request_type}</span>
+                      Type: <span className="font-medium">{request.request_type_english}</span>
                     </div>
                     <div>
-                      Submitted: {formatDateTime(request.submitted_at)}
+                      Submitted: {formatDateTime(request.created_date)}
                     </div>
                   </div>
                 </div>

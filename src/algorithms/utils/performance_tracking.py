@@ -1,11 +1,25 @@
-"""Track algorithm performance without optimizing"""
+"""
+Performance Tracking System for Algorithms
+
+Purpose: Track algorithm execution times WITHOUT optimization
+Key principle: JUST TRACKING - optimization is postponed
+
+Features:
+- Decorator-based performance tracking  
+- Database logging to query_performance_log table
+- Warning alerts for slow algorithms (>2 seconds)
+- NO automatic optimization (that comes later)
+- Session reporting and database analysis
+
+Enhanced for UI integration support per IMMEDIATE_TASKS requirements.
+"""
 
 import time
 import functools
 from datetime import datetime
 import psycopg2
 import psycopg2.extras
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, Callable
 import logging
 
 logger = logging.getLogger(__name__)
@@ -219,3 +233,70 @@ tracker = PerformanceTracker({
     'user': 'postgres',
     'password': 'password'
 })
+
+
+# Convenience functions for reporting
+def generate_performance_report(days_back: int = 7):
+    """Generate weekly performance summary as specified in IMMEDIATE_TASKS"""
+    print("\n📊 PERFORMANCE TRACKING REPORT")
+    print("=" * 60)
+    print(f"Report Period: {days_back} days")
+    print("Algorithms exceeding 2-second threshold:")
+    print("-" * 60)
+    
+    # Get slow queries
+    slow_queries = tracker.get_slow_queries(days=days_back, threshold_ms=2000)
+    
+    if not slow_queries:
+        print("🎉 No slow algorithms found! All algorithms performing well.")
+    else:
+        for row in slow_queries:
+            algorithm = row.get('algorithm', 'Unknown')
+            function = row.get('function', 'Unknown') 
+            avg_ms = row.get('avg_ms', 0)
+            max_ms = row.get('max_ms', 0)
+            executions = row.get('executions', 0)
+            
+            print(f"{algorithm}.{function}:")
+            print(f"  Average: {avg_ms/1000:.2f}s")
+            print(f"  Maximum: {max_ms/1000:.2f}s")
+            print(f"  Executions: {executions}")
+            print(f"  Status: TRACKED (optimization postponed)")
+            print()
+    
+    print("📋 NOTE: These algorithms exceed the 2-second threshold")
+    print("🔧 Optimization phase comes later - this is just measurement")
+
+
+def test_performance_tracking():
+    """Test the performance tracking system with sample functions"""
+    
+    @tracker.track_performance("test_algorithm")
+    def fast_function():
+        """A fast test function"""
+        time.sleep(0.1)  # 100ms
+        return {"result": "fast", "data": [1, 2, 3, 4, 5]}
+    
+    @tracker.track_performance("test_algorithm")  
+    def slow_function():
+        """A slow test function that triggers warning"""
+        time.sleep(3.0)  # 3 seconds - should trigger warning
+        return {"result": "slow", "processing_time": "3_seconds"}
+    
+    print("🧪 Testing Performance Tracking System...")
+    print("Running fast function (should be under threshold)...")
+    result1 = fast_function()
+    
+    print("Running slow function (should trigger warning)...")
+    result2 = slow_function()
+    
+    print("✅ Performance tracking test completed")
+    return result1, result2
+
+
+if __name__ == "__main__":
+    # Run test when script is executed directly
+    test_performance_tracking()
+    
+    # Generate sample report
+    generate_performance_report()

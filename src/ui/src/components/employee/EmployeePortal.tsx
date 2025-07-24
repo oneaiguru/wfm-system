@@ -59,22 +59,27 @@ const EmployeePortal: React.FC<EmployeePortalProps> = ({ employeeId }) => {
           department: currentUser.department
         });
       } else {
-        // Fallback to API call
-        const response = await fetch(`${process.env.VITE_API_URL || 'http://localhost:8001/api/v1'}/employees/${employeeId}`, {
+        // Use I's verified employee endpoint for current user
+        console.log('[EMPLOYEE PORTAL] Loading from I\'s verified /employees/me endpoint...');
+        const response = await fetch(`http://localhost:8001/api/v1/employees/me`, {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+            'Content-Type': 'application/json'
           }
         });
 
         if (response.ok) {
           const employeeData = await response.json();
+          console.log('✅ I-VERIFIED employee data loaded:', employeeData);
           setEmployee({
-            id: employeeData.id,
-            name: employeeData.name || employeeData.full_name,
+            id: employeeData.id?.toString() || employeeId,
+            name: employeeData.full_name || employeeData.username,
             email: employeeData.email,
-            role: employeeData.role || 'Сотрудник',
+            role: employeeData.position || 'Сотрудник',
             department: employeeData.department || 'Отдел'
           });
+        } else {
+          console.error(`❌ Employee API error: ${response.status}`);
         }
       }
     } catch (error) {

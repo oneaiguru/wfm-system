@@ -56,7 +56,7 @@ export interface UserRoleAssignment {
   expiryDate?: string;
 }
 
-const API_BASE_URL = 'http://localhost:8000/api/v1';
+const API_BASE_URL = 'http://localhost:8001/api/v1';
 
 class RealAccessRoleService {
   
@@ -231,10 +231,11 @@ class RealAccessRoleService {
     return this.makeRequest<{ hasPermission: boolean; level: string }>(`/users/${userId}/permissions/${permission}`);
   }
 
-  async getUserPermissions(userId: string): Promise<ApiResponse<Permission[]>> {
+  async getUserPermissions(userId: string, includeRolePermissions: boolean = true): Promise<ApiResponse<any>> {
     console.log(`[REAL API] Fetching all permissions for user ${userId}...`);
     
-    return this.makeRequest<Permission[]>(`/users/${userId}/permissions`);
+    const endpoint = `/rbac/users/${userId}/permissions?include_role_permissions=${includeRolePermissions}`;
+    return this.makeRequest<any>(endpoint);
   }
 
   // Bulk operations

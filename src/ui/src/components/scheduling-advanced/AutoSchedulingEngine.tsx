@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001/api/v1';
 
 const AutoSchedulingEngine: React.FC = () => {
   const [generating, setGenerating] = useState(false);

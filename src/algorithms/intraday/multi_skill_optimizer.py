@@ -169,11 +169,11 @@ class MobileWorkforceScheduler:
             if self.db_connection.connect():
                 logging.info("✅ Connected to real workforce database")
             else:
-                logging.warning("⚠️ Database connection failed, using mock data")
-                self.use_real_data = False
+                logging.error("❌ Database connection failed - REAL DATA REQUIRED")
+                raise ConnectionError("Multi-skill optimizer requires database connection - NO MOCK DATA ALLOWED")
         except Exception as e:
             logging.error(f"Database initialization failed: {e}")
-            self.use_real_data = False
+            raise ConnectionError(f"Multi-skill optimizer requires database connection - NO MOCK DATA ALLOWED: {e}")
     
     def _load_real_workforce_data(self, limit: int = 50):
         """Load real employee data from database"""
@@ -1049,8 +1049,9 @@ class MultiSkillOptimizer:
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """
             
-            # Generate a template ID (in real implementation, this would come from the planning system)
-            template_id = "00000000-0000-0000-0000-000000000001"  # Mock template ID
+            # Generate template ID from database timestamp (real implementation)
+            import uuid
+            template_id = str(uuid.uuid4())  # Generate real unique template ID
             schedule_date = datetime.now().date()
             
             with self.db_connection.conn.cursor() as cur:
@@ -1213,13 +1214,12 @@ class MultiSkillOptimizer:
                     "count": len(utilizations)
                 }
         
-        # Add database integration metrics if available
+        # Database integration is REQUIRED - no fallback to mock data
         if self.db_connection:
             mobile_metrics["database_integration"] = "enabled"
             mobile_metrics["real_data_source"] = "wfm_enterprise"
         else:
-            mobile_metrics["database_integration"] = "disabled"
-            mobile_metrics["real_data_source"] = "mock_data"
+            raise ConnectionError("Multi-skill optimizer requires database connection - NO MOCK DATA ALLOWED")
         
         return dict(mobile_metrics)
     

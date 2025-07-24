@@ -6,7 +6,7 @@ function App() {
   
   const handleClick = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/v1/requests/vacation', {
+      const response = await fetch('http://localhost:8001/api/v1/requests/vacation', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
