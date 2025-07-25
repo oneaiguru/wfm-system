@@ -115,4 +115,13 @@ docs/.doctrees/
 # package-lock.json
 # yarn.lock
 # pnpm-lock.yaml
-EOF < /dev/null
+
+# Playwright test results and screenshots
+e2e-tests/test-results/
+e2e-tests/reports/screenshots/
+e2e-tests/reports/traces/
+e2e-tests/reports/videos/
+
+# Working files (preserve originals)
+# specs/argus-original/ should be committed
+# specs/working/ should be committed for demo improvements
