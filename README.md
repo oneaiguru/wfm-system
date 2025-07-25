@@ -94,16 +94,35 @@ WFM Enterprise is a next-generation Workforce Management system that outperforms
 
 ```
 wfm/main/project/
+├── specs/                        # BDD Specifications & Requirements
+│   ├── argus-original/          # 🔒 PRESERVED: Original Argus specs (32 files)
+│   │   ├── 01-system-architecture.feature
+│   │   ├── 02-employee-requests.feature
+│   │   ├── ... (30 more features)
+│   │   └── PRESERVATION_README.md
+│   └── working/                 # ✏️ EDITABLE: Demo-driven improvements
+│       ├── 01-system-architecture.feature
+│       ├── 02-employee-requests.feature
+│       ├── ... (improved versions)
+│       └── WORKING_README.md
+├── docs/                        # Documentation
+│   ├── argus-docs/             # Complete Argus documentation (Russian/English)
+│   ├── architecture/           # System architecture docs
+│   ├── user-guides/           # User documentation
+│   └── api/                   # API documentation
+├── checklists/                 # Quality assurance from competitive analysis
+│   ├── coverage-reports/      # Implementation coverage analysis
+│   └── *.md                   # Quality checklists
 ├── src/
-│   ├── api/              # FastAPI backend
-│   ├── algorithms/       # Core algorithms (Erlang C, ML, etc.)
-│   ├── database/         # Database schemas and procedures
-│   ├── ui/              # React frontend
-│   └── websocket/       # Real-time communication
-├── tests/               # Test suites
-├── demo/               # Demo scripts and data
-├── docs/               # Documentation
-└── docker/             # Docker configuration
+│   ├── api/                   # FastAPI backend
+│   ├── algorithms/            # Core algorithms (Erlang C, ML, etc.)
+│   ├── database/              # Database schemas and procedures
+│   ├── ui/                    # React frontend
+│   └── websocket/             # Real-time communication
+├── tests/                     # Test suites
+├── e2e-tests/                 # End-to-end Playwright tests
+├── demo/                      # Demo scripts and data
+└── docker/                   # Docker configuration
 ```
 
 ## 🧪 Testing
@@ -124,6 +143,25 @@ pytest tests/integration/
 python tests/performance/test_performance.py
 ```
 
+## 📋 **BDD Specifications & Requirements**
+
+### **Original Argus Specifications (Preserved)**
+- **Location**: `specs/argus-original/` 🔒 **READ-ONLY**
+- **Content**: 32 complete BDD feature files from competitive analysis
+- **Purpose**: Historical baseline and reference for what Argus system could do
+- **Usage**: Compare our implementation against original competitor capabilities
+
+### **Working Specifications (Demo-Driven)**
+- **Location**: `specs/working/` ✏️ **EDITABLE**  
+- **Content**: Improved versions based on demo feedback and implementation learnings
+- **Purpose**: Active requirements for our implementation
+- **Usage**: Update these based on user testing and technical constraints
+
+### **Supporting Documentation**
+- **Argus Documentation**: `docs/argus-docs/` - Complete Russian/English docs from competitor
+- **Quality Checklists**: `checklists/` - Implementation verification from competitive analysis
+- **Coverage Reports**: `checklists/coverage-reports/` - Track implementation progress
+
 ## 📖 Documentation
 
 - [System Documentation](SYSTEM_DOCUMENTATION.md) - Complete system overview
@@ -132,6 +170,7 @@ python tests/performance/test_performance.py
 - [Database Guide](docs/DATABASE_GUIDE.md) - Database schema and procedures
 - [Migration Guide](docs/MIGRATION_PLAYBOOK.md) - Migrating from Argus
 - [Algorithm Documentation](docs/SCHEDULE_PLANNING_ALGORITHMS.md) - Algorithm details
+- [Argus Analysis](docs/argus-docs/) - Complete competitor documentation and analysis
 
 ## 🎮 Demo
 
