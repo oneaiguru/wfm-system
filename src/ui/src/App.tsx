@@ -1,5 +1,5 @@
 import React, { Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom';
 import './index.css';
 
 // Direct imports for core components
@@ -13,6 +13,7 @@ import DemoShowcase from './components/DemoShowcase';
 import EmployeeDashboard from './components/EmployeeDashboard';
 import ScheduleView from './components/ScheduleView';
 import RequestForm from './components/RequestForm';
+import PendingRequestsList from './components/requests/PendingRequestsList';
 import ManagerDashboard from './components/manager/ManagerDashboard';
 import NotificationCenter from './components/NotificationCenter';
 import TeamScheduleView from './components/manager/TeamScheduleView';
@@ -43,19 +44,22 @@ function App() {
                 <div className="flex-shrink-0 flex items-center">
                   <h1 className="text-xl font-semibold">WFM Enterprise System</h1>
                 </div>
-                <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-                  <a href="/login" className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                <div className="sm:ml-6 flex sm:space-x-8 overflow-x-auto">
+                  <Link to="/login" className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                     Login
-                  </a>
-                  <a href="/dashboard" className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                  </Link>
+                  <Link to="/dashboard" className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                     Dashboard
-                  </a>
-                  <a href="/schedule" className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                  </Link>
+                  <Link to="/schedule" className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                     My Schedule
-                  </a>
-                  <a href="/employee-portal" className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                  </Link>
+                  <Link to="/employee-portal" className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                     Employee Portal
-                  </a>
+                  </Link>
+                  <Link to="/requests" data-testid="time-off-link" className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                    Time Off
+                  </Link>
                   <a href="/team-calendar" className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                     Team Calendar
                   </a>
@@ -101,12 +105,34 @@ function App() {
             <Routes>
               {/* Core routes */}
               <Route path="/login" element={<Login />} />
+              <Route path="/mobile/login" element={<Navigate to="/login" replace />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/schedule" element={<ScheduleView />} />
+              <Route path="/requests" element={<RequestForm />} />
+              <Route path="/requests/history" element={
+                <div className="min-h-screen bg-gray-50">
+                  <div className="max-w-7xl mx-auto py-6 px-4">
+                    <div className="mb-6 flex justify-between items-center">
+                      <div>
+                        <h1 className="text-3xl font-bold text-gray-900">Request History</h1>
+                        <p className="text-gray-600 mt-2">View and manage your time-off requests</p>
+                      </div>
+                      <Link 
+                        to="/requests" 
+                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                      >
+                        New Request
+                      </Link>
+                    </div>
+                    <PendingRequestsList />
+                  </div>
+                </div>
+              } />
               <Route path="/employee-portal/*" element={<EmployeePortal />} />
               <Route path="/integration-tester" element={<IntegrationTester />} />
               <Route path="/team-calendar" element={<TeamScheduleView managerId={7} />} />
               <Route path="/manager-dashboard" element={<ManagerDashboard managerId={7} />} />
+              <Route path="/manager/dashboard" element={<Navigate to="/dashboard" replace />} />
               
               {/* Demo showcase routes */}
               <Route path="/demo" element={<DemoShowcase />} />

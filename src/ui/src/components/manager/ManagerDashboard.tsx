@@ -346,28 +346,28 @@ const ManagerDashboard: React.FC<ManagerDashboardProps> = ({ managerId }) => {
   const displayMetrics = metrics ? [
     {
       title: 'Active Agents',
-      value: metrics.activeAgents.toString(),
+      value: (metrics.activeAgents || 0).toString(),
       icon: Users,
       color: 'text-blue-600',
       bgColor: 'bg-blue-100'
     },
     {
       title: 'Service Level',
-      value: `${metrics.serviceLevel}%`,
+      value: `${metrics.serviceLevel || 0}%`,
       icon: TrendingUp,
       color: 'text-green-600',
       bgColor: 'bg-green-100'
     },
     {
       title: 'Calls Handled',
-      value: metrics.callsHandled.toLocaleString(),
+      value: (metrics.callsHandled || 0).toLocaleString(),
       icon: Phone,
       color: 'text-purple-600',
       bgColor: 'bg-purple-100'
     },
     {
       title: 'Average Wait Time',
-      value: metrics.avgWaitTime,
+      value: metrics.avgWaitTime || '0m',
       icon: Clock,
       color: 'text-orange-600',
       bgColor: 'bg-orange-100'

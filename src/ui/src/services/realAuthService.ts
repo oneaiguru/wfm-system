@@ -35,7 +35,7 @@ class RealAuthService {
 
   constructor() {
     // Try to restore token from localStorage on initialization
-    this.authToken = localStorage.getItem('wfm_auth_token');
+    this.authToken = localStorage.getItem('token');
   }
 
   /**
@@ -101,7 +101,7 @@ class RealAuthService {
       // Store token using I's verified format: {"token": "...", "user": {"id": ..., "username": "...", "role": "..."}}
       if (data.token) {
         this.authToken = data.token;
-        localStorage.setItem('wfm_auth_token', data.token);
+        localStorage.setItem('token', data.token);
         
         // Use the user object from the response
         const user = {
@@ -163,14 +163,14 @@ class RealAuthService {
 
       // Clear local storage regardless of API response
       this.authToken = null;
-      localStorage.removeItem('wfm_auth_token');
+      localStorage.removeItem('token');
       localStorage.removeItem('wfm_user');
 
       return { success: true };
     } catch (error) {
       // Still clear local data even if API call fails
       this.authToken = null;
-      localStorage.removeItem('wfm_auth_token');
+      localStorage.removeItem('token');
       localStorage.removeItem('wfm_user');
 
       return {
@@ -202,7 +202,7 @@ class RealAuthService {
 
       // Token is invalid, clear it
       this.authToken = null;
-      localStorage.removeItem('wfm_auth_token');
+      localStorage.removeItem('token');
       localStorage.removeItem('wfm_user');
       return false;
     } catch (error) {

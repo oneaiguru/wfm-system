@@ -1,0 +1,1927 @@
+<testsuites id="" name="" tests="60" failures="42" skipped="3" errors="0" time="214.818174">
+<testsuite name="01-authentication/login.spec.ts" timestamp="2025-07-25T08:28:34.199Z" hostname="Desktop Chrome" tests="5" failures="0" skipped="0" time="9.921" errors="0">
+<testcase name="Authentication › Login with valid credentials" classname="01-authentication/login.spec.ts" time="3.151">
+</testcase>
+<testcase name="Authentication › Login with invalid credentials shows error" classname="01-authentication/login.spec.ts" time="0.978">
+</testcase>
+<testcase name="Authentication › Login form validation" classname="01-authentication/login.spec.ts" time="0.803">
+</testcase>
+<testcase name="Authentication › JWT token is stored after login" classname="01-authentication/login.spec.ts" time="2.593">
+</testcase>
+<testcase name="Authentication › Logout clears session" classname="01-authentication/login.spec.ts" time="2.396">
+</testcase>
+</testsuite>
+<testsuite name="02-employee-workflows/vacation-request-lifecycle.spec.ts" timestamp="2025-07-25T08:28:34.199Z" hostname="Desktop Chrome" tests="5" failures="4" skipped="1" time="51.584" errors="0">
+<testcase name="Vacation Request Lifecycle › Complete vacation request flow" classname="02-employee-workflows/vacation-request-lifecycle.spec.ts" time="12.466">
+<failure message="vacation-request-lifecycle.spec.ts:4:7 Complete vacation request flow" type="FAILURE">
+<![CDATA[  [Desktop Chrome] › 02-employee-workflows/vacation-request-lifecycle.spec.ts:4:7 › Vacation Request Lifecycle › Complete vacation request flow 
+
+    TimeoutError: page.click: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('text=New Request')
+
+
+       7 |     // Navigate to vacation requests
+       8 |     await page.click('text=Time Off');
+    >  9 |     await page.click('text=New Request');
+         |                ^
+      10 |     
+      11 |     // Fill request form
+      12 |     const startDate = new Date();
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/02-employee-workflows/vacation-request-lifecycle.spec.ts:9:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/02-employee-workflows-vaca-1d0fb-plete-vacation-request-flow-Desktop-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/02-employee-workflows-vaca-1d0fb-plete-vacation-request-flow-Desktop-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/02-employee-workflows-vaca-1d0fb-plete-vacation-request-flow-Desktop-Chrome/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/02-employee-workflows-vaca-1d0fb-plete-vacation-request-flow-Desktop-Chrome/test-failed-1.png]]
+
+[[ATTACHMENT|../test-results/02-employee-workflows-vaca-1d0fb-plete-vacation-request-flow-Desktop-Chrome/video.webm]]
+
+[[ATTACHMENT|../test-results/02-employee-workflows-vaca-1d0fb-plete-vacation-request-flow-Desktop-Chrome/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Vacation Request Lifecycle › Edit pending vacation request" classname="02-employee-workflows/vacation-request-lifecycle.spec.ts" time="12.438">
+<failure message="vacation-request-lifecycle.spec.ts:37:7 Edit pending vacation request" type="FAILURE">
+<![CDATA[  [Desktop Chrome] › 02-employee-workflows/vacation-request-lifecycle.spec.ts:37:7 › Vacation Request Lifecycle › Edit pending vacation request 
+
+    TimeoutError: locator.click: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('tr:has-text("Pending")').first().locator('button:text("Edit")')
+
+
+      43 |     // Find a pending request and click edit
+      44 |     const pendingRequest = page.locator('tr:has-text("Pending")').first();
+    > 45 |     await pendingRequest.locator('button:text("Edit")').click();
+         |                                                         ^
+      46 |     
+      47 |     // Modify end date
+      48 |     const newEndDate = new Date();
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/02-employee-workflows/vacation-request-lifecycle.spec.ts:45:57
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/02-employee-workflows-vaca-47674-it-pending-vacation-request-Desktop-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/02-employee-workflows-vaca-47674-it-pending-vacation-request-Desktop-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/02-employee-workflows-vaca-47674-it-pending-vacation-request-Desktop-Chrome/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/02-employee-workflows-vaca-47674-it-pending-vacation-request-Desktop-Chrome/test-failed-1.png]]
+
+[[ATTACHMENT|../test-results/02-employee-workflows-vaca-47674-it-pending-vacation-request-Desktop-Chrome/video.webm]]
+
+[[ATTACHMENT|../test-results/02-employee-workflows-vaca-47674-it-pending-vacation-request-Desktop-Chrome/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Vacation Request Lifecycle › Cancel approved request with reason" classname="02-employee-workflows/vacation-request-lifecycle.spec.ts" time="2.097">
+<properties>
+<property name="skip" value="">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Vacation Request Lifecycle › View request details and history" classname="02-employee-workflows/vacation-request-lifecycle.spec.ts" time="12.392">
+<failure message="vacation-request-lifecycle.spec.ts:88:7 View request details and history" type="FAILURE">
+<![CDATA[  [Desktop Chrome] › 02-employee-workflows/vacation-request-lifecycle.spec.ts:88:7 › Vacation Request Lifecycle › View request details and history 
+
+    TimeoutError: locator.click: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('tr[data-testid^="request-"]').first()
+
+
+      94 |     // Click on a request to view details
+      95 |     const firstRequest = page.locator('tr[data-testid^="request-"]').first();
+    > 96 |     await firstRequest.click();
+         |                        ^
+      97 |     
+      98 |     // Should show request details modal/page
+      99 |     await expect(page.locator('h2:text("Request Details")')).toBeVisible();
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/02-employee-workflows/vacation-request-lifecycle.spec.ts:96:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/02-employee-workflows-vaca-6b068-request-details-and-history-Desktop-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/02-employee-workflows-vaca-6b068-request-details-and-history-Desktop-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/02-employee-workflows-vaca-6b068-request-details-and-history-Desktop-Chrome/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/02-employee-workflows-vaca-6b068-request-details-and-history-Desktop-Chrome/test-failed-1.png]]
+
+[[ATTACHMENT|../test-results/02-employee-workflows-vaca-6b068-request-details-and-history-Desktop-Chrome/video.webm]]
+
+[[ATTACHMENT|../test-results/02-employee-workflows-vaca-6b068-request-details-and-history-Desktop-Chrome/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Vacation Request Lifecycle › Request validation prevents invalid dates" classname="02-employee-workflows/vacation-request-lifecycle.spec.ts" time="12.191">
+<failure message="vacation-request-lifecycle.spec.ts:106:7 Request validation prevents invalid dates" type="FAILURE">
+<![CDATA[  [Desktop Chrome] › 02-employee-workflows/vacation-request-lifecycle.spec.ts:106:7 › Vacation Request Lifecycle › Request validation prevents invalid dates 
+
+    TimeoutError: page.fill: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('[name="startDate"]')
+
+
+      114 |     pastDate.setDate(pastDate.getDate() - 10);
+      115 |     
+    > 116 |     await page.fill('[name="startDate"]', pastDate.toISOString().split('T')[0]);
+          |                ^
+      117 |     await page.fill('[name="endDate"]', pastDate.toISOString().split('T')[0]);
+      118 |     await page.click('button:text("Submit Request")');
+      119 |     
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/02-employee-workflows/vacation-request-lifecycle.spec.ts:116:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/02-employee-workflows-vaca-63091-tion-prevents-invalid-dates-Desktop-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/02-employee-workflows-vaca-63091-tion-prevents-invalid-dates-Desktop-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/02-employee-workflows-vaca-63091-tion-prevents-invalid-dates-Desktop-Chrome/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/02-employee-workflows-vaca-63091-tion-prevents-invalid-dates-Desktop-Chrome/test-failed-1.png]]
+
+[[ATTACHMENT|../test-results/02-employee-workflows-vaca-63091-tion-prevents-invalid-dates-Desktop-Chrome/video.webm]]
+
+[[ATTACHMENT|../test-results/02-employee-workflows-vaca-63091-tion-prevents-invalid-dates-Desktop-Chrome/error-context.md]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="03-manager-workflows/dashboard-performance.spec.ts" timestamp="2025-07-25T08:28:34.199Z" hostname="Desktop Chrome" tests="5" failures="5" skipped="0" time="154.611" errors="0">
+<testcase name="Manager Dashboard Performance › Dashboard loads in under 1 second" classname="03-manager-workflows/dashboard-performance.spec.ts" time="30.75">
+<failure message="dashboard-performance.spec.ts:13:7 Dashboard loads in under 1 second" type="FAILURE">
+<![CDATA[  [Desktop Chrome] › 03-manager-workflows/dashboard-performance.spec.ts:13:7 › Manager Dashboard Performance › Dashboard loads in under 1 second 
+
+    Test timeout of 30000ms exceeded while running "beforeEach" hook.
+
+      2 |
+      3 | test.describe('Manager Dashboard Performance', () => {
+    > 4 |   test.beforeEach(async ({ page }) => {
+        |        ^
+      5 |     // Login as manager
+      6 |     await page.goto('/login');
+      7 |     await page.fill('[name="username"]', 'jane.manager');
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/03-manager-workflows/dashboard-performance.spec.ts:4:8
+
+    Error: page.waitForURL: Test timeout of 30000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "/manager/dashboard" until "load"
+      navigated to "http://localhost:3000/dashboard"
+      navigated to "http://localhost:3000/dashboard"
+    ============================================================
+
+       8 |     await page.fill('[name="password"]', 'test');
+       9 |     await page.click('button[type="submit"]');
+    > 10 |     await page.waitForURL('/manager/dashboard');
+         |                ^
+      11 |   });
+      12 |
+      13 |   test('Dashboard loads in under 1 second', async ({ page }) => {
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/03-manager-workflows/dashboard-performance.spec.ts:10:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/03-manager-workflows-dashb-14804-ard-loads-in-under-1-second-Desktop-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/03-manager-workflows-dashb-14804-ard-loads-in-under-1-second-Desktop-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/03-manager-workflows-dashb-14804-ard-loads-in-under-1-second-Desktop-Chrome/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/03-manager-workflows-dashb-14804-ard-loads-in-under-1-second-Desktop-Chrome/test-failed-1.png]]
+
+[[ATTACHMENT|../test-results/03-manager-workflows-dashb-14804-ard-loads-in-under-1-second-Desktop-Chrome/video.webm]]
+
+[[ATTACHMENT|../test-results/03-manager-workflows-dashb-14804-ard-loads-in-under-1-second-Desktop-Chrome/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Manager Dashboard Performance › Handles large team data efficiently" classname="03-manager-workflows/dashboard-performance.spec.ts" time="30.873">
+<failure message="dashboard-performance.spec.ts:39:7 Handles large team data efficiently" type="FAILURE">
+<![CDATA[  [Desktop Chrome] › 03-manager-workflows/dashboard-performance.spec.ts:39:7 › Manager Dashboard Performance › Handles large team data efficiently 
+
+    Test timeout of 30000ms exceeded while running "beforeEach" hook.
+
+      2 |
+      3 | test.describe('Manager Dashboard Performance', () => {
+    > 4 |   test.beforeEach(async ({ page }) => {
+        |        ^
+      5 |     // Login as manager
+      6 |     await page.goto('/login');
+      7 |     await page.fill('[name="username"]', 'jane.manager');
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/03-manager-workflows/dashboard-performance.spec.ts:4:8
+
+    Error: page.waitForURL: Test timeout of 30000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "/manager/dashboard" until "load"
+      navigated to "http://localhost:3000/dashboard"
+      navigated to "http://localhost:3000/dashboard"
+    ============================================================
+
+       8 |     await page.fill('[name="password"]', 'test');
+       9 |     await page.click('button[type="submit"]');
+    > 10 |     await page.waitForURL('/manager/dashboard');
+         |                ^
+      11 |   });
+      12 |
+      13 |   test('Dashboard loads in under 1 second', async ({ page }) => {
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/03-manager-workflows/dashboard-performance.spec.ts:10:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/03-manager-workflows-dashb-4fac3-large-team-data-efficiently-Desktop-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/03-manager-workflows-dashb-4fac3-large-team-data-efficiently-Desktop-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/03-manager-workflows-dashb-4fac3-large-team-data-efficiently-Desktop-Chrome/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/03-manager-workflows-dashb-4fac3-large-team-data-efficiently-Desktop-Chrome/test-failed-1.png]]
+
+[[ATTACHMENT|../test-results/03-manager-workflows-dashb-4fac3-large-team-data-efficiently-Desktop-Chrome/video.webm]]
+
+[[ATTACHMENT|../test-results/03-manager-workflows-dashb-4fac3-large-team-data-efficiently-Desktop-Chrome/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Manager Dashboard Performance › KPI metrics load without blocking UI" classname="03-manager-workflows/dashboard-performance.spec.ts" time="30.844">
+<failure message="dashboard-performance.spec.ts:61:7 KPI metrics load without blocking UI" type="FAILURE">
+<![CDATA[  [Desktop Chrome] › 03-manager-workflows/dashboard-performance.spec.ts:61:7 › Manager Dashboard Performance › KPI metrics load without blocking UI 
+
+    Test timeout of 30000ms exceeded while running "beforeEach" hook.
+
+      2 |
+      3 | test.describe('Manager Dashboard Performance', () => {
+    > 4 |   test.beforeEach(async ({ page }) => {
+        |        ^
+      5 |     // Login as manager
+      6 |     await page.goto('/login');
+      7 |     await page.fill('[name="username"]', 'jane.manager');
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/03-manager-workflows/dashboard-performance.spec.ts:4:8
+
+    Error: page.waitForURL: Test timeout of 30000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "/manager/dashboard" until "load"
+      navigated to "http://localhost:3000/dashboard"
+      navigated to "http://localhost:3000/dashboard"
+    ============================================================
+
+       8 |     await page.fill('[name="password"]', 'test');
+       9 |     await page.click('button[type="submit"]');
+    > 10 |     await page.waitForURL('/manager/dashboard');
+         |                ^
+      11 |   });
+      12 |
+      13 |   test('Dashboard loads in under 1 second', async ({ page }) => {
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/03-manager-workflows/dashboard-performance.spec.ts:10:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/03-manager-workflows-dashb-f81dd-cs-load-without-blocking-UI-Desktop-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/03-manager-workflows-dashb-f81dd-cs-load-without-blocking-UI-Desktop-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/03-manager-workflows-dashb-f81dd-cs-load-without-blocking-UI-Desktop-Chrome/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/03-manager-workflows-dashb-f81dd-cs-load-without-blocking-UI-Desktop-Chrome/test-failed-1.png]]
+
+[[ATTACHMENT|../test-results/03-manager-workflows-dashb-f81dd-cs-load-without-blocking-UI-Desktop-Chrome/video.webm]]
+
+[[ATTACHMENT|../test-results/03-manager-workflows-dashb-f81dd-cs-load-without-blocking-UI-Desktop-Chrome/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Manager Dashboard Performance › Pending requests section loads efficiently" classname="03-manager-workflows/dashboard-performance.spec.ts" time="31.412">
+<failure message="dashboard-performance.spec.ts:87:7 Pending requests section loads efficiently" type="FAILURE">
+<![CDATA[  [Desktop Chrome] › 03-manager-workflows/dashboard-performance.spec.ts:87:7 › Manager Dashboard Performance › Pending requests section loads efficiently 
+
+    Test timeout of 30000ms exceeded while running "beforeEach" hook.
+
+      2 |
+      3 | test.describe('Manager Dashboard Performance', () => {
+    > 4 |   test.beforeEach(async ({ page }) => {
+        |        ^
+      5 |     // Login as manager
+      6 |     await page.goto('/login');
+      7 |     await page.fill('[name="username"]', 'jane.manager');
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/03-manager-workflows/dashboard-performance.spec.ts:4:8
+
+    Error: page.waitForURL: Test timeout of 30000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "/manager/dashboard" until "load"
+      navigated to "http://localhost:3000/dashboard"
+      navigated to "http://localhost:3000/dashboard"
+    ============================================================
+
+       8 |     await page.fill('[name="password"]', 'test');
+       9 |     await page.click('button[type="submit"]');
+    > 10 |     await page.waitForURL('/manager/dashboard');
+         |                ^
+      11 |   });
+      12 |
+      13 |   test('Dashboard loads in under 1 second', async ({ page }) => {
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/03-manager-workflows/dashboard-performance.spec.ts:10:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/03-manager-workflows-dashb-17134-s-section-loads-efficiently-Desktop-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/03-manager-workflows-dashb-17134-s-section-loads-efficiently-Desktop-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/03-manager-workflows-dashb-17134-s-section-loads-efficiently-Desktop-Chrome/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/03-manager-workflows-dashb-17134-s-section-loads-efficiently-Desktop-Chrome/test-failed-1.png]]
+
+[[ATTACHMENT|../test-results/03-manager-workflows-dashb-17134-s-section-loads-efficiently-Desktop-Chrome/video.webm]]
+
+[[ATTACHMENT|../test-results/03-manager-workflows-dashb-17134-s-section-loads-efficiently-Desktop-Chrome/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Manager Dashboard Performance › Dashboard responds to real-time updates" classname="03-manager-workflows/dashboard-performance.spec.ts" time="30.732">
+<failure message="dashboard-performance.spec.ts:108:7 Dashboard responds to real-time updates" type="FAILURE">
+<![CDATA[  [Desktop Chrome] › 03-manager-workflows/dashboard-performance.spec.ts:108:7 › Manager Dashboard Performance › Dashboard responds to real-time updates 
+
+    Test timeout of 30000ms exceeded while running "beforeEach" hook.
+
+      2 |
+      3 | test.describe('Manager Dashboard Performance', () => {
+    > 4 |   test.beforeEach(async ({ page }) => {
+        |        ^
+      5 |     // Login as manager
+      6 |     await page.goto('/login');
+      7 |     await page.fill('[name="username"]', 'jane.manager');
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/03-manager-workflows/dashboard-performance.spec.ts:4:8
+
+    Error: page.waitForURL: Test timeout of 30000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "/manager/dashboard" until "load"
+      navigated to "http://localhost:3000/dashboard"
+      navigated to "http://localhost:3000/dashboard"
+    ============================================================
+
+       8 |     await page.fill('[name="password"]', 'test');
+       9 |     await page.click('button[type="submit"]');
+    > 10 |     await page.waitForURL('/manager/dashboard');
+         |                ^
+      11 |   });
+      12 |
+      13 |   test('Dashboard loads in under 1 second', async ({ page }) => {
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/03-manager-workflows/dashboard-performance.spec.ts:10:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/03-manager-workflows-dashb-54f88-sponds-to-real-time-updates-Desktop-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/03-manager-workflows-dashb-54f88-sponds-to-real-time-updates-Desktop-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/03-manager-workflows-dashb-54f88-sponds-to-real-time-updates-Desktop-Chrome/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/03-manager-workflows-dashb-54f88-sponds-to-real-time-updates-Desktop-Chrome/test-failed-1.png]]
+
+[[ATTACHMENT|../test-results/03-manager-workflows-dashb-54f88-sponds-to-real-time-updates-Desktop-Chrome/video.webm]]
+
+[[ATTACHMENT|../test-results/03-manager-workflows-dashb-54f88-sponds-to-real-time-updates-Desktop-Chrome/error-context.md]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="04-mobile-experience/offline-mode.spec.ts" timestamp="2025-07-25T08:28:34.199Z" hostname="Desktop Chrome" tests="5" failures="5" skipped="0" time="55.359" errors="0">
+<testcase name="Mobile Offline Mode › Queue requests when offline" classname="04-mobile-experience/offline-mode.spec.ts" time="11.47">
+<failure message="offline-mode.spec.ts:18:7 Queue requests when offline" type="FAILURE">
+<![CDATA[  [Desktop Chrome] › 04-mobile-experience/offline-mode.spec.ts:18:7 › Mobile Offline Mode › Queue requests when offline 
+
+    TimeoutError: page.fill: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('[name="username"]')
+
+
+       8 |     // Login on mobile
+       9 |     await page.goto('/mobile/login');
+    > 10 |     await page.fill('[name="username"]', 'john.doe');
+         |                ^
+      11 |     await page.fill('[name="password"]', 'test');
+      12 |     await page.tap('button[type="submit"]');
+      13 |     
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/04-mobile-experience/offline-mode.spec.ts:10:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/04-mobile-experience-offli-cee23-Queue-requests-when-offline-Desktop-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/04-mobile-experience-offli-cee23-Queue-requests-when-offline-Desktop-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/04-mobile-experience-offli-cee23-Queue-requests-when-offline-Desktop-Chrome/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/04-mobile-experience-offli-cee23-Queue-requests-when-offline-Desktop-Chrome/test-failed-1.png]]
+
+[[ATTACHMENT|../test-results/04-mobile-experience-offli-cee23-Queue-requests-when-offline-Desktop-Chrome/video.webm]]
+
+[[ATTACHMENT|../test-results/04-mobile-experience-offli-cee23-Queue-requests-when-offline-Desktop-Chrome/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Mobile Offline Mode › View cached schedule data offline" classname="04-mobile-experience/offline-mode.spec.ts" time="10.94">
+<failure message="offline-mode.spec.ts:66:7 View cached schedule data offline" type="FAILURE">
+<![CDATA[  [Desktop Chrome] › 04-mobile-experience/offline-mode.spec.ts:66:7 › Mobile Offline Mode › View cached schedule data offline 
+
+    TimeoutError: page.fill: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('[name="username"]')
+
+
+       8 |     // Login on mobile
+       9 |     await page.goto('/mobile/login');
+    > 10 |     await page.fill('[name="username"]', 'john.doe');
+         |                ^
+      11 |     await page.fill('[name="password"]', 'test');
+      12 |     await page.tap('button[type="submit"]');
+      13 |     
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/04-mobile-experience/offline-mode.spec.ts:10:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/04-mobile-experience-offli-1796a-ached-schedule-data-offline-Desktop-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/04-mobile-experience-offli-1796a-ached-schedule-data-offline-Desktop-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/04-mobile-experience-offli-1796a-ached-schedule-data-offline-Desktop-Chrome/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/04-mobile-experience-offli-1796a-ached-schedule-data-offline-Desktop-Chrome/test-failed-1.png]]
+
+[[ATTACHMENT|../test-results/04-mobile-experience-offli-1796a-ached-schedule-data-offline-Desktop-Chrome/video.webm]]
+
+[[ATTACHMENT|../test-results/04-mobile-experience-offli-1796a-ached-schedule-data-offline-Desktop-Chrome/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Mobile Offline Mode › Conflict resolution when syncing" classname="04-mobile-experience/offline-mode.spec.ts" time="10.756">
+<failure message="offline-mode.spec.ts:94:7 Conflict resolution when syncing" type="FAILURE">
+<![CDATA[  [Desktop Chrome] › 04-mobile-experience/offline-mode.spec.ts:94:7 › Mobile Offline Mode › Conflict resolution when syncing 
+
+    TimeoutError: page.fill: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('[name="username"]')
+
+
+       8 |     // Login on mobile
+       9 |     await page.goto('/mobile/login');
+    > 10 |     await page.fill('[name="username"]', 'john.doe');
+         |                ^
+      11 |     await page.fill('[name="password"]', 'test');
+      12 |     await page.tap('button[type="submit"]');
+      13 |     
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/04-mobile-experience/offline-mode.spec.ts:10:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/04-mobile-experience-offli-e978d-ict-resolution-when-syncing-Desktop-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/04-mobile-experience-offli-e978d-ict-resolution-when-syncing-Desktop-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/04-mobile-experience-offli-e978d-ict-resolution-when-syncing-Desktop-Chrome/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/04-mobile-experience-offli-e978d-ict-resolution-when-syncing-Desktop-Chrome/test-failed-1.png]]
+
+[[ATTACHMENT|../test-results/04-mobile-experience-offli-e978d-ict-resolution-when-syncing-Desktop-Chrome/video.webm]]
+
+[[ATTACHMENT|../test-results/04-mobile-experience-offli-e978d-ict-resolution-when-syncing-Desktop-Chrome/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Mobile Offline Mode › PWA installation prompt" classname="04-mobile-experience/offline-mode.spec.ts" time="11.119">
+<failure message="offline-mode.spec.ts:139:7 PWA installation prompt" type="FAILURE">
+<![CDATA[  [Desktop Chrome] › 04-mobile-experience/offline-mode.spec.ts:139:7 › Mobile Offline Mode › PWA installation prompt 
+
+    TimeoutError: page.fill: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('[name="username"]')
+
+
+       8 |     // Login on mobile
+       9 |     await page.goto('/mobile/login');
+    > 10 |     await page.fill('[name="username"]', 'john.doe');
+         |                ^
+      11 |     await page.fill('[name="password"]', 'test');
+      12 |     await page.tap('button[type="submit"]');
+      13 |     
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/04-mobile-experience/offline-mode.spec.ts:10:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/04-mobile-experience-offli-a3433-ode-PWA-installation-prompt-Desktop-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/04-mobile-experience-offli-a3433-ode-PWA-installation-prompt-Desktop-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/04-mobile-experience-offli-a3433-ode-PWA-installation-prompt-Desktop-Chrome/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/04-mobile-experience-offli-a3433-ode-PWA-installation-prompt-Desktop-Chrome/test-failed-1.png]]
+
+[[ATTACHMENT|../test-results/04-mobile-experience-offli-a3433-ode-PWA-installation-prompt-Desktop-Chrome/video.webm]]
+
+[[ATTACHMENT|../test-results/04-mobile-experience-offli-a3433-ode-PWA-installation-prompt-Desktop-Chrome/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Mobile Offline Mode › Background sync for notifications" classname="04-mobile-experience/offline-mode.spec.ts" time="11.074">
+<failure message="offline-mode.spec.ts:156:7 Background sync for notifications" type="FAILURE">
+<![CDATA[  [Desktop Chrome] › 04-mobile-experience/offline-mode.spec.ts:156:7 › Mobile Offline Mode › Background sync for notifications 
+
+    TimeoutError: page.fill: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('[name="username"]')
+
+
+       8 |     // Login on mobile
+       9 |     await page.goto('/mobile/login');
+    > 10 |     await page.fill('[name="username"]', 'john.doe');
+         |                ^
+      11 |     await page.fill('[name="password"]', 'test');
+      12 |     await page.tap('button[type="submit"]');
+      13 |     
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/04-mobile-experience/offline-mode.spec.ts:10:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/04-mobile-experience-offli-cedfe-ound-sync-for-notifications-Desktop-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/04-mobile-experience-offli-cedfe-ound-sync-for-notifications-Desktop-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/04-mobile-experience-offli-cedfe-ound-sync-for-notifications-Desktop-Chrome/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/04-mobile-experience-offli-cedfe-ound-sync-for-notifications-Desktop-Chrome/test-failed-1.png]]
+
+[[ATTACHMENT|../test-results/04-mobile-experience-offli-cedfe-ound-sync-for-notifications-Desktop-Chrome/video.webm]]
+
+[[ATTACHMENT|../test-results/04-mobile-experience-offli-cedfe-ound-sync-for-notifications-Desktop-Chrome/error-context.md]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="01-authentication/login.spec.ts" timestamp="2025-07-25T08:28:34.199Z" hostname="Mobile Safari" tests="5" failures="0" skipped="0" time="7.958" errors="0">
+<testcase name="Authentication › Login with valid credentials" classname="01-authentication/login.spec.ts" time="2.662">
+</testcase>
+<testcase name="Authentication › Login with invalid credentials shows error" classname="01-authentication/login.spec.ts" time="0.667">
+</testcase>
+<testcase name="Authentication › Login form validation" classname="01-authentication/login.spec.ts" time="0.389">
+</testcase>
+<testcase name="Authentication › JWT token is stored after login" classname="01-authentication/login.spec.ts" time="2.054">
+</testcase>
+<testcase name="Authentication › Logout clears session" classname="01-authentication/login.spec.ts" time="2.186">
+</testcase>
+</testsuite>
+<testsuite name="02-employee-workflows/vacation-request-lifecycle.spec.ts" timestamp="2025-07-25T08:28:34.199Z" hostname="Mobile Safari" tests="5" failures="4" skipped="1" time="52.547" errors="0">
+<testcase name="Vacation Request Lifecycle › Complete vacation request flow" classname="02-employee-workflows/vacation-request-lifecycle.spec.ts" time="12.035">
+<failure message="vacation-request-lifecycle.spec.ts:4:7 Complete vacation request flow" type="FAILURE">
+<![CDATA[  [Mobile Safari] › 02-employee-workflows/vacation-request-lifecycle.spec.ts:4:7 › Vacation Request Lifecycle › Complete vacation request flow 
+
+    TimeoutError: page.click: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('text=Time Off')
+        - locator resolved to <a href="/requests" data-testid="time-off-link" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Time Off</a>
+      - attempting click action
+        2 × waiting for element to be visible, enabled and stable
+          - element is not visible
+        - retrying click action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is not visible
+        - retrying click action
+          - waiting 100ms
+        19 × waiting for element to be visible, enabled and stable
+           - element is not visible
+         - retrying click action
+           - waiting 500ms
+
+
+       6 |     
+       7 |     // Navigate to vacation requests
+    >  8 |     await page.click('text=Time Off');
+         |                ^
+       9 |     await page.click('text=New Request');
+      10 |     
+      11 |     // Fill request form
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/02-employee-workflows/vacation-request-lifecycle.spec.ts:8:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/02-employee-workflows-vaca-1d0fb-plete-vacation-request-flow-Mobile-Safari/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/02-employee-workflows-vaca-1d0fb-plete-vacation-request-flow-Mobile-Safari/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/02-employee-workflows-vaca-1d0fb-plete-vacation-request-flow-Mobile-Safari/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/02-employee-workflows-vaca-1d0fb-plete-vacation-request-flow-Mobile-Safari/test-failed-1.png]]
+
+[[ATTACHMENT|../test-results/02-employee-workflows-vaca-1d0fb-plete-vacation-request-flow-Mobile-Safari/video.webm]]
+
+[[ATTACHMENT|../test-results/02-employee-workflows-vaca-1d0fb-plete-vacation-request-flow-Mobile-Safari/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Vacation Request Lifecycle › Edit pending vacation request" classname="02-employee-workflows/vacation-request-lifecycle.spec.ts" time="12.872">
+<failure message="vacation-request-lifecycle.spec.ts:37:7 Edit pending vacation request" type="FAILURE">
+<![CDATA[  [Mobile Safari] › 02-employee-workflows/vacation-request-lifecycle.spec.ts:37:7 › Vacation Request Lifecycle › Edit pending vacation request 
+
+    TimeoutError: locator.click: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('tr:has-text("Pending")').first().locator('button:text("Edit")')
+
+
+      43 |     // Find a pending request and click edit
+      44 |     const pendingRequest = page.locator('tr:has-text("Pending")').first();
+    > 45 |     await pendingRequest.locator('button:text("Edit")').click();
+         |                                                         ^
+      46 |     
+      47 |     // Modify end date
+      48 |     const newEndDate = new Date();
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/02-employee-workflows/vacation-request-lifecycle.spec.ts:45:57
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/02-employee-workflows-vaca-47674-it-pending-vacation-request-Mobile-Safari/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/02-employee-workflows-vaca-47674-it-pending-vacation-request-Mobile-Safari/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/02-employee-workflows-vaca-47674-it-pending-vacation-request-Mobile-Safari/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/02-employee-workflows-vaca-47674-it-pending-vacation-request-Mobile-Safari/test-failed-1.png]]
+
+[[ATTACHMENT|../test-results/02-employee-workflows-vaca-47674-it-pending-vacation-request-Mobile-Safari/video.webm]]
+
+[[ATTACHMENT|../test-results/02-employee-workflows-vaca-47674-it-pending-vacation-request-Mobile-Safari/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Vacation Request Lifecycle › Cancel approved request with reason" classname="02-employee-workflows/vacation-request-lifecycle.spec.ts" time="2.94">
+<properties>
+<property name="skip" value="">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Vacation Request Lifecycle › View request details and history" classname="02-employee-workflows/vacation-request-lifecycle.spec.ts" time="12.206">
+<failure message="vacation-request-lifecycle.spec.ts:88:7 View request details and history" type="FAILURE">
+<![CDATA[  [Mobile Safari] › 02-employee-workflows/vacation-request-lifecycle.spec.ts:88:7 › Vacation Request Lifecycle › View request details and history 
+
+    TimeoutError: locator.click: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('tr[data-testid^="request-"]').first()
+
+
+      94 |     // Click on a request to view details
+      95 |     const firstRequest = page.locator('tr[data-testid^="request-"]').first();
+    > 96 |     await firstRequest.click();
+         |                        ^
+      97 |     
+      98 |     // Should show request details modal/page
+      99 |     await expect(page.locator('h2:text("Request Details")')).toBeVisible();
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/02-employee-workflows/vacation-request-lifecycle.spec.ts:96:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/02-employee-workflows-vaca-6b068-request-details-and-history-Mobile-Safari/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/02-employee-workflows-vaca-6b068-request-details-and-history-Mobile-Safari/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/02-employee-workflows-vaca-6b068-request-details-and-history-Mobile-Safari/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/02-employee-workflows-vaca-6b068-request-details-and-history-Mobile-Safari/test-failed-1.png]]
+
+[[ATTACHMENT|../test-results/02-employee-workflows-vaca-6b068-request-details-and-history-Mobile-Safari/video.webm]]
+
+[[ATTACHMENT|../test-results/02-employee-workflows-vaca-6b068-request-details-and-history-Mobile-Safari/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Vacation Request Lifecycle › Request validation prevents invalid dates" classname="02-employee-workflows/vacation-request-lifecycle.spec.ts" time="12.494">
+<failure message="vacation-request-lifecycle.spec.ts:106:7 Request validation prevents invalid dates" type="FAILURE">
+<![CDATA[  [Mobile Safari] › 02-employee-workflows/vacation-request-lifecycle.spec.ts:106:7 › Vacation Request Lifecycle › Request validation prevents invalid dates 
+
+    TimeoutError: page.fill: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('[name="startDate"]')
+
+
+      114 |     pastDate.setDate(pastDate.getDate() - 10);
+      115 |     
+    > 116 |     await page.fill('[name="startDate"]', pastDate.toISOString().split('T')[0]);
+          |                ^
+      117 |     await page.fill('[name="endDate"]', pastDate.toISOString().split('T')[0]);
+      118 |     await page.click('button:text("Submit Request")');
+      119 |     
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/02-employee-workflows/vacation-request-lifecycle.spec.ts:116:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/02-employee-workflows-vaca-63091-tion-prevents-invalid-dates-Mobile-Safari/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/02-employee-workflows-vaca-63091-tion-prevents-invalid-dates-Mobile-Safari/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/02-employee-workflows-vaca-63091-tion-prevents-invalid-dates-Mobile-Safari/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/02-employee-workflows-vaca-63091-tion-prevents-invalid-dates-Mobile-Safari/test-failed-1.png]]
+
+[[ATTACHMENT|../test-results/02-employee-workflows-vaca-63091-tion-prevents-invalid-dates-Mobile-Safari/video.webm]]
+
+[[ATTACHMENT|../test-results/02-employee-workflows-vaca-63091-tion-prevents-invalid-dates-Mobile-Safari/error-context.md]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="03-manager-workflows/dashboard-performance.spec.ts" timestamp="2025-07-25T08:28:34.199Z" hostname="Mobile Safari" tests="5" failures="5" skipped="0" time="150.733" errors="0">
+<testcase name="Manager Dashboard Performance › Dashboard loads in under 1 second" classname="03-manager-workflows/dashboard-performance.spec.ts" time="30.099">
+<failure message="dashboard-performance.spec.ts:13:7 Dashboard loads in under 1 second" type="FAILURE">
+<![CDATA[  [Mobile Safari] › 03-manager-workflows/dashboard-performance.spec.ts:13:7 › Manager Dashboard Performance › Dashboard loads in under 1 second 
+
+    Test timeout of 30000ms exceeded while running "beforeEach" hook.
+
+      2 |
+      3 | test.describe('Manager Dashboard Performance', () => {
+    > 4 |   test.beforeEach(async ({ page }) => {
+        |        ^
+      5 |     // Login as manager
+      6 |     await page.goto('/login');
+      7 |     await page.fill('[name="username"]', 'jane.manager');
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/03-manager-workflows/dashboard-performance.spec.ts:4:8
+
+    Error: page.waitForURL: Test timeout of 30000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "/manager/dashboard" until "load"
+      navigated to "http://localhost:3000/dashboard"
+      navigated to "http://localhost:3000/dashboard"
+    ============================================================
+
+       8 |     await page.fill('[name="password"]', 'test');
+       9 |     await page.click('button[type="submit"]');
+    > 10 |     await page.waitForURL('/manager/dashboard');
+         |                ^
+      11 |   });
+      12 |
+      13 |   test('Dashboard loads in under 1 second', async ({ page }) => {
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/03-manager-workflows/dashboard-performance.spec.ts:10:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/03-manager-workflows-dashb-14804-ard-loads-in-under-1-second-Mobile-Safari/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/03-manager-workflows-dashb-14804-ard-loads-in-under-1-second-Mobile-Safari/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/03-manager-workflows-dashb-14804-ard-loads-in-under-1-second-Mobile-Safari/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/03-manager-workflows-dashb-14804-ard-loads-in-under-1-second-Mobile-Safari/test-failed-1.png]]
+
+[[ATTACHMENT|../test-results/03-manager-workflows-dashb-14804-ard-loads-in-under-1-second-Mobile-Safari/video.webm]]
+
+[[ATTACHMENT|../test-results/03-manager-workflows-dashb-14804-ard-loads-in-under-1-second-Mobile-Safari/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Manager Dashboard Performance › Handles large team data efficiently" classname="03-manager-workflows/dashboard-performance.spec.ts" time="30.207">
+<failure message="dashboard-performance.spec.ts:39:7 Handles large team data efficiently" type="FAILURE">
+<![CDATA[  [Mobile Safari] › 03-manager-workflows/dashboard-performance.spec.ts:39:7 › Manager Dashboard Performance › Handles large team data efficiently 
+
+    Test timeout of 30000ms exceeded while running "beforeEach" hook.
+
+      2 |
+      3 | test.describe('Manager Dashboard Performance', () => {
+    > 4 |   test.beforeEach(async ({ page }) => {
+        |        ^
+      5 |     // Login as manager
+      6 |     await page.goto('/login');
+      7 |     await page.fill('[name="username"]', 'jane.manager');
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/03-manager-workflows/dashboard-performance.spec.ts:4:8
+
+    Error: page.waitForURL: Test timeout of 30000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "/manager/dashboard" until "load"
+      navigated to "http://localhost:3000/dashboard"
+      navigated to "http://localhost:3000/dashboard"
+    ============================================================
+
+       8 |     await page.fill('[name="password"]', 'test');
+       9 |     await page.click('button[type="submit"]');
+    > 10 |     await page.waitForURL('/manager/dashboard');
+         |                ^
+      11 |   });
+      12 |
+      13 |   test('Dashboard loads in under 1 second', async ({ page }) => {
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/03-manager-workflows/dashboard-performance.spec.ts:10:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/03-manager-workflows-dashb-4fac3-large-team-data-efficiently-Mobile-Safari/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/03-manager-workflows-dashb-4fac3-large-team-data-efficiently-Mobile-Safari/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/03-manager-workflows-dashb-4fac3-large-team-data-efficiently-Mobile-Safari/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/03-manager-workflows-dashb-4fac3-large-team-data-efficiently-Mobile-Safari/test-failed-1.png]]
+
+[[ATTACHMENT|../test-results/03-manager-workflows-dashb-4fac3-large-team-data-efficiently-Mobile-Safari/video.webm]]
+
+[[ATTACHMENT|../test-results/03-manager-workflows-dashb-4fac3-large-team-data-efficiently-Mobile-Safari/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Manager Dashboard Performance › KPI metrics load without blocking UI" classname="03-manager-workflows/dashboard-performance.spec.ts" time="30.142">
+<failure message="dashboard-performance.spec.ts:61:7 KPI metrics load without blocking UI" type="FAILURE">
+<![CDATA[  [Mobile Safari] › 03-manager-workflows/dashboard-performance.spec.ts:61:7 › Manager Dashboard Performance › KPI metrics load without blocking UI 
+
+    Test timeout of 30000ms exceeded while running "beforeEach" hook.
+
+      2 |
+      3 | test.describe('Manager Dashboard Performance', () => {
+    > 4 |   test.beforeEach(async ({ page }) => {
+        |        ^
+      5 |     // Login as manager
+      6 |     await page.goto('/login');
+      7 |     await page.fill('[name="username"]', 'jane.manager');
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/03-manager-workflows/dashboard-performance.spec.ts:4:8
+
+    Error: page.waitForURL: Test timeout of 30000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "/manager/dashboard" until "load"
+      navigated to "http://localhost:3000/dashboard"
+      navigated to "http://localhost:3000/dashboard"
+    ============================================================
+
+       8 |     await page.fill('[name="password"]', 'test');
+       9 |     await page.click('button[type="submit"]');
+    > 10 |     await page.waitForURL('/manager/dashboard');
+         |                ^
+      11 |   });
+      12 |
+      13 |   test('Dashboard loads in under 1 second', async ({ page }) => {
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/03-manager-workflows/dashboard-performance.spec.ts:10:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/03-manager-workflows-dashb-f81dd-cs-load-without-blocking-UI-Mobile-Safari/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/03-manager-workflows-dashb-f81dd-cs-load-without-blocking-UI-Mobile-Safari/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/03-manager-workflows-dashb-f81dd-cs-load-without-blocking-UI-Mobile-Safari/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/03-manager-workflows-dashb-f81dd-cs-load-without-blocking-UI-Mobile-Safari/test-failed-1.png]]
+
+[[ATTACHMENT|../test-results/03-manager-workflows-dashb-f81dd-cs-load-without-blocking-UI-Mobile-Safari/video.webm]]
+
+[[ATTACHMENT|../test-results/03-manager-workflows-dashb-f81dd-cs-load-without-blocking-UI-Mobile-Safari/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Manager Dashboard Performance › Pending requests section loads efficiently" classname="03-manager-workflows/dashboard-performance.spec.ts" time="30.204">
+<failure message="dashboard-performance.spec.ts:87:7 Pending requests section loads efficiently" type="FAILURE">
+<![CDATA[  [Mobile Safari] › 03-manager-workflows/dashboard-performance.spec.ts:87:7 › Manager Dashboard Performance › Pending requests section loads efficiently 
+
+    Test timeout of 30000ms exceeded while running "beforeEach" hook.
+
+      2 |
+      3 | test.describe('Manager Dashboard Performance', () => {
+    > 4 |   test.beforeEach(async ({ page }) => {
+        |        ^
+      5 |     // Login as manager
+      6 |     await page.goto('/login');
+      7 |     await page.fill('[name="username"]', 'jane.manager');
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/03-manager-workflows/dashboard-performance.spec.ts:4:8
+
+    Error: page.waitForURL: Test timeout of 30000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "/manager/dashboard" until "load"
+      navigated to "http://localhost:3000/dashboard"
+      navigated to "http://localhost:3000/dashboard"
+    ============================================================
+
+       8 |     await page.fill('[name="password"]', 'test');
+       9 |     await page.click('button[type="submit"]');
+    > 10 |     await page.waitForURL('/manager/dashboard');
+         |                ^
+      11 |   });
+      12 |
+      13 |   test('Dashboard loads in under 1 second', async ({ page }) => {
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/03-manager-workflows/dashboard-performance.spec.ts:10:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/03-manager-workflows-dashb-17134-s-section-loads-efficiently-Mobile-Safari/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/03-manager-workflows-dashb-17134-s-section-loads-efficiently-Mobile-Safari/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/03-manager-workflows-dashb-17134-s-section-loads-efficiently-Mobile-Safari/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/03-manager-workflows-dashb-17134-s-section-loads-efficiently-Mobile-Safari/test-failed-1.png]]
+
+[[ATTACHMENT|../test-results/03-manager-workflows-dashb-17134-s-section-loads-efficiently-Mobile-Safari/video.webm]]
+
+[[ATTACHMENT|../test-results/03-manager-workflows-dashb-17134-s-section-loads-efficiently-Mobile-Safari/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Manager Dashboard Performance › Dashboard responds to real-time updates" classname="03-manager-workflows/dashboard-performance.spec.ts" time="30.081">
+<failure message="dashboard-performance.spec.ts:108:7 Dashboard responds to real-time updates" type="FAILURE">
+<![CDATA[  [Mobile Safari] › 03-manager-workflows/dashboard-performance.spec.ts:108:7 › Manager Dashboard Performance › Dashboard responds to real-time updates 
+
+    Test timeout of 30000ms exceeded while running "beforeEach" hook.
+
+      2 |
+      3 | test.describe('Manager Dashboard Performance', () => {
+    > 4 |   test.beforeEach(async ({ page }) => {
+        |        ^
+      5 |     // Login as manager
+      6 |     await page.goto('/login');
+      7 |     await page.fill('[name="username"]', 'jane.manager');
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/03-manager-workflows/dashboard-performance.spec.ts:4:8
+
+    Error: page.waitForURL: Test timeout of 30000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "/manager/dashboard" until "load"
+      navigated to "http://localhost:3000/dashboard"
+      navigated to "http://localhost:3000/dashboard"
+    ============================================================
+
+       8 |     await page.fill('[name="password"]', 'test');
+       9 |     await page.click('button[type="submit"]');
+    > 10 |     await page.waitForURL('/manager/dashboard');
+         |                ^
+      11 |   });
+      12 |
+      13 |   test('Dashboard loads in under 1 second', async ({ page }) => {
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/03-manager-workflows/dashboard-performance.spec.ts:10:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/03-manager-workflows-dashb-54f88-sponds-to-real-time-updates-Mobile-Safari/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/03-manager-workflows-dashb-54f88-sponds-to-real-time-updates-Mobile-Safari/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/03-manager-workflows-dashb-54f88-sponds-to-real-time-updates-Mobile-Safari/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/03-manager-workflows-dashb-54f88-sponds-to-real-time-updates-Mobile-Safari/test-failed-1.png]]
+
+[[ATTACHMENT|../test-results/03-manager-workflows-dashb-54f88-sponds-to-real-time-updates-Mobile-Safari/video.webm]]
+
+[[ATTACHMENT|../test-results/03-manager-workflows-dashb-54f88-sponds-to-real-time-updates-Mobile-Safari/error-context.md]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="04-mobile-experience/offline-mode.spec.ts" timestamp="2025-07-25T08:28:34.199Z" hostname="Mobile Safari" tests="5" failures="5" skipped="0" time="53.799" errors="0">
+<testcase name="Mobile Offline Mode › Queue requests when offline" classname="04-mobile-experience/offline-mode.spec.ts" time="10.783">
+<failure message="offline-mode.spec.ts:18:7 Queue requests when offline" type="FAILURE">
+<![CDATA[  [Mobile Safari] › 04-mobile-experience/offline-mode.spec.ts:18:7 › Mobile Offline Mode › Queue requests when offline 
+
+    TimeoutError: page.fill: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('[name="username"]')
+
+
+       8 |     // Login on mobile
+       9 |     await page.goto('/mobile/login');
+    > 10 |     await page.fill('[name="username"]', 'john.doe');
+         |                ^
+      11 |     await page.fill('[name="password"]', 'test');
+      12 |     await page.tap('button[type="submit"]');
+      13 |     
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/04-mobile-experience/offline-mode.spec.ts:10:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/04-mobile-experience-offli-cee23-Queue-requests-when-offline-Mobile-Safari/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/04-mobile-experience-offli-cee23-Queue-requests-when-offline-Mobile-Safari/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/04-mobile-experience-offli-cee23-Queue-requests-when-offline-Mobile-Safari/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/04-mobile-experience-offli-cee23-Queue-requests-when-offline-Mobile-Safari/test-failed-1.png]]
+
+[[ATTACHMENT|../test-results/04-mobile-experience-offli-cee23-Queue-requests-when-offline-Mobile-Safari/video.webm]]
+
+[[ATTACHMENT|../test-results/04-mobile-experience-offli-cee23-Queue-requests-when-offline-Mobile-Safari/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Mobile Offline Mode › View cached schedule data offline" classname="04-mobile-experience/offline-mode.spec.ts" time="10.814">
+<failure message="offline-mode.spec.ts:66:7 View cached schedule data offline" type="FAILURE">
+<![CDATA[  [Mobile Safari] › 04-mobile-experience/offline-mode.spec.ts:66:7 › Mobile Offline Mode › View cached schedule data offline 
+
+    TimeoutError: page.fill: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('[name="username"]')
+
+
+       8 |     // Login on mobile
+       9 |     await page.goto('/mobile/login');
+    > 10 |     await page.fill('[name="username"]', 'john.doe');
+         |                ^
+      11 |     await page.fill('[name="password"]', 'test');
+      12 |     await page.tap('button[type="submit"]');
+      13 |     
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/04-mobile-experience/offline-mode.spec.ts:10:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/04-mobile-experience-offli-1796a-ached-schedule-data-offline-Mobile-Safari/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/04-mobile-experience-offli-1796a-ached-schedule-data-offline-Mobile-Safari/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/04-mobile-experience-offli-1796a-ached-schedule-data-offline-Mobile-Safari/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/04-mobile-experience-offli-1796a-ached-schedule-data-offline-Mobile-Safari/test-failed-1.png]]
+
+[[ATTACHMENT|../test-results/04-mobile-experience-offli-1796a-ached-schedule-data-offline-Mobile-Safari/video.webm]]
+
+[[ATTACHMENT|../test-results/04-mobile-experience-offli-1796a-ached-schedule-data-offline-Mobile-Safari/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Mobile Offline Mode › Conflict resolution when syncing" classname="04-mobile-experience/offline-mode.spec.ts" time="10.79">
+<failure message="offline-mode.spec.ts:94:7 Conflict resolution when syncing" type="FAILURE">
+<![CDATA[  [Mobile Safari] › 04-mobile-experience/offline-mode.spec.ts:94:7 › Mobile Offline Mode › Conflict resolution when syncing 
+
+    TimeoutError: page.fill: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('[name="username"]')
+
+
+       8 |     // Login on mobile
+       9 |     await page.goto('/mobile/login');
+    > 10 |     await page.fill('[name="username"]', 'john.doe');
+         |                ^
+      11 |     await page.fill('[name="password"]', 'test');
+      12 |     await page.tap('button[type="submit"]');
+      13 |     
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/04-mobile-experience/offline-mode.spec.ts:10:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/04-mobile-experience-offli-e978d-ict-resolution-when-syncing-Mobile-Safari/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/04-mobile-experience-offli-e978d-ict-resolution-when-syncing-Mobile-Safari/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/04-mobile-experience-offli-e978d-ict-resolution-when-syncing-Mobile-Safari/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/04-mobile-experience-offli-e978d-ict-resolution-when-syncing-Mobile-Safari/test-failed-1.png]]
+
+[[ATTACHMENT|../test-results/04-mobile-experience-offli-e978d-ict-resolution-when-syncing-Mobile-Safari/video.webm]]
+
+[[ATTACHMENT|../test-results/04-mobile-experience-offli-e978d-ict-resolution-when-syncing-Mobile-Safari/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Mobile Offline Mode › PWA installation prompt" classname="04-mobile-experience/offline-mode.spec.ts" time="10.726">
+<failure message="offline-mode.spec.ts:139:7 PWA installation prompt" type="FAILURE">
+<![CDATA[  [Mobile Safari] › 04-mobile-experience/offline-mode.spec.ts:139:7 › Mobile Offline Mode › PWA installation prompt 
+
+    TimeoutError: page.fill: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('[name="username"]')
+
+
+       8 |     // Login on mobile
+       9 |     await page.goto('/mobile/login');
+    > 10 |     await page.fill('[name="username"]', 'john.doe');
+         |                ^
+      11 |     await page.fill('[name="password"]', 'test');
+      12 |     await page.tap('button[type="submit"]');
+      13 |     
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/04-mobile-experience/offline-mode.spec.ts:10:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/04-mobile-experience-offli-a3433-ode-PWA-installation-prompt-Mobile-Safari/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/04-mobile-experience-offli-a3433-ode-PWA-installation-prompt-Mobile-Safari/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/04-mobile-experience-offli-a3433-ode-PWA-installation-prompt-Mobile-Safari/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/04-mobile-experience-offli-a3433-ode-PWA-installation-prompt-Mobile-Safari/test-failed-1.png]]
+
+[[ATTACHMENT|../test-results/04-mobile-experience-offli-a3433-ode-PWA-installation-prompt-Mobile-Safari/video.webm]]
+
+[[ATTACHMENT|../test-results/04-mobile-experience-offli-a3433-ode-PWA-installation-prompt-Mobile-Safari/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Mobile Offline Mode › Background sync for notifications" classname="04-mobile-experience/offline-mode.spec.ts" time="10.686">
+<failure message="offline-mode.spec.ts:156:7 Background sync for notifications" type="FAILURE">
+<![CDATA[  [Mobile Safari] › 04-mobile-experience/offline-mode.spec.ts:156:7 › Mobile Offline Mode › Background sync for notifications 
+
+    TimeoutError: page.fill: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('[name="username"]')
+
+
+       8 |     // Login on mobile
+       9 |     await page.goto('/mobile/login');
+    > 10 |     await page.fill('[name="username"]', 'john.doe');
+         |                ^
+      11 |     await page.fill('[name="password"]', 'test');
+      12 |     await page.tap('button[type="submit"]');
+      13 |     
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/04-mobile-experience/offline-mode.spec.ts:10:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/04-mobile-experience-offli-cedfe-ound-sync-for-notifications-Mobile-Safari/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/04-mobile-experience-offli-cedfe-ound-sync-for-notifications-Mobile-Safari/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/04-mobile-experience-offli-cedfe-ound-sync-for-notifications-Mobile-Safari/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/04-mobile-experience-offli-cedfe-ound-sync-for-notifications-Mobile-Safari/test-failed-1.png]]
+
+[[ATTACHMENT|../test-results/04-mobile-experience-offli-cedfe-ound-sync-for-notifications-Mobile-Safari/video.webm]]
+
+[[ATTACHMENT|../test-results/04-mobile-experience-offli-cedfe-ound-sync-for-notifications-Mobile-Safari/error-context.md]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="01-authentication/login.spec.ts" timestamp="2025-07-25T08:28:34.199Z" hostname="Performance" tests="5" failures="0" skipped="0" time="7.209" errors="0">
+<testcase name="Authentication › Login with valid credentials" classname="01-authentication/login.spec.ts" time="2.438">
+</testcase>
+<testcase name="Authentication › Login with invalid credentials shows error" classname="01-authentication/login.spec.ts" time="0.418">
+</testcase>
+<testcase name="Authentication › Login form validation" classname="01-authentication/login.spec.ts" time="0.332">
+</testcase>
+<testcase name="Authentication › JWT token is stored after login" classname="01-authentication/login.spec.ts" time="1.981">
+</testcase>
+<testcase name="Authentication › Logout clears session" classname="01-authentication/login.spec.ts" time="2.04">
+</testcase>
+</testsuite>
+<testsuite name="02-employee-workflows/vacation-request-lifecycle.spec.ts" timestamp="2025-07-25T08:28:34.199Z" hostname="Performance" tests="5" failures="4" skipped="1" time="51.228" errors="0">
+<testcase name="Vacation Request Lifecycle › Complete vacation request flow" classname="02-employee-workflows/vacation-request-lifecycle.spec.ts" time="12.315">
+<failure message="vacation-request-lifecycle.spec.ts:4:7 Complete vacation request flow" type="FAILURE">
+<![CDATA[  [Performance] › 02-employee-workflows/vacation-request-lifecycle.spec.ts:4:7 › Vacation Request Lifecycle › Complete vacation request flow 
+
+    TimeoutError: page.click: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('text=New Request')
+
+
+       7 |     // Navigate to vacation requests
+       8 |     await page.click('text=Time Off');
+    >  9 |     await page.click('text=New Request');
+         |                ^
+      10 |     
+      11 |     // Fill request form
+      12 |     const startDate = new Date();
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/02-employee-workflows/vacation-request-lifecycle.spec.ts:9:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/02-employee-workflows-vaca-1d0fb-plete-vacation-request-flow-Performance/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/02-employee-workflows-vaca-1d0fb-plete-vacation-request-flow-Performance/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/02-employee-workflows-vaca-1d0fb-plete-vacation-request-flow-Performance/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/02-employee-workflows-vaca-1d0fb-plete-vacation-request-flow-Performance/test-failed-1.png]]
+
+[[ATTACHMENT|../test-results/02-employee-workflows-vaca-1d0fb-plete-vacation-request-flow-Performance/video.webm]]
+
+[[ATTACHMENT|../test-results/02-employee-workflows-vaca-1d0fb-plete-vacation-request-flow-Performance/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Vacation Request Lifecycle › Edit pending vacation request" classname="02-employee-workflows/vacation-request-lifecycle.spec.ts" time="12.344">
+<failure message="vacation-request-lifecycle.spec.ts:37:7 Edit pending vacation request" type="FAILURE">
+<![CDATA[  [Performance] › 02-employee-workflows/vacation-request-lifecycle.spec.ts:37:7 › Vacation Request Lifecycle › Edit pending vacation request 
+
+    TimeoutError: locator.click: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('tr:has-text("Pending")').first().locator('button:text("Edit")')
+
+
+      43 |     // Find a pending request and click edit
+      44 |     const pendingRequest = page.locator('tr:has-text("Pending")').first();
+    > 45 |     await pendingRequest.locator('button:text("Edit")').click();
+         |                                                         ^
+      46 |     
+      47 |     // Modify end date
+      48 |     const newEndDate = new Date();
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/02-employee-workflows/vacation-request-lifecycle.spec.ts:45:57
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/02-employee-workflows-vaca-47674-it-pending-vacation-request-Performance/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/02-employee-workflows-vaca-47674-it-pending-vacation-request-Performance/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/02-employee-workflows-vaca-47674-it-pending-vacation-request-Performance/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/02-employee-workflows-vaca-47674-it-pending-vacation-request-Performance/test-failed-1.png]]
+
+[[ATTACHMENT|../test-results/02-employee-workflows-vaca-47674-it-pending-vacation-request-Performance/video.webm]]
+
+[[ATTACHMENT|../test-results/02-employee-workflows-vaca-47674-it-pending-vacation-request-Performance/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Vacation Request Lifecycle › Cancel approved request with reason" classname="02-employee-workflows/vacation-request-lifecycle.spec.ts" time="2.073">
+<properties>
+<property name="skip" value="">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Vacation Request Lifecycle › View request details and history" classname="02-employee-workflows/vacation-request-lifecycle.spec.ts" time="12.228">
+<failure message="vacation-request-lifecycle.spec.ts:88:7 View request details and history" type="FAILURE">
+<![CDATA[  [Performance] › 02-employee-workflows/vacation-request-lifecycle.spec.ts:88:7 › Vacation Request Lifecycle › View request details and history 
+
+    TimeoutError: locator.click: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('tr[data-testid^="request-"]').first()
+
+
+      94 |     // Click on a request to view details
+      95 |     const firstRequest = page.locator('tr[data-testid^="request-"]').first();
+    > 96 |     await firstRequest.click();
+         |                        ^
+      97 |     
+      98 |     // Should show request details modal/page
+      99 |     await expect(page.locator('h2:text("Request Details")')).toBeVisible();
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/02-employee-workflows/vacation-request-lifecycle.spec.ts:96:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/02-employee-workflows-vaca-6b068-request-details-and-history-Performance/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/02-employee-workflows-vaca-6b068-request-details-and-history-Performance/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/02-employee-workflows-vaca-6b068-request-details-and-history-Performance/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/02-employee-workflows-vaca-6b068-request-details-and-history-Performance/test-failed-1.png]]
+
+[[ATTACHMENT|../test-results/02-employee-workflows-vaca-6b068-request-details-and-history-Performance/video.webm]]
+
+[[ATTACHMENT|../test-results/02-employee-workflows-vaca-6b068-request-details-and-history-Performance/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Vacation Request Lifecycle › Request validation prevents invalid dates" classname="02-employee-workflows/vacation-request-lifecycle.spec.ts" time="12.268">
+<failure message="vacation-request-lifecycle.spec.ts:106:7 Request validation prevents invalid dates" type="FAILURE">
+<![CDATA[  [Performance] › 02-employee-workflows/vacation-request-lifecycle.spec.ts:106:7 › Vacation Request Lifecycle › Request validation prevents invalid dates 
+
+    TimeoutError: page.fill: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('[name="startDate"]')
+
+
+      114 |     pastDate.setDate(pastDate.getDate() - 10);
+      115 |     
+    > 116 |     await page.fill('[name="startDate"]', pastDate.toISOString().split('T')[0]);
+          |                ^
+      117 |     await page.fill('[name="endDate"]', pastDate.toISOString().split('T')[0]);
+      118 |     await page.click('button:text("Submit Request")');
+      119 |     
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/02-employee-workflows/vacation-request-lifecycle.spec.ts:116:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/02-employee-workflows-vaca-63091-tion-prevents-invalid-dates-Performance/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/02-employee-workflows-vaca-63091-tion-prevents-invalid-dates-Performance/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/02-employee-workflows-vaca-63091-tion-prevents-invalid-dates-Performance/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/02-employee-workflows-vaca-63091-tion-prevents-invalid-dates-Performance/test-failed-1.png]]
+
+[[ATTACHMENT|../test-results/02-employee-workflows-vaca-63091-tion-prevents-invalid-dates-Performance/video.webm]]
+
+[[ATTACHMENT|../test-results/02-employee-workflows-vaca-63091-tion-prevents-invalid-dates-Performance/error-context.md]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="03-manager-workflows/dashboard-performance.spec.ts" timestamp="2025-07-25T08:28:34.199Z" hostname="Performance" tests="5" failures="5" skipped="0" time="154.165" errors="0">
+<testcase name="Manager Dashboard Performance › Dashboard loads in under 1 second" classname="03-manager-workflows/dashboard-performance.spec.ts" time="30.691">
+<failure message="dashboard-performance.spec.ts:13:7 Dashboard loads in under 1 second" type="FAILURE">
+<![CDATA[  [Performance] › 03-manager-workflows/dashboard-performance.spec.ts:13:7 › Manager Dashboard Performance › Dashboard loads in under 1 second 
+
+    Test timeout of 30000ms exceeded while running "beforeEach" hook.
+
+      2 |
+      3 | test.describe('Manager Dashboard Performance', () => {
+    > 4 |   test.beforeEach(async ({ page }) => {
+        |        ^
+      5 |     // Login as manager
+      6 |     await page.goto('/login');
+      7 |     await page.fill('[name="username"]', 'jane.manager');
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/03-manager-workflows/dashboard-performance.spec.ts:4:8
+
+    Error: page.waitForURL: Test timeout of 30000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "/manager/dashboard" until "load"
+      navigated to "http://localhost:3000/dashboard"
+      navigated to "http://localhost:3000/dashboard"
+    ============================================================
+
+       8 |     await page.fill('[name="password"]', 'test');
+       9 |     await page.click('button[type="submit"]');
+    > 10 |     await page.waitForURL('/manager/dashboard');
+         |                ^
+      11 |   });
+      12 |
+      13 |   test('Dashboard loads in under 1 second', async ({ page }) => {
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/03-manager-workflows/dashboard-performance.spec.ts:10:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/03-manager-workflows-dashb-14804-ard-loads-in-under-1-second-Performance/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/03-manager-workflows-dashb-14804-ard-loads-in-under-1-second-Performance/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/03-manager-workflows-dashb-14804-ard-loads-in-under-1-second-Performance/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/03-manager-workflows-dashb-14804-ard-loads-in-under-1-second-Performance/test-failed-1.png]]
+
+[[ATTACHMENT|../test-results/03-manager-workflows-dashb-14804-ard-loads-in-under-1-second-Performance/video.webm]]
+
+[[ATTACHMENT|../test-results/03-manager-workflows-dashb-14804-ard-loads-in-under-1-second-Performance/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Manager Dashboard Performance › Handles large team data efficiently" classname="03-manager-workflows/dashboard-performance.spec.ts" time="30.861">
+<failure message="dashboard-performance.spec.ts:39:7 Handles large team data efficiently" type="FAILURE">
+<![CDATA[  [Performance] › 03-manager-workflows/dashboard-performance.spec.ts:39:7 › Manager Dashboard Performance › Handles large team data efficiently 
+
+    Test timeout of 30000ms exceeded while running "beforeEach" hook.
+
+      2 |
+      3 | test.describe('Manager Dashboard Performance', () => {
+    > 4 |   test.beforeEach(async ({ page }) => {
+        |        ^
+      5 |     // Login as manager
+      6 |     await page.goto('/login');
+      7 |     await page.fill('[name="username"]', 'jane.manager');
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/03-manager-workflows/dashboard-performance.spec.ts:4:8
+
+    Error: page.waitForURL: Test timeout of 30000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "/manager/dashboard" until "load"
+      navigated to "http://localhost:3000/dashboard"
+      navigated to "http://localhost:3000/dashboard"
+    ============================================================
+
+       8 |     await page.fill('[name="password"]', 'test');
+       9 |     await page.click('button[type="submit"]');
+    > 10 |     await page.waitForURL('/manager/dashboard');
+         |                ^
+      11 |   });
+      12 |
+      13 |   test('Dashboard loads in under 1 second', async ({ page }) => {
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/03-manager-workflows/dashboard-performance.spec.ts:10:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/03-manager-workflows-dashb-4fac3-large-team-data-efficiently-Performance/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/03-manager-workflows-dashb-4fac3-large-team-data-efficiently-Performance/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/03-manager-workflows-dashb-4fac3-large-team-data-efficiently-Performance/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/03-manager-workflows-dashb-4fac3-large-team-data-efficiently-Performance/test-failed-1.png]]
+
+[[ATTACHMENT|../test-results/03-manager-workflows-dashb-4fac3-large-team-data-efficiently-Performance/video.webm]]
+
+[[ATTACHMENT|../test-results/03-manager-workflows-dashb-4fac3-large-team-data-efficiently-Performance/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Manager Dashboard Performance › KPI metrics load without blocking UI" classname="03-manager-workflows/dashboard-performance.spec.ts" time="30.728">
+<failure message="dashboard-performance.spec.ts:61:7 KPI metrics load without blocking UI" type="FAILURE">
+<![CDATA[  [Performance] › 03-manager-workflows/dashboard-performance.spec.ts:61:7 › Manager Dashboard Performance › KPI metrics load without blocking UI 
+
+    Test timeout of 30000ms exceeded while running "beforeEach" hook.
+
+      2 |
+      3 | test.describe('Manager Dashboard Performance', () => {
+    > 4 |   test.beforeEach(async ({ page }) => {
+        |        ^
+      5 |     // Login as manager
+      6 |     await page.goto('/login');
+      7 |     await page.fill('[name="username"]', 'jane.manager');
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/03-manager-workflows/dashboard-performance.spec.ts:4:8
+
+    Error: page.waitForURL: Test timeout of 30000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "/manager/dashboard" until "load"
+      navigated to "http://localhost:3000/dashboard"
+      navigated to "http://localhost:3000/dashboard"
+    ============================================================
+
+       8 |     await page.fill('[name="password"]', 'test');
+       9 |     await page.click('button[type="submit"]');
+    > 10 |     await page.waitForURL('/manager/dashboard');
+         |                ^
+      11 |   });
+      12 |
+      13 |   test('Dashboard loads in under 1 second', async ({ page }) => {
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/03-manager-workflows/dashboard-performance.spec.ts:10:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/03-manager-workflows-dashb-f81dd-cs-load-without-blocking-UI-Performance/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/03-manager-workflows-dashb-f81dd-cs-load-without-blocking-UI-Performance/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/03-manager-workflows-dashb-f81dd-cs-load-without-blocking-UI-Performance/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/03-manager-workflows-dashb-f81dd-cs-load-without-blocking-UI-Performance/test-failed-1.png]]
+
+[[ATTACHMENT|../test-results/03-manager-workflows-dashb-f81dd-cs-load-without-blocking-UI-Performance/video.webm]]
+
+[[ATTACHMENT|../test-results/03-manager-workflows-dashb-f81dd-cs-load-without-blocking-UI-Performance/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Manager Dashboard Performance › Pending requests section loads efficiently" classname="03-manager-workflows/dashboard-performance.spec.ts" time="31.188">
+<failure message="dashboard-performance.spec.ts:87:7 Pending requests section loads efficiently" type="FAILURE">
+<![CDATA[  [Performance] › 03-manager-workflows/dashboard-performance.spec.ts:87:7 › Manager Dashboard Performance › Pending requests section loads efficiently 
+
+    Test timeout of 30000ms exceeded while running "beforeEach" hook.
+
+      2 |
+      3 | test.describe('Manager Dashboard Performance', () => {
+    > 4 |   test.beforeEach(async ({ page }) => {
+        |        ^
+      5 |     // Login as manager
+      6 |     await page.goto('/login');
+      7 |     await page.fill('[name="username"]', 'jane.manager');
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/03-manager-workflows/dashboard-performance.spec.ts:4:8
+
+    Error: page.waitForURL: Test timeout of 30000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "/manager/dashboard" until "load"
+      navigated to "http://localhost:3000/dashboard"
+      navigated to "http://localhost:3000/dashboard"
+    ============================================================
+
+       8 |     await page.fill('[name="password"]', 'test');
+       9 |     await page.click('button[type="submit"]');
+    > 10 |     await page.waitForURL('/manager/dashboard');
+         |                ^
+      11 |   });
+      12 |
+      13 |   test('Dashboard loads in under 1 second', async ({ page }) => {
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/03-manager-workflows/dashboard-performance.spec.ts:10:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/03-manager-workflows-dashb-17134-s-section-loads-efficiently-Performance/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/03-manager-workflows-dashb-17134-s-section-loads-efficiently-Performance/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/03-manager-workflows-dashb-17134-s-section-loads-efficiently-Performance/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/03-manager-workflows-dashb-17134-s-section-loads-efficiently-Performance/test-failed-1.png]]
+
+[[ATTACHMENT|../test-results/03-manager-workflows-dashb-17134-s-section-loads-efficiently-Performance/video.webm]]
+
+[[ATTACHMENT|../test-results/03-manager-workflows-dashb-17134-s-section-loads-efficiently-Performance/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Manager Dashboard Performance › Dashboard responds to real-time updates" classname="03-manager-workflows/dashboard-performance.spec.ts" time="30.697">
+<failure message="dashboard-performance.spec.ts:108:7 Dashboard responds to real-time updates" type="FAILURE">
+<![CDATA[  [Performance] › 03-manager-workflows/dashboard-performance.spec.ts:108:7 › Manager Dashboard Performance › Dashboard responds to real-time updates 
+
+    Test timeout of 30000ms exceeded while running "beforeEach" hook.
+
+      2 |
+      3 | test.describe('Manager Dashboard Performance', () => {
+    > 4 |   test.beforeEach(async ({ page }) => {
+        |        ^
+      5 |     // Login as manager
+      6 |     await page.goto('/login');
+      7 |     await page.fill('[name="username"]', 'jane.manager');
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/03-manager-workflows/dashboard-performance.spec.ts:4:8
+
+    Error: page.waitForURL: Test timeout of 30000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "/manager/dashboard" until "load"
+      navigated to "http://localhost:3000/dashboard"
+      navigated to "http://localhost:3000/dashboard"
+    ============================================================
+
+       8 |     await page.fill('[name="password"]', 'test');
+       9 |     await page.click('button[type="submit"]');
+    > 10 |     await page.waitForURL('/manager/dashboard');
+         |                ^
+      11 |   });
+      12 |
+      13 |   test('Dashboard loads in under 1 second', async ({ page }) => {
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/03-manager-workflows/dashboard-performance.spec.ts:10:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/03-manager-workflows-dashb-54f88-sponds-to-real-time-updates-Performance/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/03-manager-workflows-dashb-54f88-sponds-to-real-time-updates-Performance/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/03-manager-workflows-dashb-54f88-sponds-to-real-time-updates-Performance/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/03-manager-workflows-dashb-54f88-sponds-to-real-time-updates-Performance/test-failed-1.png]]
+
+[[ATTACHMENT|../test-results/03-manager-workflows-dashb-54f88-sponds-to-real-time-updates-Performance/video.webm]]
+
+[[ATTACHMENT|../test-results/03-manager-workflows-dashb-54f88-sponds-to-real-time-updates-Performance/error-context.md]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="04-mobile-experience/offline-mode.spec.ts" timestamp="2025-07-25T08:28:34.199Z" hostname="Performance" tests="5" failures="5" skipped="0" time="53.76" errors="0">
+<testcase name="Mobile Offline Mode › Queue requests when offline" classname="04-mobile-experience/offline-mode.spec.ts" time="10.911">
+<failure message="offline-mode.spec.ts:18:7 Queue requests when offline" type="FAILURE">
+<![CDATA[  [Performance] › 04-mobile-experience/offline-mode.spec.ts:18:7 › Mobile Offline Mode › Queue requests when offline 
+
+    TimeoutError: page.fill: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('[name="username"]')
+
+
+       8 |     // Login on mobile
+       9 |     await page.goto('/mobile/login');
+    > 10 |     await page.fill('[name="username"]', 'john.doe');
+         |                ^
+      11 |     await page.fill('[name="password"]', 'test');
+      12 |     await page.tap('button[type="submit"]');
+      13 |     
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/04-mobile-experience/offline-mode.spec.ts:10:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/04-mobile-experience-offli-cee23-Queue-requests-when-offline-Performance/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/04-mobile-experience-offli-cee23-Queue-requests-when-offline-Performance/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/04-mobile-experience-offli-cee23-Queue-requests-when-offline-Performance/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/04-mobile-experience-offli-cee23-Queue-requests-when-offline-Performance/test-failed-1.png]]
+
+[[ATTACHMENT|../test-results/04-mobile-experience-offli-cee23-Queue-requests-when-offline-Performance/video.webm]]
+
+[[ATTACHMENT|../test-results/04-mobile-experience-offli-cee23-Queue-requests-when-offline-Performance/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Mobile Offline Mode › View cached schedule data offline" classname="04-mobile-experience/offline-mode.spec.ts" time="10.747">
+<failure message="offline-mode.spec.ts:66:7 View cached schedule data offline" type="FAILURE">
+<![CDATA[  [Performance] › 04-mobile-experience/offline-mode.spec.ts:66:7 › Mobile Offline Mode › View cached schedule data offline 
+
+    TimeoutError: page.fill: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('[name="username"]')
+
+
+       8 |     // Login on mobile
+       9 |     await page.goto('/mobile/login');
+    > 10 |     await page.fill('[name="username"]', 'john.doe');
+         |                ^
+      11 |     await page.fill('[name="password"]', 'test');
+      12 |     await page.tap('button[type="submit"]');
+      13 |     
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/04-mobile-experience/offline-mode.spec.ts:10:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/04-mobile-experience-offli-1796a-ached-schedule-data-offline-Performance/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/04-mobile-experience-offli-1796a-ached-schedule-data-offline-Performance/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/04-mobile-experience-offli-1796a-ached-schedule-data-offline-Performance/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/04-mobile-experience-offli-1796a-ached-schedule-data-offline-Performance/test-failed-1.png]]
+
+[[ATTACHMENT|../test-results/04-mobile-experience-offli-1796a-ached-schedule-data-offline-Performance/video.webm]]
+
+[[ATTACHMENT|../test-results/04-mobile-experience-offli-1796a-ached-schedule-data-offline-Performance/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Mobile Offline Mode › Conflict resolution when syncing" classname="04-mobile-experience/offline-mode.spec.ts" time="10.667">
+<failure message="offline-mode.spec.ts:94:7 Conflict resolution when syncing" type="FAILURE">
+<![CDATA[  [Performance] › 04-mobile-experience/offline-mode.spec.ts:94:7 › Mobile Offline Mode › Conflict resolution when syncing 
+
+    TimeoutError: page.fill: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('[name="username"]')
+
+
+       8 |     // Login on mobile
+       9 |     await page.goto('/mobile/login');
+    > 10 |     await page.fill('[name="username"]', 'john.doe');
+         |                ^
+      11 |     await page.fill('[name="password"]', 'test');
+      12 |     await page.tap('button[type="submit"]');
+      13 |     
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/04-mobile-experience/offline-mode.spec.ts:10:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/04-mobile-experience-offli-e978d-ict-resolution-when-syncing-Performance/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/04-mobile-experience-offli-e978d-ict-resolution-when-syncing-Performance/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/04-mobile-experience-offli-e978d-ict-resolution-when-syncing-Performance/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/04-mobile-experience-offli-e978d-ict-resolution-when-syncing-Performance/test-failed-1.png]]
+
+[[ATTACHMENT|../test-results/04-mobile-experience-offli-e978d-ict-resolution-when-syncing-Performance/video.webm]]
+
+[[ATTACHMENT|../test-results/04-mobile-experience-offli-e978d-ict-resolution-when-syncing-Performance/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Mobile Offline Mode › PWA installation prompt" classname="04-mobile-experience/offline-mode.spec.ts" time="10.734">
+<failure message="offline-mode.spec.ts:139:7 PWA installation prompt" type="FAILURE">
+<![CDATA[  [Performance] › 04-mobile-experience/offline-mode.spec.ts:139:7 › Mobile Offline Mode › PWA installation prompt 
+
+    TimeoutError: page.fill: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('[name="username"]')
+
+
+       8 |     // Login on mobile
+       9 |     await page.goto('/mobile/login');
+    > 10 |     await page.fill('[name="username"]', 'john.doe');
+         |                ^
+      11 |     await page.fill('[name="password"]', 'test');
+      12 |     await page.tap('button[type="submit"]');
+      13 |     
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/04-mobile-experience/offline-mode.spec.ts:10:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/04-mobile-experience-offli-a3433-ode-PWA-installation-prompt-Performance/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/04-mobile-experience-offli-a3433-ode-PWA-installation-prompt-Performance/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/04-mobile-experience-offli-a3433-ode-PWA-installation-prompt-Performance/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/04-mobile-experience-offli-a3433-ode-PWA-installation-prompt-Performance/test-failed-1.png]]
+
+[[ATTACHMENT|../test-results/04-mobile-experience-offli-a3433-ode-PWA-installation-prompt-Performance/video.webm]]
+
+[[ATTACHMENT|../test-results/04-mobile-experience-offli-a3433-ode-PWA-installation-prompt-Performance/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Mobile Offline Mode › Background sync for notifications" classname="04-mobile-experience/offline-mode.spec.ts" time="10.701">
+<failure message="offline-mode.spec.ts:156:7 Background sync for notifications" type="FAILURE">
+<![CDATA[  [Performance] › 04-mobile-experience/offline-mode.spec.ts:156:7 › Mobile Offline Mode › Background sync for notifications 
+
+    TimeoutError: page.fill: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('[name="username"]')
+
+
+       8 |     // Login on mobile
+       9 |     await page.goto('/mobile/login');
+    > 10 |     await page.fill('[name="username"]', 'john.doe');
+         |                ^
+      11 |     await page.fill('[name="password"]', 'test');
+      12 |     await page.tap('button[type="submit"]');
+      13 |     
+        at /Users/m/Documents/wfm/main/project/e2e-tests/tests/04-mobile-experience/offline-mode.spec.ts:10:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/04-mobile-experience-offli-cedfe-ound-sync-for-notifications-Performance/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/04-mobile-experience-offli-cedfe-ound-sync-for-notifications-Performance/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/04-mobile-experience-offli-cedfe-ound-sync-for-notifications-Performance/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/04-mobile-experience-offli-cedfe-ound-sync-for-notifications-Performance/test-failed-1.png]]
+
+[[ATTACHMENT|../test-results/04-mobile-experience-offli-cedfe-ound-sync-for-notifications-Performance/video.webm]]
+
+[[ATTACHMENT|../test-results/04-mobile-experience-offli-cedfe-ound-sync-for-notifications-Performance/error-context.md]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+</testsuites>

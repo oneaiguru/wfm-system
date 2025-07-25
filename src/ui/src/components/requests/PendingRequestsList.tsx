@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CheckCircle, XCircle, Clock, Calendar, User, AlertCircle } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, Calendar, User, AlertCircle, Edit } from 'lucide-react';
 
 interface PendingRequest {
   request_id: number;
@@ -92,6 +92,13 @@ const PendingRequestsList: React.FC = () => {
     }
   };
 
+  const handleEdit = (requestId: number) => {
+    // For E2E testing - simple edit handler
+    console.log('[PendingRequestsList] Edit request:', requestId);
+    // In a real implementation, this would navigate to edit form or open modal
+    alert(`Edit request #${requestId} - Feature coming soon!`);
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('ru-RU', {
       day: 'numeric',
@@ -144,70 +151,88 @@ const PendingRequestsList: React.FC = () => {
           <p>No pending requests</p>
         </div>
       ) : (
-        <div className="divide-y divide-gray-200">
-          {pendingRequests.map((request) => (
-            <div key={request.request_id} className="p-6 hover:bg-gray-50 transition-colors">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center mb-2">
-                    <User className="h-5 w-5 text-gray-400 mr-2" />
-                    <h3 className="font-semibold text-gray-900">{request.request_type_english} Request #{request.request_id}</h3>
-                    <span className="ml-3 px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">
-                      {request.status_english}
+        <div className="overflow-x-auto">
+          <table className="min-w-full bg-white">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Type
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Dates
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Days
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {pendingRequests.map((request) => (
+                <tr key={request.request_id} data-testid={`request-${request.request_id}`} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    {request.request_type_english} #{request.request_id}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`px-2 py-1 text-xs rounded-full ${
+                      request.status_english === 'Pending' 
+                        ? 'bg-yellow-100 text-yellow-800' 
+                        : 'bg-gray-100 text-gray-800'
+                    }`}>
+                      {request.status_english === 'pending' ? 'Pending' : request.status_english}
                     </span>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
-                    <div className="flex items-center">
-                      <Calendar className="h-4 w-4 mr-2" />
-                      <span>
-                        {formatDate(request.start_date)} - {formatDate(request.end_date)}
-                      </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {formatDate(request.start_date)} - {formatDate(request.end_date)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {request.duration_days} days
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleEdit(request.request_id)}
+                        className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors flex items-center gap-1"
+                      >
+                        <Edit className="h-3 w-3" />
+                        Edit
+                      </button>
+                      
+                      <button
+                        onClick={() => handleApprove(request.request_id)}
+                        disabled={processingId === request.request_id}
+                        className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 disabled:bg-gray-300 transition-colors flex items-center gap-1"
+                      >
+                        {processingId === request.request_id ? (
+                          <>
+                            <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
+                            Processing
+                          </>
+                        ) : (
+                          <>
+                            <CheckCircle className="h-3 w-3" />
+                            Approve
+                          </>
+                        )}
+                      </button>
+                      
+                      <button
+                        className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition-colors flex items-center gap-1"
+                      >
+                        <XCircle className="h-3 w-3" />
+                        Reject
+                      </button>
                     </div>
-                    <div>
-                      <span className="font-medium">{request.duration_days}</span> days
-                    </div>
-                    <div>
-                      Type: <span className="font-medium">{request.request_type_english}</span>
-                    </div>
-                    <div>
-                      Submitted: {formatDateTime(request.created_date)}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex gap-2 ml-4">
-                  <button
-                    onClick={() => handleApprove(request.request_id)}
-                    disabled={processingId === request.request_id}
-                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 
-                             disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors
-                             flex items-center gap-2"
-                  >
-                    {processingId === request.request_id ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                        Processing...
-                      </>
-                    ) : (
-                      <>
-                        <CheckCircle className="h-4 w-4" />
-                        Approve
-                      </>
-                    )}
-                  </button>
-                  
-                  <button
-                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 
-                             transition-colors flex items-center gap-2"
-                  >
-                    <XCircle className="h-4 w-4" />
-                    Reject
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </div>

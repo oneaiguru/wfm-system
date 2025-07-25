@@ -1,0 +1,67 @@
+{
+  "employees": [
+    {
+      "username": "john.doe",
+      "password": "test",
+      "role": "employee",
+      "employeeId": "00000000-0000-0000-0000-000000000001",
+      "department": "Customer Service",
+      "name": "John Doe",
+      "email": "john.doe@company.com"
+    },
+    {
+      "username": "jane.smith",
+      "password": "test",
+      "role": "employee",
+      "employeeId": "00000000-0000-0000-0000-000000000002",
+      "department": "Customer Service",
+      "name": "Jane Smith",
+      "email": "jane.smith@company.com"
+    },
+    {
+      "username": "bob.wilson",
+      "password": "test",
+      "role": "employee",
+      "employeeId": "00000000-0000-0000-0000-000000000003",
+      "department": "Sales",
+      "name": "Bob Wilson",
+      "email": "bob.wilson@company.com"
+    }
+  ],
+  "managers": [
+    {
+      "username": "jane.manager",
+      "password": "test",
+      "role": "manager",
+      "employeeId": "00000000-0000-0000-0000-000000000007",
+      "department": "Customer Service",
+      "name": "Jane Manager",
+      "email": "jane.manager@company.com",
+      "teamSize": 21,
+      "directReports": [
+        "00000000-0000-0000-0000-000000000001",
+        "00000000-0000-0000-0000-000000000002"
+      ]
+    },
+    {
+      "username": "mike.supervisor",
+      "password": "test",
+      "role": "manager",
+      "employeeId": "00000000-0000-0000-0000-000000000008",
+      "department": "Sales",
+      "name": "Mike Supervisor",
+      "email": "mike.supervisor@company.com",
+      "teamSize": 15
+    }
+  ],
+  "admins": [
+    {
+      "username": "admin",
+      "password": "admin123",
+      "role": "admin",
+      "employeeId": "00000000-0000-0000-0000-000000000999",
+      "name": "System Admin",
+      "email": "admin@company.com"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "name": "wfm-e2e-tests",
+  "version": "1.0.0",
+  "description": "E2E tests for WFM system using Playwright",
+  "scripts": {
+    "test": "playwright test",
+    "test:smoke": "playwright test tests/01-authentication/login.spec.ts tests/02-employee-workflows/vacation-request-lifecycle.spec.ts --grep \"Complete vacation request flow\" tests/03-manager-workflows/dashboard-performance.spec.ts --grep \"loads in under 1 second\"",
+    "test:auth": "playwright test tests/01-authentication",
+    "test:employee": "playwright test tests/02-employee-workflows",
+    "test:manager": "playwright test tests/03-manager-workflows",
+    "test:mobile": "playwright test tests/04-mobile-experience",
+    "test:performance": "playwright test --project=Performance",
+    "test:ui": "playwright test --ui",
+    "test:debug": "playwright test --debug",
+    "report": "playwright show-report reports/html",
+    "verify:spec-19": "playwright test tests/02-employee-workflows/vacation-request-lifecycle.spec.ts",
+    "verify:spec-20": "playwright test tests/03-manager-workflows/dashboard-performance.spec.ts",
+    "verify:spec-21": "playwright test tests/04-mobile-experience/mobile-login.spec.ts",
+    "verify:spec-22": "playwright test tests/01-authentication/login.spec.ts",
+    "verify:spec-26": "playwright test tests/03-manager-workflows/role-assignment.spec.ts",
+    "verify:spec-29": "playwright test tests/05-analytics-forecasting/ml-forecasting.spec.ts",
+    "verify:spec-32": "playwright test tests/04-mobile-experience/offline-mode.spec.ts"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.45.0",
+    "@types/node": "^20.14.10",
+    "typescript": "^5.5.3"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "jsonwebtoken": "^9.0.2"
+  }
+}

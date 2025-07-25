@@ -115,6 +115,7 @@ export const RequestForm: React.FC = () => {
               Request Type
             </label>
             <select 
+              name="type"
               value={formData.type}
               onChange={(e) => setFormData({...formData, type: e.target.value as any})}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -133,6 +134,7 @@ export const RequestForm: React.FC = () => {
                 Start Date
               </label>
               <input
+                name="startDate"
                 type="date"
                 value={formatDate(formData.startDate)}
                 onChange={(e) => setFormData({...formData, startDate: new Date(e.target.value)})}
@@ -147,6 +149,7 @@ export const RequestForm: React.FC = () => {
                 End Date
               </label>
               <input
+                name="endDate"
                 type="date"
                 value={formatDate(formData.endDate)}
                 onChange={(e) => setFormData({...formData, endDate: new Date(e.target.value)})}

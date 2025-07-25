@@ -218,13 +218,21 @@ const Dashboard: React.FC = () => {
     }
   ];
 
+  // Get current user for welcome message
+  const user = JSON.parse(localStorage.getItem('wfm_user') || '{}');
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
-            <h1 className="text-3xl font-bold text-gray-900">WFM Dashboard</h1>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">WFM Dashboard</h1>
+              <div data-testid="user-info" className="text-sm text-gray-600 mt-1">
+                Welcome, {user.name || user.username || 'User'}
+              </div>
+            </div>
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
               <div className={`w-2 h-2 rounded-full ${isUpdating ? 'bg-yellow-500 animate-pulse' : 'bg-green-500'}`} />
@@ -233,6 +241,7 @@ const Dashboard: React.FC = () => {
               </span>
               </div>
               <button
+                data-testid="logout-button"
                 onClick={handleLogout}
                 className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
               >
