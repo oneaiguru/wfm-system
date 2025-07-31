@@ -1,0 +1,173 @@
+/*************************************************************************************************************************************************************************
+	здесь лежит одинаковый css который действует на несколько элементов
+*************************************************************************************************************************************************************************/
+
+/* высота строк принудительно 33 */
+[class*="ui-grid-col-"],
+table.grid > tbody > tr > td,
+[class*="name-value"] > dt,
+[class*="name-value"] > dd
+{
+	min-height: 33px;
+	box-sizing: border-box;
+}
+
+
+/* любой виджет в ячейке */
+[class*="ui-grid-col-"] > .ui-widget,
+table.grid > tbody > tr > td > .ui-widget,
+[class*="name-value"] > dd > .ui-widget,
+
+[class*="ui-grid-col-"] > .ui-autocomplete,
+table.grid > tbody > tr > td > .ui-autocomplete,
+[class*="name-value"] > dd > .ui-autocomplete
+{
+	flex-basis: 100%;
+	box-sizing: border-box;
+	min-width: auto !important;
+	display: flex;
+	min-height: 33px;
+	align-self: flex-start;
+}
+
+/*[class*="ui-grid-col-"] > .ui-inputfield,*/
+table.grid > tbody > tr > td > .ui-inputfield /* внутри td ширина input кривая */
+/*[class*="name-value"] > dd > .ui-inputfield*/
+{
+	width: 100%;
+	flex-basis: auto;
+}
+
+
+
+/* виджет в ячейке который не нужно растягивать по горизонтали */
+[class*="ui-grid-col-"] > .ui-chkbox,
+table.grid > tbody > tr > td > .ui-chkbox,
+[class*="name-value"] > dd > .ui-chkbox,
+
+[class*="ui-grid-col-"] > .ui-spinner,
+table.grid > tbody > tr > td > .ui-spinner,
+[class*="name-value"] > dd > .ui-spinner,
+
+[class*="ui-grid-col-"] > .ui-inputnumber,
+table.grid > tbody > tr > td > .ui-inputnumber,
+[class*="name-value"] > dd > .ui-inputnumber,
+
+[class*="ui-grid-col-"] > .ui-button,
+table.grid > tbody > tr > td > .ui-button,
+[class*="name-value"] > dd > .ui-button,
+
+[class*="ui-grid-col-"] > .ui-inputswitch,
+table.grid > tbody > tr > td > .ui-inputswitch,
+[class*="name-value"] > dd > .ui-inputswitch,
+
+[class*="ui-grid-col-"] > .ui-selectonebutton,
+table.grid > tbody > tr > td > .ui-selectonebutton,
+[class*="name-value"] > dd > .ui-selectonebutton
+{
+	flex-basis: auto;
+	width: auto;
+}
+
+/* виджет в ячейке который не нужно растягивать по вертикали */
+[class*="ui-grid-col-"] > .ui-slider,
+table.grid > tbody > tr > td > .ui-slider,
+[class*="name-value"] > dd > .ui-slider
+{
+	min-height: auto;
+	align-self: center;
+}
+
+/* ширина поле ввода календаря фиксирована тк в неё нелзя ввести больше */
+[class*="ui-grid-col-"] .ui-calendar,
+table.grid > tbody > tr > td .ui-calendar,
+[class*="name-value"] > dd .ui-calendar
+{
+	width: 135px;
+	display: inline-block;
+	flex-shrink: 0;
+}
+
+
+/* кнопка иконка без текста в ячейке */
+[class*="ui-grid-col-"] > .ui-widget.ui-button-icon-only,
+table.grid > tbody > tr > td > .ui-widget.ui-button-icon-only,
+[class*="name-value"] > dd > .ui-widget.ui-button-icon-only
+{
+	min-width: 33px !important;
+}
+
+/* лейбл в ячейке. Здесь нужно прописывать .ui-widget чтобы пересилить [class*="ui-grid-col-"] > .ui-widget */
+[class*="ui-grid-col-"] > label.ui-widget,
+table.grid > tbody > tr > td > label.ui-widget
+{
+	align-self: stretch;
+	display: inline-flex;
+	align-items: center;
+	min-height: 33px;
+	font-family: 'robotolight', sans-serif;
+	white-space: normal; /* иначе не переносится в ui-grid и name-value */
+}
+
+/* label без display: inline-flex, чтобы required-звездочка отображалась рядом с текстом */
+[class*="name-value"] > dt > label.ui-widget,
+[class*="name-value"] > dt > label
+{
+	min-height: 33px;
+	font-family: 'robotolight', sans-serif;
+	white-space: normal;
+}
+
+/* sys-comp-editable-section-output ведет себя так же как label только без шрифта */
+[class*="ui-grid-col-"] > .sys-comp-editable-section-output,
+table.grid > tbody > tr > td > .sys-comp-editable-section-output,
+[class*="name-value"] > dd > .sys-comp-editable-section-output,
+
+/* force-block нужно применять к элементам которые без классов sys-comp-editable-section-output, label и прочим */
+[class*="ui-grid-col-"] > .force-block,
+table.grid > tbody > tr > td > .force-block,
+[class*="name-value"] > dd > .force-block
+{
+	align-self: stretch;
+	display: inline-flex;
+	align-items: center;
+	min-height: 33px;
+	white-space: normal; /* иначе не переносится в ui-grid и name-value */
+	font-family: 'robotoregular', sans-serif;
+}
+
+[class*="ui-grid-col-"],
+table.grid > tbody > tr > td,
+.ui-panelgrid.grid > tbody > tr > td,
+[class*="name-value"] > dt
+{
+	align-items: center;
+}
+
+/* горизонтальный отступ внутри ячеек */
+[class*="ui-grid-col-"]:not(:first-child),
+table.grid > tbody > tr > td:not(:first-child),
+.ui-panelgrid.grid > tbody > tr > td:not(:first-child), /* обнулил padding поэтому восстанавливаю нужный */
+[class*="name-value"] > dd
+{
+	padding-left: 4px;
+}
+
+[class*="ui-grid-col-"]:not(:last-child),
+table.grid > tbody > tr > td:not(:last-child),
+.ui-panelgrid.grid > tbody > tr > td:not(:last-child), /* обнулил padding поэтому восстанавливаю нужный */
+[class*="name-value"] > dt
+{
+	padding-right: 4px;
+}
+
+/* приоритетное позиционирование datapicker */
+#ui-datepicker-div {
+	z-index: 9999 !important;
+}
+
+/* выравнивнивание td в table grid по ширине */
+div[id$="shift_config_dialog"] table.grid > tbody > tr > td {
+	display: flow-root;
+	line-height: 1;
+}

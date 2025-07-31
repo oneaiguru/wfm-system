@@ -1,0 +1,241 @@
+/**
+ * Если найден компонент timePicker, то переопределяем его поведение.
+ * Оригинальный код компонента крайне странный
+ * Код частично переписан.
+ */
+if ($.fgtimepicker !== undefined) {
+	/**
+	 * Игнорирование null'ов для jQuery
+	 */
+	$.fgtimepicker._extendRemove = function (target, props) {
+		$.extend(target, props);
+		for (const name in props)
+			if (props[name] == null || props[name] === undefined)
+				target[name] = props[name];
+		return target;
+	}
+
+	/**
+	 * Округляет число с плавающей запятой (1 знака после запятой).
+	 * @param floatNumber - число с плавающей запятой
+	 * @returns {number} - округленное число
+	 */
+	$.fgtimepicker._getFloat = function (floatNumber) {
+		return parseFloat(floatNumber.toFixed(1));
+	};
+
+	/**
+	 * Проверяет, что экземпляр находится не в диалоге и при этом не является inline
+	 * @param inst - экземпляр целевого элемента управления.
+	 * @returns {boolean} - true/false
+	 */
+	$.fgtimepicker._isPopupNotInDialog = function (inst) {
+		return (!inst.inline && !$.fgtimepicker._inDialog)
+	};
+
+	/**
+	 * Определяет позицию элемента относительно viewport.
+	 * @param obj - объект, например input.
+	 * @returns {[number,number]} - массив чисел с плавающей запятой
+	 */
+	$.fgtimepicker._findPos = function (obj) {
+		const inst = $.fgtimepicker._getInst(obj);
+		const isRTL = $.fgtimepicker._get(inst, 'isRTL');
+		while (obj && (obj.type === 'hidden' || obj.nodeType !== 1)) {
+			obj = obj[isRTL ? 'previousSibling' : 'nextSibling'];
+		}
+		const position = $.fgtimepicker._isPopupNotInDialog(inst) ? inst.input.offset() : obj.getBoundingClientRect();
+		return [position.left, position.top];
+	};
+
+	/**
+	 * Изменяет координаты появления выпадающего окна.
+	 * в случае когда ui упирается в конец viewport.
+	 * @param inst - экземпляр целевого элемента управления.
+	 * @param offset - изменяемые координаты (top и left).
+	 */
+	$.fgtimepicker._checkOffset = function (inst, offset) {
+		const tpHeight = inst.tpDiv.outerHeight();
+		const tpWidth = inst.tpDiv.outerWidth();
+		let clientHeight = document.documentElement.clientHeight;
+		let clientWidth = document.documentElement.clientWidth;
+
+		if ($.fgtimepicker._isPopupNotInDialog(inst)) {
+			clientHeight += $(document).scrollTop();
+			clientWidth += $(document).scrollLeft();
+		}
+
+		offset.left -= Math.min($.fgtimepicker._getFloat(offset.left), ($.fgtimepicker._getFloat(offset.left) + tpWidth > clientWidth && clientWidth > tpWidth) ?
+			Math.abs($.fgtimepicker._getFloat(offset.left) + tpWidth - clientWidth) : 0);
+
+		if ($.fgtimepicker._getFloat(offset.top) + tpHeight > clientHeight) {
+			const position = ($.fgtimepicker._isPopupNotInDialog(inst)) ? inst.input.offset() : inst.input.context.getBoundingClientRect();
+			offset.top = position.top - tpHeight;
+		}
+
+		return offset;
+	};
+
+	/**
+	 * Определяет, что элемент находится в диалоге.
+	 * @param inst - экземпляр целевого элемента управления.
+	 */
+	$.fgtimepicker._checkInDialog = function (inst) {
+		$.each(inst.input.parents(), function (index, value) {
+			if ($(value).css("position") === "fixed") {
+				$.fgtimepicker._inDialog = true;
+			}
+		})
+	};
+
+	/**
+	 * Показывает компонент timepicker.
+	 * @param input
+	 */
+	$.fgtimepicker._showTimepicker = function (input) {
+		input = input.target || input;
+		if (input.nodeName.toLowerCase() !== 'input') {
+			input = $('input', input.parentNode)[0];
+		} // find from button/image trigger
+
+		// Если пользователь уже нажимал на поле ввода и снова пытается на него нажать
+		// в таком случае мы не будем выполнять дальнейшую обработку.
+		// Т.к TimePicker уже отображается пользователю.
+		if ($.fgtimepicker._isDisabledTimepicker(input) || $.fgtimepicker._lastInput === input) {
+			return;
+		}
+
+		// скрыть старый timepicker перед показом нового
+		$.fgtimepicker._hideTimepicker();
+
+		const inst = $.fgtimepicker._getInst(input);
+
+		$.fgtimepicker._checkInDialog(inst);
+
+		if ($.fgtimepicker._curInst && $.fgtimepicker._curInst !== inst) {
+			$.fgtimepicker._curInst.tpDiv.stop(true, true);
+		}
+		const beforeShow = $.fgtimepicker._get(inst, 'beforeShow');
+		$.fgtimepicker._extendRemove(inst.settings, (beforeShow ? beforeShow.apply(input, [input, inst]) : {}));
+		inst.lastVal = null;
+		$.fgtimepicker._lastInput = input;
+
+		$.fgtimepicker._setTimeFromField(inst);
+
+		if ($.fgtimepicker._inDialog) {
+			input.value = '';
+		}
+
+		$.fgtimepicker._pos = $.fgtimepicker._findPos(input);
+		$.fgtimepicker._pos[1] += input.offsetHeight; // add the height
+
+		let offset = {left: $.fgtimepicker._pos[0], top: $.fgtimepicker._pos[1]};
+
+		$.fgtimepicker._pos = null;
+		$.fgtimepicker._updateTimepicker(inst);
+
+		// reset clicked state
+		inst._hoursClicked = false;
+		inst._minutesClicked = false;
+
+		// Изменение позиции при невозможности отрисовать timepicker
+		offset = $.fgtimepicker._checkOffset(inst, offset);
+		inst.tpDiv.css(
+			{
+				position: (inst.inline ? 'static' : ($.fgtimepicker._inDialog ? 'fixed' : 'absolute')),
+				display: 'block',
+				left: offset.left + 'px',
+				top: offset.top + 'px'
+			});
+
+		if (!inst.inline) {
+			const showAnim = $.fgtimepicker._get(inst, 'showAnim');
+			const duration = $.fgtimepicker._get(inst, 'duration');
+
+			const postProcess = function () {
+				$.fgtimepicker._timepickerShowing = true;
+				const borders = $.fgtimepicker._getBorders(inst.tpDiv);
+				inst.tpDiv.find('iframe.ui-timepicker-cover'). // IE6- only
+					css({
+						left: -borders[0], top: -borders[1],
+						width: inst.tpDiv.outerWidth(), height: inst.tpDiv.outerHeight()
+					});
+			};
+
+			// Fixed the zIndex problem for real (I hope) - FG - v 0.2.9
+			$.fgtimepicker._adjustZIndex(input);
+
+			if ($.effects && $.effects[showAnim]) {
+				inst.tpDiv.show(showAnim, $.fgtimepicker._get(inst, 'showOptions'), duration, postProcess);
+			} else {
+				inst.tpDiv.show((showAnim ? duration : null), postProcess);
+			}
+			if (!showAnim || !duration) {
+				postProcess();
+			}
+			if (inst.input.is(':visible') && !inst.input.is(':disabled')) {
+				inst.input.focus();
+			}
+			$.fgtimepicker._curInst = inst;
+		}
+	};
+
+
+	/**
+	 * Закрывает окно timePicker, если пользователь нажал куда-то в сторону.
+	 * @param event
+	 */
+	$.fgtimepicker._checkExternalClick = function (event) {
+		if (!$.fgtimepicker._curInst) {
+			return;
+		}
+		const $target = $(event.target);
+		if ($target[0].id !== $.fgtimepicker._mainDivId &&
+			$target.parents('#' + $.fgtimepicker._mainDivId).length === 0 &&
+			!$target.hasClass($.fgtimepicker.markerClassName) &&
+			!$target.hasClass($.fgtimepicker._triggerClass) &&
+			$.fgtimepicker._timepickerShowing && !($.fgtimepicker._inline)) {
+			$.fgtimepicker._hideTimepicker();
+		}
+	};
+
+	/**
+	 * Скрывает timepicker
+	 */
+	$.fgtimepicker._hideTimepicker = function () {
+		const inst = $.fgtimepicker._curInst;
+		if (!inst) {
+			return;
+		}
+		if ($.fgtimepicker._timepickerShowing) {
+			const showAnim = $.fgtimepicker._get(inst, 'showAnim');
+			const duration = $.fgtimepicker._get(inst, 'duration');
+			const postProcess = function () {
+				$.fgtimepicker._tidyDialog(inst);
+				$.fgtimepicker._curInst = null;
+			};
+			if ($.effects && $.effects[showAnim]) {
+				inst.tpDiv.hide(showAnim, $.fgtimepicker._get(inst, 'showOptions'), duration, postProcess);
+			} else {
+				inst.tpDiv[(showAnim === 'slideDown' ? 'slideUp' :
+					(showAnim === 'fadeIn' ? 'fadeOut' : 'hide'))]((showAnim ? duration : null), postProcess);
+			}
+			if (!showAnim) {
+				postProcess();
+			}
+
+			$.fgtimepicker._timepickerShowing = false;
+			$.fgtimepicker._lastInput = null;
+			$.fgtimepicker._inDialog = false;
+
+			const onClose = $.fgtimepicker._get(inst, 'onClose');
+			if (onClose) {
+				onClose.apply(
+					(inst.input ? inst.input[0] : null),
+					[(inst.input ? inst.input.val() : ''), inst]);  // trigger custom callback
+			}
+
+		}
+	};
+} // end timePicker override
+

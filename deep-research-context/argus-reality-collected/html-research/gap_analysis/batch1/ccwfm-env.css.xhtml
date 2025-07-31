@@ -1,0 +1,1052 @@
+@CHARSET "UTF-8";
+
+@import "/ccwfm/javax.faces.resource/env/styles/p/autocomplete.css.xhtml?argus_v=1749652358876";
+@import "/ccwfm/javax.faces.resource/env/styles/p/breadcrumb.css.xhtml?argus_v=1749652358876";
+@import "/ccwfm/javax.faces.resource/env/styles/p/button.css.xhtml?argus_v=1749652358876";
+@import "/ccwfm/javax.faces.resource/env/styles/p/calendar.css.xhtml?argus_v=1749652358876";
+@import "/ccwfm/javax.faces.resource/env/styles/p/chkbox.css.xhtml?argus_v=1749652358876";
+@import "/ccwfm/javax.faces.resource/env/styles/p/datatable.css.xhtml?argus_v=1749652358876";
+@import "/ccwfm/javax.faces.resource/env/styles/p/dialog.css.xhtml?argus_v=1749652358876";
+@import "/ccwfm/javax.faces.resource/env/styles/p/growl.css.xhtml?argus_v=1749652358876";
+@import "/ccwfm/javax.faces.resource/env/styles/p/grid.css.xhtml?argus_v=1749652358876";
+@import "/ccwfm/javax.faces.resource/env/styles/p/inplace.css.xhtml?argus_v=1749652358876";
+@import "/ccwfm/javax.faces.resource/env/styles/p/inputnumber.css.xhtml?argus_v=1749652358876";
+@import "/ccwfm/javax.faces.resource/env/styles/p/radiobutton.css.xhtml?argus_v=1749652358876";
+@import "/ccwfm/javax.faces.resource/env/styles/p/selectonebutton.css.xhtml?argus_v=1749652358876";
+@import "/ccwfm/javax.faces.resource/env/styles/p/selectcheckboxmenu.css.xhtml?argus_v=1749652358876";
+@import "/ccwfm/javax.faces.resource/env/styles/p/selectmanycheckbox.css.xhtml?argus_v=1749652358876";
+@import "/ccwfm/javax.faces.resource/env/styles/p/selectonemenu.css.xhtml?argus_v=1749652358876";
+@import "/ccwfm/javax.faces.resource/env/styles/p/selectoneradio.css.xhtml?argus_v=1749652358876";
+@import "/ccwfm/javax.faces.resource/env/styles/p/spinner.css.xhtml?argus_v=1749652358876";
+@import "/ccwfm/javax.faces.resource/env/styles/p/tabs.css.xhtml?argus_v=1749652358876";
+@import "/ccwfm/javax.faces.resource/env/styles/p/tree.css.xhtml?argus_v=1749652358876";
+@import "/ccwfm/javax.faces.resource/env/styles/p/treetable.css.xhtml?argus_v=1749652358876";
+
+@import "/ccwfm/javax.faces.resource/env/styles/pe/blockui.css.xhtml?argus_v=1749652358876";
+
+@import "/ccwfm/javax.faces.resource/env/styles/structure/name-value.css.xhtml?argus_v=1749652358876";
+
+@import "/ccwfm/javax.faces.resource/env/styles/common.css.xhtml?argus_v=1749652358876";
+
+@import "/ccwfm/javax.faces.resource/env/styles/ie.css.xhtml?argus_v=1749652358876";
+
+/***********************************************************************************************************************
+	Helpers
+***********************************************************************************************************************/
+
+.small-margin-bottom {
+	margin-bottom: 2px !important;
+}
+
+.margin {
+	margin: 10px;
+}
+
+.margin-bottom {
+	margin-bottom: 10px !important;
+}
+
+.margin-top {
+	margin-top: 10px !important;
+}
+
+span.margin-bottom {
+	display: block;
+}
+
+.large-margin-bottom {
+	margin-bottom: 20px !important;
+}
+
+.align-center {
+	text-align: center;
+	justify-content: center;
+	align-self: center;
+}
+
+.align-right {
+	text-align: right;
+	justify-content: flex-end;
+}
+
+.align-right > label{
+	justify-content: right;
+}
+
+
+.flex {
+	display: flex;
+}
+
+.float-left {
+	float: left
+}
+
+.wide {
+	width: 100% !important;
+}
+
+.wrap {
+	white-space: normal;
+}
+
+.no-wrap {
+	white-space: nowrap;
+}
+
+.gap {
+	padding-left: 5px;
+	padding-right: 5px;
+	flex-basis: 20px !important;
+	line-height: 18px; /* с По смотрится хорошо. с / смотрится 12 */
+	height: 20px;
+	min-height: 20px;
+	text-align: center;
+	align-self: center;
+	display: inline-block;
+}
+
+[class*="width-"] {
+	flex-basis: auto !important;
+}
+
+[class*="ui-grid-col-"].align-top{
+	align-items: flex-start;
+}
+/**********************************************************************************************************************/
+/*                                     ДОРАБОТКИ СТАНДАРТНЫХ СТИЛЕЙ                                                   */
+/**********************************************************************************************************************/
+
+.ui-inplace .ui-inplace-display.ui-state-highlight {
+	box-shadow: 0 0 1px 1px #d1d3d4;
+}
+
+.ui-wizard > .ui-wizard-content {
+	margin: 10px 0;
+}
+
+h4 { /* перенес сюда из core-layout */
+	margin-top: 10px;
+	margin-bottom: 10px;
+	font-family: 'robotoregular', sans-serif;
+}
+
+/** Иконки на кнопке игнорируют размер fs*/
+/*.ui-button-icon-only .ui-icon.fa.fs20 {
+	font-size: 20px !important;
+	margin-left: -9px !important;
+	margin-top: -10px !important;
+}*/
+/** Не отображаем рисунок на фоне */
+
+body.m-gray-modena.m-geometry {
+	background-image: none;
+}
+
+.m-card-topic {
+	padding: 0 !important;
+}
+
+.m-card {
+	font-weight: normal;
+}
+
+.sys-comp-editable-section .ui-inplace-editor {
+	z-index: 1;
+    background: #FFF;
+    margin-right: -1px;
+    padding: 5px;
+    border: 1px solid #E0E0E0;
+    border-top: none;
+}
+
+.sys-comp-editable-section .ui-inplace-content {
+	border: 1px solid #E0E0E0;
+}
+
+
+/** Ширина различных компонентов */
+.ui-autocomplete.width-100-percents .ui-autocomplete-input { 
+	width: 100%; 
+	box-sizing: border-box;
+}
+
+.ui-autocomplete.width-100-percents .ui-autocomplete-multiple-container { 
+	width: 100%; 
+	box-sizing: content-box;
+}
+
+.ui-calendar.width-100-percents input {
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.ui-datatable-scrollable.m-ov-x-hidden .ui-datatable-scrollable-body {
+	overflow-x: hidden;
+}
+
+
+.m-container45 {
+	width: 45%;
+	float: left;
+}
+
+.m-container55{
+	width: 55%;
+	float: left;
+}
+
+/** табы слишком уж высокие ( padding: 14px 1em !important;) */
+.ui-tabs-top .ui-tabs-nav li a {
+	padding: 8px 1em !important;
+}
+
+.ui-tabs-top .ui-tabs-navscroller .ui-tabs-navscroller-btn {
+	height: 44px;
+}
+
+.ui-tabs-top .ui-tabs-navscroller .ui-tabs-navscroller-btn-left .ui-icon,
+.ui-tabs-top .ui-tabs-navscroller .ui-tabs-navscroller-btn-right .ui-icon {
+	margin-top: 15px;
+}
+
+	/** В стилях modena слишком много !important */
+.ui-datatable .ui-datatable-data tr.ui-row-editing td.ui-editable-column, .ui-datatable .ui-datatable-data td.ui-cell-editing {
+	padding: 0 !important;
+}
+/** Слишком маленькие кнопки редактирования строки */
+.ui-datatable .ui-row-editor .ui-icon {
+	width: 22px;
+	height: 22px;
+}
+
+/** Доработки selectCheckboxMenu */
+.ui-selectcheckboxmenu-panel .ui-selectcheckboxmenu-list {
+	padding-bottom: 0;
+}
+.ui-selectcheckboxmenu .ui-selectcheckboxmenu-label {
+	padding: 6px 10px 6px 10px !important;
+	font-size: 15px;
+}
+
+/** Слишком высокий пагинатор */
+.ui-paginator .ui-paginator-first, 
+.ui-paginator .ui-paginator-prev, 
+.ui-paginator .ui-paginator-pages .ui-paginator-page, 
+.ui-paginator .ui-paginator-next, 
+.ui-paginator .ui-paginator-last, 
+.ui-paginator .ui-paginator-rpp-options {
+	padding: 5px 3px !important;
+	font-size: 18px;
+}
+
+.only-icon .ui-inputfield {
+	display: none;
+}
+/** Иконки внутри дерева не должны быть на новой строке */
+.ui-widget .ui-treenode-icon.ui-icon.fa {
+	display: inline-block;
+	vertical-align: middle;
+}
+
+/** Поменьше элементы в автокомплите */
+.ui-autocomplete-token-label {
+    padding-right: 1em;
+}
+
+.ui-argus-link {
+	color: #546e7a;
+}
+
+.ui-argus-link:hover {
+	color: #03a9f4;
+}
+
+.ui-argus-calendar .ui-datepicker {
+	width: auto;
+}
+
+/** Доработки p:panel и sysinf:statefulPanel */
+.ui-panel .ui-panel-titlebar {
+    background-color: #dae8ef; 
+    padding: 6px 10px !important;
+    color: #546e7a;
+    font-family: 'robotoregular';
+}
+
+.ui-panel .ui-panel-titlebar.ui-widget-header a.ui-panel-titlebar-icon {
+	color: #546e7a;
+	font-size: 22px;
+}
+
+/** workaround для того, чтобы панель не мигала при загрузке */
+.ui-panel.ui-hidden-container .ui-panel-content {
+	display: none;
+}
+
+.ui-panel .ui-panel-titlebar .ui-panel-titlebar-icon {
+	margin-left: 10px;
+}
+
+/** Переделываем иконки (копипаста из класса fa) */
+.ui-panel .ui-panel-titlebar .ui-panel-titlebar-icon .ui-icon {
+	background-image: none !important;
+    text-indent: 0;
+    background-repeat: no-repeat;
+    display: block;
+    overflow: visible;
+    font: normal normal normal 14px/1 FontAwesome;
+    font-size: inherit;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;    
+}
+
+.ui-panel .ui-panel-titlebar .ui-panel-titlebar-icon .ui-icon-plusthick:before {
+    content: "\f067";
+}
+
+.ui-panel .ui-panel-titlebar .ui-panel-titlebar-icon .ui-icon-minusthick:before {
+    content: "\f068";
+}
+
+.ui-panel .ui-panel-titlebar .ui-panel-titlebar-icon .ui-icon-gear:before {
+    content: "\f013";
+}
+
+.ui-panel .ui-panel-titlebar .ui-panel-titlebar-icon, 
+.ui-panel .ui-panel-titlebar .ui-panel-titlebar-icon:hover, 
+.ui-panel .ui-panel-titlebar .ui-panel-titlebar-icon:focus {
+	margin-top: 3px;
+}
+
+/** Иконка в заголовке панели */
+.ui-panel .ui-panel-title > i {
+	float: left;
+	display: block;
+	font-size: 26px;
+	margin-right: 10px;
+}
+
+/**********************************************************************************************************************/
+/*                                     НЕКИЕ СТАНДАРТНЫЕ СТИЛИ                                                        */
+/**********************************************************************************************************************/
+
+/** datatable без отображения заголовка */
+.ui-datatable.ui-headless thead {
+	display: none;
+}
+
+.clear-both {
+	clear: both;
+}
+
+
+/** Указываем для scrollable-таблицы максимальную, а не фиксированную высоту */
+.ui-datatable-scrollable.ui-scrollable-max-height-650 .ui-datatable-scrollable-body {
+	max-height: 650px;
+	overflow-y: scroll;
+	overflow-x: hidden;
+}
+.ui-datatable-scrollable.ui-scrollable-max-height-600 .ui-datatable-scrollable-body {
+	max-height: 600px;
+	overflow-y: scroll;
+	overflow-x: hidden;
+}
+.ui-datatable-scrollable.ui-scrollable-max-height-500 .ui-datatable-scrollable-body {
+	max-height: 500px;
+	overflow-y: scroll;
+	overflow-x: hidden;
+}
+.ui-datatable-scrollable.ui-scrollable-max-height-400 .ui-datatable-scrollable-body {
+	max-height: 400px;
+	overflow-y: scroll;
+	overflow-x: hidden;
+}
+.ui-datatable-scrollable.ui-scrollable-max-height-300 .ui-datatable-scrollable-body {
+	max-height: 300px;
+	overflow-y: scroll;
+	overflow-x: hidden;
+}
+
+
+.ui-datatable-scrollable.ui-scrollable-max-height-200-max-width-900 .ui-datatable-scrollable-body {
+	max-height: 200px;
+	max-width: 900px;
+	overflow-y: scroll;
+	overflow-x: scroll;
+}
+
+.ui-datatable-scrollable.ui-scrollable-max-width-600 .ui-datatable-scrollable-body {
+    max-width: 600px;
+    overflow-x: scroll;
+    overflow-y: hidden;
+}
+
+.ui-datatable-scrollable.ui-scrollable-inherit-width .ui-datatable-scrollable-body {
+    max-width: inherit;
+    overflow-x: scroll;
+    overflow-y: hidden;
+}
+
+.ui-datatable-scrollable.ui-scrollable-max-height-200 .ui-datatable-scrollable-body,
+.ui-treetable-scrollable.ui-scrollable-max-height-200 .ui-treetable-scrollable-body {
+	max-height: 200px;
+	overflow-y: scroll;
+	overflow-x: hidden;
+}
+.ui-datatable-scrollable.ui-scrollable-max-height-270 .ui-datatable-scrollable-body {
+	max-height: 270px;
+	overflow-y: scroll;
+	overflow-x: hidden;
+}
+.ui-datatable-scrollable.ui-scrollable-max-height-150 .ui-datatable-scrollable-body {
+	max-height: 150px;
+	overflow-y: scroll;
+	overflow-x: hidden;
+}
+.ui-datatable-scrollable.ui-scrollable-max-height-100 .ui-datatable-scrollable-body {
+	max-height: 100px;
+	overflow-y: scroll;
+	overflow-x: hidden;
+}
+
+.ui-datatable-scrollable.ui-scrollable-max-height-650 .ui-datatable-scrollable-header-box,
+.ui-datatable-scrollable.ui-scrollable-max-height-600 .ui-datatable-scrollable-header-box,
+.ui-datatable-scrollable.ui-scrollable-max-height-500 .ui-datatable-scrollable-header-box,
+.ui-datatable-scrollable.ui-scrollable-max-height-400 .ui-datatable-scrollable-header-box,
+.ui-datatable-scrollable.ui-scrollable-max-height-300 .ui-datatable-scrollable-header-box,
+.ui-datatable-scrollable.ui-scrollable-max-height-300 .ui-datatable-scrollable-header-box,
+.ui-datatable-scrollable.ui-scrollable-max-height-270 .ui-datatable-scrollable-header-box,
+.ui-datatable-scrollable.ui-scrollable-max-height-150 .ui-datatable-scrollable-header-box,
+.ui-datatable-scrollable.ui-scrollable-max-height-100 .ui-datatable-scrollable-header-box {
+	margin-right: 15px !important;
+}
+
+#options_panel_content, #tasks_form-tasks_panel_content {
+	height: 186px;
+	overflow: auto;
+}
+
+#options_form-options_panel_content, .operation_schedule_task #tasks_form-tasks_panel_content {
+	height: 243px;
+	overflow: auto;
+}
+
+/** Прячем кнопку или еще что-то при редактировании строки в dataTable */
+.ui-row-editing .ui-hide-when-editing {
+	display: none;
+}
+.ui-show-when-editing {
+	display: none;
+}
+.ui-row-editing .ui-show-when-editing {
+	display: inline;
+}
+.ui-commandlink.ui-paginator-page {
+	color: #a6defd !important;
+}
+.ui-no-padding {
+	padding: 0 !important;	
+}
+.m-ver-al-top {
+	vertical-align: top;	
+}
+.m-ver-al-middle {
+	vertical-align: middle !important;
+}
+.m-ver-al-bottom {
+	vertical-align: bottom;	
+}
+.m-nowrap {
+	white-space: nowrap;	
+}
+/** Отсутствие границ (в основном для p:dataList, который не пишет свойство style) */
+.ui-borderless {
+	border: none;
+}
+
+
+
+/**********************************************************************************************************************/
+/*                                ПРОДВИНУТАЯ ПАНЕЛЬ С ГОРИЗОНТАЛЬНЫМ СВОРАЧИВАНИЕМ                                   */
+/**********************************************************************************************************************/
+
+/** p:panel без содержимого */
+.ui-panel.ui-panel-no-content .ui-panel-content {
+	display: none !important;
+}
+
+.ui-panel.ui-htoggle-panel {
+	float: left;
+}
+
+.ui-panel.ui-htoggle-panel .ui-panel-titlebar {
+	padding: 3px 10px 0 10px !important;
+	min-height: 36px;
+}
+
+.ui-panel.ui-htoggle-panel .ui-panel-titlebar .ui-panel-titlebar-icon {
+	margin-top: 6px;
+}
+
+.ui-panel.ui-htoggle-panel.ui-panel-collapsed-h {
+	width: 200px !important;
+}
+
+.ui-panel.ui-htoggle-panel {
+	width: auto !important;
+}
+
+.ui-panel.ui-htoggle-panel.ui-panel-collapsed-h .ui-panel-titlebar .ui-panel-title {
+	display: inline-block !important;
+}
+
+.ui-panel.ui-htoggle-panel.ui-panel-collapsed-h .ui-panel-titlebar .ui-panel-title .ui-panel-title-element {
+	display: none;
+}
+
+.ui-panel-title-element {
+	float: left;
+	margin-right: 10px;
+	font-size: 15px;
+	height: 36px;
+}
+
+.ui-panel-title-element .ui-chkbox {
+	margin-top: 5px;
+}
+
+.ui-panel-title-element > img {
+	margin-bottom: -5px;
+}
+		
+.ui-panel-title-element .ui-slider {
+	width: 200px;
+	display: inline-block;
+	margin-top: 10px;
+}
+
+.ui-panel-title-element > label {
+	margin-right: 5px;
+	vertical-align: bottom;
+}
+
+.ui-panel-title-element > i {
+	vertical-align: bottom;
+}
+
+.ui-panel-title-element .ui-inputmask {
+	width: 90px;
+	text-align: center;
+}
+
+div[id$='import_hd_menu'] .import_historical_data_component .ui-widget-header {
+	width: 100% !important;
+	padding: 0 !important
+}
+
+.historical-data-menuitem-import .ui-fileupload-row {
+	display: flex;
+	align-items: baseline;
+}
+
+div[id$='import_hd_menu'] .ui-fileupload .ui-fileupload-content .ui-fileupload-files .ui-fileupload-row > div {
+	padding: .2rem;
+}
+
+div[id$='import_hd_menu'] .ui-fileupload-row div:nth-child(2) {
+	width: 70px;
+	height: 28px;
+	white-space: nowrap !important;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.import_historical_data_component .ui-fileupload-choose.ui-state-hover .ui-button-text.ui-c {
+	background-color: #f5f5f5 !important;
+	color: #03a9f4;
+}
+
+div[id$='import_hd_menu'] .ui-progressbar {
+	width: 80px;
+	height: 5px !important;
+}
+
+.import_historical_data_component .ui-button-text.ui-c {
+    background-color: #ffffff !important;
+    color: #546e7a;
+    font-family: 'robotoregular';
+    font-size: 16px;
+    padding: 0 !important;
+	text-align: left;
+}
+
+.import_historical_data_component .ui-icon-plusthick{
+	display: none;
+}
+
+.import_historical_data_component .ui-fileupload-buttonbar {
+    background-color: #ffffff !important;
+}
+
+.import_historical_data_component .ui-button-icon  {
+    background-image: none !important;
+}
+
+.import_historical_data_component .ui-button {
+    background-color: #ffffff;
+}
+
+.ui-menuitem-link.historical-data-menuitem-import {
+    padding: 0 !important;
+}
+
+.ui-menuitem-link.historical-data-menuitem-import .ui-menuitem-text {
+    width: 100%;
+    margin: 0 !important;
+}
+
+.ui-menuitem-link.historical-data-menuitem-import  .ui-fileupload-buttonbar {
+    padding: 0;
+}
+
+.ui-menuitem-link.historical-data-menuitem-import  .ui-fileupload-choose {
+    width: inherit;
+    text-align: left;
+    margin: 0;
+}
+
+.ui-menuitem-link.historical-data-menuitem-import  .ui-button-text {
+    padding: 14px 10px 14px 10px !important;
+}
+
+.ui-menuitem-link.historical-data-menuitem-import .ui-fileupload-row .ui-button-text {
+	padding: 10px !important;
+	line-height: 16px;
+}
+
+.ui-menuitem-link.historical-data-menuitem-import  .ui-button-icon-left {
+    display: none;
+}
+
+.ui-treetable table thead tr th {
+	color: #546e7a;
+	background-color: #dae8ef;
+	border: solid 1px #c1d5df;
+	outline: none;
+	padding: 10px;
+	font-family: 'robotolight';
+	font-size: 16px;
+}
+
+.ui-treetable table thead tr th.ui-state-active, .ui-treetable table thead tr th.ui-state-hover {
+	background-color: #dae8ef;
+	color: #ffffff;
+}
+
+/**********************************************************************************************************************/
+/*                                MESSAGES                                                                            */
+/**********************************************************************************************************************/
+
+.message,
+.message-info,
+.message-note,
+.message-warn,
+.message-success,
+.message-error,
+.message-bg-info,
+.message-bg-note,
+.message-bg-warn,
+.message-bg-success,
+.message-bg-error,
+.message-bg-info,
+.message-bg-note,
+.message-bg-success,
+.message-bg-error {
+	overflow: hidden;
+	margin: 0 5px 10px 0;
+	padding: 10px;
+	font-family: 'robotoregular';
+	text-align: justify;
+}
+.message-info,
+.message-bg-info {
+	border: 1px solid #0288d1;
+	border-radius: 2px;
+}
+.message-note,
+.message-bg-note {
+	border: 1px solid #FB8C00;
+	border-radius: 2px;
+}
+.message-warn,
+.message-bg-success {
+	border: 1px solid #FB8C00;
+	border-radius: 2px;
+}
+.message-success {
+	border: 1px solid #26A69A;
+	border-radius: 2px;
+}
+.message-error,
+.message-bg-error {
+	border: 1px solid #ed5e68;
+	border-radius: 2px;
+}
+.message-bg-info {
+	background-color: #a1ddfe;
+}
+.message-bg-note {
+	background-color: #ffdbae;
+}
+.message-bg-warn {
+	background-color: #ffdbae;
+}
+.message-bg-success {
+	background-color: #acece6;
+}
+.message-bg-error {
+	background-color: #fad1d4;
+}
+.message-icon {
+	position: relative;
+	padding-left: 40px;
+}
+.message-icon:before {
+	position: absolute;
+	display: block;
+	top: 1.2em;
+	left: 11px;
+	font-family: "Modena";
+	line-height: 1;
+	font-size: 20px;
+	text-align: center;
+}
+.message-icon.message-icon-info:before {
+	color: #0288d1;
+	content: '\e325';
+}
+.message-icon.message-icon-note:before {
+	content: '\e124';
+	color: #FB8C00;
+}
+.message-icon.message-icon-warn:before {
+	content: '\e00b';
+	color: #FB8C00;
+}
+.message-icon.message-icon-success:before {
+	content: '\e042';
+	color: #26A69A;
+}
+.message-icon.message-icon-error:before {
+	content: '\e041';
+	color: #ed5e68;
+}
+.message-corner {
+	position: relative;
+	border-radius: 2px;
+}
+.message-corner:before,
+.message-corner:after {
+	content: '';
+	position: absolute;
+	left: -20px;
+	top: 11px;
+	border: 10px solid transparent;
+	border-right: 10px solid #0288d1;
+}
+.message-corner:after {
+	border-right: 10px solid #fff;
+	top: 11px;
+	left: -19px;
+}
+.messages-container {
+	max-height: 400px;
+	overflow-y: auto;
+	margin: 0 -20px 0 -20px;
+	padding: 0 10px;
+	border-bottom: 1px solid #e0e0e0;
+}
+.messages-container ul,
+.messages-container li {
+	margin: 0;
+	padding: 0;
+}
+.messages-container li {
+	list-style: none;
+}
+
+
+
+/***********************************************************************************************************************
+	контекст диалога dialog-planning WFMCC-2553
+***********************************************************************************************************************/
+
+/*.dialog-planning {*/
+/*	left: 50% !important;*/
+/*	transform: translateX(-50%);*/
+/*	-webkit-font-smoothing: subpixel-antialiased; !* избавляет от размытия https://stackoverflow.com/questions/31109299/css-transform-translate-50-50-makes-texts-blurry *!*/
+/*}*/
+
+/*.dialog-planning > .ui-dialog-content {*/
+/*	padding: 10px !important; !* important перекрывает important в theme *!*/
+/*}*/
+
+/*.dialog-planning .dialog-footer-buttons {*/
+/*	border-bottom: none;*/
+/*	border-left: none;*/
+/*	border-right: none;*/
+/*	padding: 0 !important;*/
+/*	margin-left: -10px;*/
+/*	margin-right: -10px;*/
+/*}*/
+
+/*.dialog-planning .dialog-footer-buttons > .ui-panel-content.ui-widget-content {*/
+/*	padding: 10px 10px 0;*/
+/*}*/
+
+/*.dialog-planning .ui-datatable table thead tr th {*/
+/*	padding: 2px;!* уменьшаю отступы в заголовках таблиц, которые в диалогах, чтобы было больше места *!*/
+/*	font-size: 14px; !* уменьшаю размер текста чтобы таблица не распирала диалог *!*/
+/*}*/
+
+/*.dialog-planning .ui-datatable table tbody td {*/
+/*	padding: 3px 4px !important;*/
+/*}*/
+
+/*.dialog-planning .ui-datatable table tbody td.center-content {*/
+/*	padding: 2px !important;*/
+/*	text-align: center;*/
+/*}*/
+
+
+
+/***********************************************************************************************************************
+	add-schedule-event-dialog INPLACE
+***********************************************************************************************************************/
+
+.small-button-editor > .ui-inplace-content > .ui-selectonemenu,
+.small-button-editor > .ui-inplace-content > .ui-selectcheckboxmenu {
+	padding-right: 40px !important;
+}
+
+.small-button-editor > .ui-inplace-content {
+	display: flex; /*нельзя important*/
+}
+
+.small-button-editor > .ui-inplace-content > .ui-widget {
+	min-width: 0 !important;
+	width:100%;
+	flex-basis: 100%;
+}
+
+.small-button-editor > .ui-inplace-content > .ui-inputfield {
+	padding-left: 2px !important;
+	padding-right: 2px !important;
+}
+
+
+.small-button-editor > .ui-inplace-content > .ui-inplace-editor {
+	display: flex;
+	flex-wrap: wrap;
+	flex-basis: 0;
+	margin: 0 0 0 2px;
+}
+
+.small-button-editor > .ui-inplace-content > .ui-inplace-editor > .ui-button {
+	min-width: 20px !important;
+	max-width: 20px !important;
+	border-radius: 0 !important;
+	-webkit-border-radius: 0 !important;
+	-moz-border-radius: 0 !important;
+	height: 20px;
+	background: none;
+	box-shadow: none;
+	width: 20px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	align-content: center;
+	margin: 0;
+}
+
+/*.small-button-editor > .ui-inplace-content > .ui-inplace-editor > .ui-button.ui-state-hover {*/
+/*	background-color: #546e7a44;*/
+/*}*/
+
+.small-button-editor > .ui-inplace-content > .ui-inplace-editor > .ui-button.ui-button-icon-only .ui-button-text {
+	padding: 0 !important;
+}
+
+.small-button-editor > .ui-inplace-content > .ui-inplace-editor > .ui-button > .ui-icon {
+	display: block;
+	background: none !important;
+	font: normal normal normal 14px/1 FontAwesome;
+	font-size: inherit;
+	text-rendering: auto;
+	-webkit-font-smoothing: antialiased;
+}
+
+.small-button-editor > .ui-inplace-content > .ui-inplace-editor > .ui-button > .ui-icon:before {
+	text-indent: 0;
+	width: 100%;
+	height: 100%;
+	display: block;
+}
+
+
+.small-button-editor > .ui-inplace-content > .ui-inplace-editor > .ui-button > .ui-icon-check:before {
+	content: "\f00c";
+	color: #03a9f3;
+}
+
+.small-button-editor > .ui-inplace-content > .ui-inplace-editor > .ui-button > .ui-icon-close:before {
+	content: "\f00d";
+	color: #a00;
+}
+
+
+
+.add-schedule-event-dialog .ui-inputnumber > .ui-inputfield {
+	width: 100%;
+	box-sizing: border-box;
+}
+
+#layout_topbar {
+	z-index: 2000; /* ставлю z-index выше выпадаек selectonemenu чтобы выпадайки заходили под #layout_topbar во время скрола страницы */
+}
+
+/***********************************************************************************************************************
+	контекстное меню
+***********************************************************************************************************************/
+
+.ui-menu.ui-contextmenu {
+	width: auto;
+	min-width: 12em;
+	max-width: 16em;
+}
+
+/***********************************************************************************************************************
+	в datatable используется m-font-bold
+	и обнуляется при hover
+***********************************************************************************************************************/
+
+.ui-datatable .ui-datatable-data tr.m-font-bold.ui-state-hover {
+	font-weight: bold;
+}
+
+.workers-list.ui-datatable .ui-selection-column .ui-chkbox-all {
+	width: auto;
+}
+
+#form_departments-departments_tree.ui-tree .ui-tree-container {
+	overflow: initial;
+}
+
+.ui-tree .ui-treenode .ui-treenode-label>span {
+	white-space: normal;
+	word-break: break-word;
+	display: inline-block;
+}
+
+/***********************************************************************************************************************
+	блок атрибутов
+***********************************************************************************************************************/
+
+.attribute-description [class*="name-value"] > dt > label.ui-widget {
+	align-items: end;
+}
+
+.attribute-description .auto-height {
+	word-break: break-word;
+}
+
+[class*="name-value"] > dd .ui-calendar.property-date-default {
+	width: auto;
+}
+
+/***********************************************************************************************************************
+	media query responsive css
+***********************************************************************************************************************/
+
+@media screen and (max-width: 1550px) {
+	.ui-button-text-only > .ui-button-text {
+		padding-left:  1em;
+		padding-right:  1em;
+	}
+}
+
+.inline-block,
+[class*="name-value"] > dd > .ui-widget.inline-block {
+	display: inline-block !important;
+}
+
+.edit-dlg [class*="name-value"] > dt, .edit-dlg [class*="name-value"] > dd {
+	margin-bottom: 6px;
+}
+
+.edit-dlg [class*="name-value"] {
+	margin-top: 0;
+	margin-bottom: 0;
+}
+
+#report_type_tree_form .ui-tree-container {
+	overflow: inherit;
+}
+
+/***********************************************************************************************************************
+	сделать dl список невидимым
+***********************************************************************************************************************/
+
+.dl-hidden dl>dt,
+.dl-hidden dl>dd{
+	min-height: 0;
+}
+
+.dl-visible  dl>dt,
+.dl-visible  dl>dd{
+	min-height: 33px;
+}
+
+.dl-hidden [class*="name-value"],
+.dl-visible [class*="name-value"] {
+	margin-bottom: 0;
+}
+
+
+.solution-panel-units {
+	display: block;
+	margin-right: 60px;
+	width: 160px;
+	border-top: 1px solid #546e7a;
+	word-break: break-all;
+	white-space: normal;
+}
+
+#change_shift_request_dialog .ui-inputfield.group-input,
+#adding_schedule_interval_transfer_dialog .ui-inputfield.group-input {
+	padding: 8px;
+}
+
+.min-width-180 {
+	min-width: 180px;
+}
+
+ul.disc > li {
+	list-style-type: disc;
+}
+
+/*
+	Наследование свойств родителя
+ */
+.all-inherit {
+	all: inherit; /* Сюда нельзя добавлять !important, так как специфичность наследованных свойств (даже не установленных) будет выше. */
+}
+
+/**
+	Логотип NDA
+ */
+.nda-link {
+	background-image: url("/ccwfm/javax.faces.resource/env/images/nda_logo.svg.xhtml?argus_v=1749652358876");
+}

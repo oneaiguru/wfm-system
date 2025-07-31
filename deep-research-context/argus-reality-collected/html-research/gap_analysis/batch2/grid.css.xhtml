@@ -1,0 +1,138 @@
+.ui-grid {
+	margin-bottom: 10px;
+}
+
+.ui-grid > .ui-grid-row:not(:last-child) {
+	margin-bottom: 2px;
+}
+
+[class*="ui-grid-col-"] {
+	display: flex;
+}
+
+.ui-grid-col-1,
+.ui-grid-col-2,
+.ui-grid-col-3,
+.ui-grid-col-4,
+.ui-grid-col-5,
+.ui-grid-col-6,
+.ui-grid-col-7,
+.ui-grid-col-8,
+.ui-grid-col-9,
+.ui-grid-col-10,
+.ui-grid-col-11,
+.ui-grid-col-12 {
+	float: none;
+	box-sizing: border-box;
+	width: auto;
+}
+
+.ui-grid-col-1 {
+	flex-basis: 8.33333%;
+}
+
+.ui-grid-col-2 {
+	flex-basis: 16.66666%;
+}
+
+.ui-grid-col-3 {
+	flex-basis: 25%;
+}
+
+.ui-grid-col-4 {
+	flex-basis: 33.33333%;
+}
+
+.ui-grid-col-5 {
+	flex-basis: 41.66666%;
+}
+
+.ui-grid-col-6 {
+	flex-basis: 50%;
+}
+
+.ui-grid-col-7 {
+	flex-basis: 58.33333%;
+}
+
+.ui-grid-col-8 {
+	flex-basis: 66.66666%;
+}
+
+.ui-grid-col-9 {
+	flex-basis: 75%;
+}
+
+.ui-grid-col-10 {
+	flex-basis: 83.33333%;
+}
+
+.ui-grid-col-11 {
+	flex-basis: 91.66666%;
+}
+
+.ui-grid-col-12 {
+	flex-basis: 100%;
+}
+
+/***********************************************************************************************************************
+	Разные элементы внутри ui-grid
+***********************************************************************************************************************/
+
+.ui-grid-row > div > .ui-datalist {
+	margin-bottom: 0;
+}
+
+.ui-grid-row > div > .ui-datalist > .ui-datalist-item {
+	line-height: 22px;
+	margin-bottom: 2px;
+}
+
+[class*="ui-grid-col-"] > .ui-calendar {
+	width: 135px;
+}
+
+/***********************************************************************************************************************
+	Таблица, похожая на ui-grid
+***********************************************************************************************************************/
+/* h:panelGrid */
+table.grid {
+	margin-bottom: 10px;
+	display: block;
+	table-layout: fixed; /* чтобы контент распирал таблицу */
+}
+
+table.grid > tbody {
+	display: block;
+}
+
+table.grid > tbody > tr {
+	display: flex;
+	margin-bottom: 2px;
+}
+
+table.grid > tbody > tr > td {
+	padding: 0;
+	display: flex;
+	border: none;
+	align-items: flex-start;
+}
+
+@media (max-width: 640px) {
+	table.grid > tbody > tr > td {
+		flex-wrap: wrap;
+	}
+}
+
+/* p:panelGrid */
+.ui-panelgrid.grid {
+	border: none;
+}
+
+.ui-panelgrid.grid > tbody > tr > .ui-panelgrid-cell {
+	border: none;
+	padding: 0; /* отменяет css в components */
+}
+
+
+

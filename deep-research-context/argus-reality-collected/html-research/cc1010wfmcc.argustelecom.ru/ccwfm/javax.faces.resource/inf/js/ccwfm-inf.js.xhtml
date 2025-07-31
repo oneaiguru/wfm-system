@@ -1,0 +1,21 @@
+Argus.System.AutoHeight = {
+    compute: function (containerId, minusHeight) {
+
+        if (typeof minusHeight == "undefined" || minusHeight == null) {
+            minusHeight = 0;
+        }
+
+        var container = "#" + containerId;
+
+        var possibleComponentHeight = $(window).height() - $(container).position().top - minusHeight;
+        $(container).height(possibleComponentHeight);
+    }
+
+};
+
+PrimeFaces.widget.Dialog.prototype.applyFocus = function() {
+  var firstInput = this.jq.find(':not(:submit):not(:button):input:visible:enabled:first');
+  if(!firstInput.hasClass('hasDatepicker') && !firstInput.hasClass('hasTimepicker')) {
+      firstInput.focus();
+  }
+}

@@ -1,0 +1,22 @@
+ARGUS_NAVIGATION_MAP:
+  employee_management:
+    breadcrumbs: ''
+    forms_count: 8
+    key_buttons:
+    - Добавить нового сотрудника
+    - Активировать сотрудника
+    - Удалить сотрудника
+    title: Сотрудники
+    url: /ccwfm/views/env/personnel/WorkerListView-789ba2da5e53b.xhtml
+  manager_dashboard:
+    breadcrumbs: ''
+    forms_count: 0
+    key_buttons: []
+    title: ''
+    url: /ccwfm/views/env/monitoring/MonitoringDashboardView-854106c7fc7838.xhtml
+  schedule_management:
+    breadcrumbs: ''
+    forms_count: 0
+    key_buttons: []
+    title: ''
+    url: /ccwfm/javax.faces.resource/env/styles/planning.css.xhtml

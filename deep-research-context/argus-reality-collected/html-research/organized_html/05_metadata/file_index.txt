@@ -1,0 +1,46 @@
+=== EXTRACTED FILES INDEX ===
+Total files extracted: 12
+
+=== 01_core_features ===
+authentication: 0 files
+
+calendar_vacation: 0 files
+
+employee_mgmt: 1 files
+WorkerListView.xhtml
+
+scheduling: 3 files
+OperatingScheduleSolutionView.xhtml
+SchedulePlanningView.xhtml
+WorkScheduleAdjustmentView.xhtml
+
+=== 02_manager_features ===
+approvals: 0 files
+
+dashboards: 0 files
+
+team_views: 1 files
+GroupListView.xhtml
+
+=== 03_analytics ===
+forecasts: 3 files
+ForecastAccuracyView.xhtml
+ForecastListView.xhtml
+ImportForecastView.xhtml
+
+historical: 1 files
+HistoricalDataListView.xhtml
+
+reports: 0 files
+
+=== 04_admin ===
+configuration: 1 files
+WorkRuleListView.xhtml
+
+security: 1 files
+RoleListView.xhtml
+
+system: 1 files
+ServiceListView.xhtml
+
+=== 05_metadata ===

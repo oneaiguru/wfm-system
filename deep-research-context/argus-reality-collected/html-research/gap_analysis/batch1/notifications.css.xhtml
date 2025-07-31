@@ -1,0 +1,188 @@
+#top_menu .notification-list {
+    width: 390px;
+    margin-right: 8px !important;
+    font-family: 'robotolight';
+    color: #546e7a;
+    max-height: 500px;
+    overflow-y: scroll
+}
+
+#top_menu .notification-list .notification-header {
+    padding: 0 8px;
+    height: 50px;
+    line-height: 50px;
+    font-size: 20px;
+    font-weight: bold;
+    vertical-align: middle;
+    border-bottom: solid 1px #e6eaec
+}
+
+#top_menu .notification-list .notification {
+    padding: 8px;
+    border-bottom: solid 1px #e6eaec
+}
+
+#top_menu .notification-list .notification.notification-new {
+    background-color: #f5f5f5
+}
+
+#top_menu .notification-list .notification .notification-state {
+    font-size: 12px;
+    position: absolute;
+    right: 8px;
+    margin-block-start: -16px
+}
+
+#top_menu .notification-list .notification h4 {
+    margin-bottom: 8px !important
+}
+
+#top_menu .notification-list .notification a {
+    padding: 0;
+    display: inline;
+    font-family: 'robotolight';
+    font-size: 14px;
+    color: #0288d1;
+    text-decoration: underline
+}
+
+#top_menu .notification-list .notification a:hover {
+    background-color: inherit
+}
+
+#top_menu .notification-list .notification blockquote {
+    margin: 8px 0
+}
+
+#top_menu .notification-list .notification blockquote p {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    width: 100%
+}
+
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+    #top_menu .notification-list .notification blockquote {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        white-space: normal;
+        text-overflow: inherit;
+        overflow: hidden
+    }
+
+    #top_menu .notification-list .notification blockquote p {
+        overflow: inherit;
+        white-space: normal;
+        text-overflow: inherit
+    }
+}
+
+#top_menu .notification-list .notification strong, #top_menu .notification-list .notification em {
+    font-size: 12px;
+    margin-top: 8px
+}
+
+#top_menu .notification-list .notification em {
+    float: right
+}
+
+@media screen and (max-device-width: 1600px) {
+    .columns.info-box {
+        width: 50% !important
+    }
+
+    .custom-content-card .ui-datascroller ul.ui-datascroller-list {
+        columns: 1 !important
+    }
+
+    .filter-list ul {
+        -webkit-column: 3;
+        -moz-columns: 3;
+        columns: 3
+    }
+
+    .filter-list ul li span.ui-calendar.filter-calendar input {
+        width: calc(90% + 60px)
+    }
+
+    .filter-list ul li div.pricelist-search-type {
+        width: 60%
+    }
+}
+
+@media screen and (max-device-width: 1280px) {
+    .column .column-id {
+        width: 130px
+    }
+
+    .low-resolution-elem-hide {
+        display: none
+    }
+
+    .title-limit-col1 .sys-comp-editable-section-output {
+        max-width: 650px
+    }
+}
+
+@media only screen and (max-device-width: 1024px) and (min-device-width: 768px) {
+    .column .column-id {
+        width: 100px
+    }
+
+    .custom-content-card .ui-datascroller ul.ui-datascroller-list {
+        columns: 1 !important
+    }
+}
+
+@media only screen and (max-width: 1024px) {
+    .hover-overlay-block .ui-inplace-display.ui-state-highlight, .hover-overlay-block .sys-comp-editable-section .ui-inplace-content {
+        position: static
+    }
+
+    .hover-overlay-block .ui-inplace-display .sys-comp-editable-section-output-multiline {
+        max-height: inherit
+    }
+}
+
+@media only screen and (max-width: 768px) {
+    .filter-list ul {
+        -webkit-column: 2;
+        -moz-columns: 2;
+        columns: 2
+    }
+}
+
+@media screen and (device-width: 360px) and (device-height: 640px) and (-webkit-device-pixel-ratio: 3) {
+    .custom-content-card .ui-datascroller ul.ui-datascroller-list {
+        columns: 1 !important
+    }
+}
+
+@media all and (-ms-high-contrast: none),(-ms-high-contrast: active) {
+    .custom-content-card .ui-datascroller ul.ui-datascroller-list {
+        columns: 1 !important
+    }
+
+    .filter-list ul .filter-name {
+        flex: 1
+    }
+}
+
+@media (min-width: 640px) and (max-width: 960px) {
+    #top_menu > li > a.ui-commandlink {
+        color: #546e7a !important
+    }
+}
+
+@media (min-width: 480px) and (max-width: 640px) {
+    #top_menu > li > a.ui-commandlink {
+        color: #546e7a !important
+    }
+}
+
+@media (max-width: 480px) {
+    #top_menu > li > a.ui-commandlink {
+        color: #546e7a !important
+    }
+}

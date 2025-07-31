@@ -1,0 +1,59 @@
+/***********************************************************************************************************************
+	DefinitionList
+		DefinitonTitle
+		DefinitionDescription
+
+	.name-value применяется к тегу dl, получается горизонтальная строка из двух ячеек. Отличается от таблицы и ui-grid тем, что первая ячейка фиксирована по ширине.
+	<dl class="name-value"> 		ширина dt выбирается автоматически
+	<dl class="name-value-200">		ширина dt устанавливается фиксированной
+***********************************************************************************************************************/
+
+[class*="name-value"] {
+	margin-top: 0;
+	margin-bottom: 8px;
+	display: grid;
+	grid-template-columns: auto 1fr;
+}
+
+[class*="name-value"] > dt,
+[class*="name-value"] > dd {
+	margin-bottom: 2px;
+}
+
+[class*="name-value"] > dt {
+	/*padding-right: 4px;*/
+	white-space: nowrap;
+	display: flex;
+}
+
+[class*="name-value"] > dd {
+	margin-left: 0;
+	overflow-x: hidden;
+}
+
+/***********************************************************************************************************************
+	фиксированные ширины для dt
+***********************************************************************************************************************/
+
+.name-value-100 {
+	grid-template-columns: 100px 1fr;
+}
+.name-value-130 {
+	grid-template-columns: 130px 1fr;
+}
+.name-value-140 {
+	grid-template-columns: 140px 1fr;
+}
+.name-value-150 {
+	grid-template-columns: 150px 1fr;
+}
+.name-value-180 {
+	grid-template-columns: 180px 1fr;
+}
+.name-value-200 {
+	grid-template-columns: 200px 1fr;
+}
+.name-value-250 {
+	grid-template-columns: 250px 1fr;
+}
+

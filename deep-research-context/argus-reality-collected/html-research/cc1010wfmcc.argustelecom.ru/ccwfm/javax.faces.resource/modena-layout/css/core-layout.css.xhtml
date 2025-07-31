@@ -1,0 +1,1390 @@
+@charset "UTF-8";
+/* CSS Document */
+
+/*html { text-rendering: optimizeLegibility !important; -webkit-font-smoothing: antialiased !important;}*/
+
+html {
+	height: 100% !important;
+}
+
+body {
+	height: 100% !important; /* перекрываю inline height: auto */
+	/*height: 2000px !important; !* Для отладки скрола *!*/
+
+	width: 100%;
+}
+
+/* CORE LAYOUT STANDART STYLES ********************************************************************************************************** */
+a, div, span, input, textarea, li, strong, button {
+	outline: none;
+	text-decoration: none;
+	/* this removes gray outline from ios safari a tags */
+	-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+	/* this removes action panels from ios safari a tags */
+	-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+	-webkit-touch-callout: none;
+}
+
+img {
+	border: none;
+	border: 0px;
+}
+
+h1, h2, h3, h5, h6 {
+	margin-top: 0;
+	margin-bottom: 10px;
+	font-family: 'robotoregular', sans-serif;
+}
+
+.bottom-border {
+	border-bottom: solid 1px #e0e0e0;
+}
+
+.m-clear-both {
+	clear: both;
+}
+
+.m-curs-pointer {
+	cursor: pointer;
+}
+
+/*visibilities according to the platform*/
+.m-show-on-mobile {
+	display: none;
+}
+
+.m-show-on-desktop {
+	display: inherit;
+}
+
+.m-float-none-on-mobile {
+	
+}
+
+.show {
+	display: block !important;
+}
+
+.hide {
+	display: none !important;
+}
+
+/* make auto of element width and/or height attribute on mobile devices with media queries */
+.m-wid-auto-on-mobile {
+	
+}
+
+.m-hei-auto-on-mobile {
+	
+}
+
+/* for responsive mode - if you want any ContainerX element has a responsive fluid abilities with media queries you must add this class to your element*/
+.m-responsive {
+	
+}
+
+.m-responsive50 {
+	
+}
+
+.m-responsive100 {
+	
+}
+
+/* Text Decoration */
+.m-underline {
+	text-decoration: underline;
+}
+
+/* Making Unselectable Contents */
+.m-unselectable {
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+/* for on iphone safari inputs shadow problem */
+input[type="text"], input[type="password"], textarea {
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+}
+
+/* Display */
+.m-disp-block {
+	display: block;
+}
+
+.m-disp-table {
+	display: table;
+	vertical-align: middle;
+}
+
+.m-disp-table-cell {
+	display: table-cell;
+	vertical-align: middle;
+}
+
+.m-disp-none {
+	display: none;
+}
+
+.m-disp-inl-block {
+	display: inline-block;
+}
+
+/* Position */
+.m-pos-fixed {
+	position: fixed;
+}
+
+.m-pos-absolute {
+	position: absolute;
+}
+
+.m-pos-relative {
+	position: relative;
+}
+
+.m-pos-static {
+	position: static;
+}
+
+/* Floating */
+.m-fleft {
+	float: left;
+}
+
+.m-fright {
+	float: right;
+}
+
+.m-fnone {
+	float: none !important;
+}
+
+/* Overflows */
+.m-ov-hidden {
+	overflow: hidden;
+}
+
+.m-ov-scroll {
+	overflow: scroll;
+}
+
+.m-ov-auto {
+	overflow: auto;
+}
+
+.m-ov-visible {
+	overflow: visible;
+}
+
+.m-ov-x-scroll {
+	overflow-x: scroll;
+}
+
+.m-ov-y-scroll {
+	overflow-y: scroll;
+}
+
+.m-ov-x-hidden {
+	overflow-x: hidden;
+}
+
+.m-ov-y-hidden {
+	overflow-y: hidden;
+}
+
+/* Empty Boxes */
+.m-empty-box5 {
+	display: block;
+	width: 100%;
+	height: 5px;
+	overflow: hidden;
+}
+
+.m-empty-box10 {
+	display: block;
+	width: 100%;
+	height: 10px;
+	overflow: hidden;
+}
+
+.m-empty-box20 {
+	display: block;
+	width: 100%;
+	height: 20px;
+	overflow: hidden;
+}
+
+.m-empty-box30 {
+	display: block;
+	width: 100%;
+	height: 30px;
+	overflow: hidden;
+}
+
+.m-empty-box40 {
+	display: block;
+	width: 100%;
+	height: 40px;
+	overflow: hidden;
+}
+
+.m-empty-box50 {
+	display: block;
+	width: 100%;
+	height: 50px;
+	overflow: hidden;
+}
+
+.m-empty-box60 {
+	display: block;
+	width: 100%;
+	height: 60px;
+	overflow: hidden;
+}
+
+.m-empty-box70 {
+	display: block;
+	width: 100%;
+	height: 70px;
+	overflow: hidden;
+}
+
+.m-empty-box80 {
+	display: block;
+	width: 100%;
+	height: 80px;
+	overflow: hidden;
+}
+
+.m-empty-box90 {
+	display: block;
+	width: 100%;
+	height: 90px;
+	overflow: hidden;
+}
+
+.m-empty-box100 {
+	display: block;
+	width: 100%;
+	height: 100px;
+	overflow: hidden;
+}
+
+.m-empty-box110 {
+	display: block;
+	width: 100%;
+	height: 100px;
+	overflow: hidden;
+}
+
+.m-empty-box120 {
+	display: block;
+	width: 100%;
+	height: 100px;
+	overflow: hidden;
+}
+
+.m-empty-box130 {
+	display: block;
+	width: 100%;
+	height: 100px;
+	overflow: hidden;
+}
+
+.m-empty-box140 {
+	display: block;
+	width: 100%;
+	height: 100px;
+	overflow: hidden;
+}
+
+.m-empty-box150 {
+	display: block;
+	width: 100%;
+	height: 150px;
+	overflow: hidden;
+}
+
+/* Opacity */
+.m-opac100 {
+	opacity: 1;
+	-webkit-opacity: 1;
+	-moz-opacity: 1;
+}
+
+.m-opac95 {
+	opacity: 0.95;
+	-webkit-opacity: 0.95;
+	-moz-opacity: 0.95;
+}
+
+.m-opac90 {
+	opacity: 0.9;
+	-webkit-opacity: 0.9;
+	-moz-opacity: 0.9;
+}
+
+.m-opac80 {
+	opacity: 0.8;
+	-webkit-opacity: 0.8;
+	-moz-opacity: 0.8;
+}
+
+.m-opac70 {
+	opacity: 0.7;
+	-webkit-opacity: 0.7;
+	-moz-opacity: 0.7;
+}
+
+.m-opac60 {
+	opacity: 0.6;
+	-webkit-opacity: 0.6;
+	-moz-opacity: 0.6;
+}
+
+.m-opac50 {
+	opacity: 0.5;
+	-webkit-opacity: 0.5;
+	-moz-opacity: 0.5;
+}
+
+.m-opac40 {
+	opacity: 0.4;
+	-webkit-opacity: 0.4;
+	-moz-opacity: 0.4;
+}
+
+.m-opac30 {
+	opacity: 0.3;
+	-webkit-opacity: 0.3;
+	-moz-opacity: 0.3;
+}
+
+.m-opac20 {
+	opacity: 0.2;
+	-webkit-opacity: 0.2;
+	-moz-opacity: 0.2;
+}
+
+.m-opac10 {
+	opacity: 0.1;
+	-webkit-opacity: 0.1;
+	-moz-opacity: 0.1;
+}
+
+.m-opac-zero {
+	opacity: 0;
+	-webkit-opacity: 0;
+	-moz-opacity: 0;
+}
+
+/* Border Radius */
+.m-bord-rad3 {
+	border-radius: 3px;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+}
+
+.m-bord-rad4 {
+	border-radius: 4px;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+}
+
+.m-bord-rad5 {
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+}
+
+.m-bord-rad10 {
+	border-radius: 10px;
+	-webkit-border-radius: 10px;
+	-moz-border-radius: 10px;
+}
+
+.m-bord-rad15 {
+	border-radius: 15px;
+	-webkit-border-radius: 15px;
+	-moz-border-radius: 15px;
+}
+
+.m-bord-rad-half {
+	border-radius: 50%;
+	-webkit-border-radius: 50%;
+	-moz-border-radius: 50%;
+}
+
+.m-bord-right {
+	border-right: solid 1px transparent;
+	box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+}
+
+.m-bord-left {
+	border-left: solid 1px transparent;
+	box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+}
+
+.m-bord-top {
+	border-top: solid 1px transparent;
+	box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+}
+
+.m-bord-bottom {
+	border-top: solid 1px transparent;
+	box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+}
+
+.m-bord-all {
+	border: solid 1px transparent;
+	box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+}
+
+/* Width */
+.m-wid100 {
+	width: 100%;
+}
+
+.m-wid90 {
+	width: 90%;
+}
+
+.m-wid80 {
+	width: 80%;
+}
+
+.m-wid70 {
+	width: 70%;
+}
+
+.m-wid60 {
+	width: 60%;
+}
+
+.m-wid50 {
+	width: 50%;
+}
+
+.m-wid45 {
+	width: 45%;
+}
+
+.m-wid40 {
+	width: 40%;
+}
+
+.m-wid30 {
+	width: 30%;
+}
+
+/* Width Special Values */
+.m-wid33 {
+	width: 33.3%;
+}
+
+.m-wid25 {
+	width: 25%;
+}
+
+.m-wid20 {
+	width: 20%;
+}
+
+.m-wid10 {
+	width: 10%;
+}
+
+.m-max-wid500 {
+	max-width: 500px;
+}
+
+/* Height */
+.m-hei100 {
+	height: 100%;
+}
+
+.m-hei90 {
+	height: 90%;
+}
+
+.m-hei80 {
+	height: 80%;
+}
+
+.m-hei70 {
+	height: 70%;
+}
+
+.m-hei60 {
+	height: 60%;
+}
+
+.m-hei40 {
+	height: 40%;
+}
+
+.m-hei50 {
+	height: 50%;
+}
+
+.m-hei30 {
+	height: 30%;
+}
+
+.m-hei20 {
+	height: 20%;
+}
+
+.m-hei10 {
+	height: 10%;
+}
+
+/* Margins */
+.m-mar-top-perc5 {
+	margin-top: 5%;
+}
+
+.m-mar-top-perc10 {
+	margin-top: 10%;
+}
+
+.m-mar-top-perc20 {
+	margin-top: 20%;
+}
+
+.m-mar-top-perc30 {
+	margin-top: 30%;
+}
+
+.m-mar-top-perc40 {
+	margin-top: 40%;
+}
+
+.m-mar-top-perc50 {
+	margin-top: 50%;
+}
+
+.m-mar-auto {
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.m-mar-top5 {
+	margin-top: 5px;
+}
+
+.m-mar-top10 {
+	margin-top: 10px;
+}
+
+.m-mar-top20 {
+	margin-top: 20px;
+}
+
+.m-mar-top30 {
+	margin-top: 30px;
+}
+
+.m-mar-top40 {
+	margin-top: 40px;
+}
+
+.m-mar-top50 {
+	margin-top: 50px;
+}
+
+.m-mar-top-quarter {
+	margin-top: 25%;
+}
+
+.m-mar-top-half {
+	margin-top: 50%;
+}
+
+.m-mar-bot10 {
+	margin-bottom: 10px;
+}
+
+.m-mar-right10 {
+	margin-right: 10px;
+}
+
+.m-mar-right20 {
+	margin-right: 20px;
+}
+
+.m-mar-right30 {
+	margin-right: 30px;
+}
+
+/* Paddings */
+.m-no-padding {
+	padding: 0px !important;
+}
+
+.m-padding-top-percent10 {
+	padding-top: 10%;
+}
+
+/* Containers */
+.m-container100 {
+	width: 100%;
+	float: left;
+}
+
+.m-container99 {
+	width: 99%;
+	float: left;
+}
+
+.m-container98 {
+	width: 98%;
+	float: left;
+}
+
+.m-container96 {
+	width: 96%;
+	float: left;
+}
+
+.m-container90 {
+	width: 90%;
+	float: left;
+}
+
+.m-container85 {
+	width: 85%;
+	float: left;
+}
+
+.m-container80 {
+	width: 80%;
+	float: left;
+}
+
+.m-container75 {
+	width: 75%;
+	float: left;
+}
+
+.m-container70 {
+	width: 70%;
+	float: left;
+}
+
+.m-container66 {
+	width: 66.66%;
+	float: left;
+}
+
+.m-container65 {
+	width: 65%;
+	float: left;
+}
+
+.m-container60 {
+	width: 60%;
+	float: left;
+}
+
+.m-container50 {
+	width: 50%;
+	float: left;
+}
+
+.m-container40 {
+	width: 40%;
+	float: left;
+}
+
+.m-container35 {
+	width: 35%;
+	float: left;
+}
+
+
+.m-container33 {
+	width: 33.33%;
+	float: left;
+}
+
+.m-container32 {
+	width: 32%;
+	float: left;
+}
+
+.m-container30 {
+	width: 30%;
+	float: left;
+}
+
+.m-container25 {
+	width: 25%;
+	float: left;
+}
+
+.m-container20 {
+	width: 20%;
+	float: left;
+}
+
+.m-container10 {
+	width: 10%;
+	float: left;
+}
+
+.m-container5 {
+	width: 5%;
+	float: left;
+}
+
+.m-container-indent {
+	display: block;
+	margin: 0px auto;
+	padding: 5px;
+}
+
+/* Text Aligns */
+.m-tex-al-center {
+	text-align: center;
+}
+
+.m-tex-al-left {
+	text-align: left;
+}
+
+.m-tex-al-right {
+	text-align: right !important;
+}
+
+/* Padding With Transparent Border*/
+.m-pad-with-border1 {
+	border: solid 1px transparent;
+}
+
+.m-pad-with-border2 {
+	border: solid 2px transparent;
+}
+
+.m-pad-with-border3 {
+	border: solid 3px transparent;
+}
+
+.m-pad-with-border4 {
+	border: solid 4px transparent;
+}
+
+.m-pad-with-border5 {
+	border: solid 5px transparent;
+}
+
+.m-pad-with-border10 {
+	border: solid 10px transparent;
+}
+
+/* Box Sizing */
+.m-box-size-content {
+	box-sizing: content-box;
+	-webkit-box-sizing: content-box;
+	-moz-box-sizing: content-box;
+}
+
+.m-box-size-border {
+	box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+}
+
+/* Font Sizes */
+.fs9 {
+	font-size: 9px !important;
+}
+
+.fs10 {
+	font-size: 10px !important;
+}
+
+.fs11 {
+	font-size: 11px !important;
+}
+
+.fs12 {
+	font-size: 12px !important;
+}
+
+.fs13 {
+	font-size: 13px !important;
+}
+
+.fs14 {
+	font-size: 14px !important;
+}
+
+.fs15 {
+	font-size: 15px !important;
+}
+
+.fs16 {
+	font-size: 16px !important;
+}
+
+.fs17 {
+	font-size: 17px !important;
+}
+
+.fs18 {
+	font-size: 18px !important;
+}
+
+.fs19 {
+	font-size: 19px !important;
+}
+
+.fs20 {
+	font-size: 20px !important;
+}
+
+.fs21 {
+	font-size: 21px !important;
+}
+
+.fs22 {
+	font-size: 22px !important;
+}
+
+.fs23 {
+	font-size: 23px !important;
+}
+
+.fs24 {
+	font-size: 24px !important;
+}
+
+.fs25 {
+	font-size: 25px !important;
+}
+
+.fs26 {
+	font-size: 26px !important;
+}
+
+.fs27 {
+	font-size: 27px !important;
+}
+
+.fs28 {
+	font-size: 28px !important;
+}
+
+.fs29 {
+	font-size: 29px !important;
+}
+
+.fs30 {
+	font-size: 30px !important;
+}
+
+.fs40 {
+	font-size: 40px !important;
+}
+
+.fs50 {
+	font-size: 50px !important;
+}
+
+.fs60 {
+	font-size: 60px !important;
+}
+
+.fs80 {
+	font-size: 100px !important;
+}
+
+.fs90 {
+	font-size: 90px !important;
+}
+
+.fs95 {
+	font-size: 95px !important;
+}
+
+.fs100 {
+	font-size: 100px !important;
+}
+
+.fs130 {
+	font-size: 130px !important;
+}
+
+/* Font Type */
+.m-font-bold {
+	font-weight: bold;
+}
+
+.m-font-light {
+	font-weight: lighter;
+}
+
+.m-font-normal {
+	font-weight: normal;
+}
+
+/* Animated */
+.m-animated03 {
+	-webkit-transition: all 0.3s ease;
+	-moz-transition: all 0.3s ease;
+	-ms-transition: all 0.3s ease;
+	-o-transition: all 0.3s ease;
+	transition: all 0.3s ease;
+}
+
+.m-animated05 {
+	-webkit-transition: all 0.5s ease;
+	-moz-transition: all 0.5s ease;
+	-ms-transition: all 0.5s ease;
+	-o-transition: all 0.5s ease;
+	transition: all 0.5s ease;
+}
+
+.m-animated1 {
+	-webkit-transition: all 1s ease;
+	-moz-transition: all 1s ease;
+	-ms-transition: all 1s ease;
+	-o-transition: all 1s ease;
+	transition: all 1s ease;
+}
+
+/******************************************************************************************************************************** */
+
+/* MEDIA QUERIES FOR CORE LAYOUT **************************************************************************************************************** */
+
+/* Large desktop */
+@media ( min-width : 960px) {
+	/*visibilities according to the platform*/
+	.m-show-on-mobile {
+		display: none;
+		opacity: 0;
+	}
+	.m-show-on-desktop {
+		display: inherit;
+		opacity: 1;
+	}
+}
+
+@media ( min-width : 960px) and (max-width:1200px) {
+	/* responsive support */
+	.m-responsive {
+		width: 33.3%;
+		float: left;
+		margin-left: 0px !important;
+		margin-right: 0px !important;
+	}
+	.m-responsive50 {
+		width: 50%;
+		float: left;
+		margin-left: 0px !important;
+		margin-right: 0px !important;
+	}
+	.m-responsive100 {
+		width: 100%;
+		float: left;
+		margin-left: 0px !important;
+		margin-right: 0px !important;
+	}
+
+	/* make auto of element width attribute on mobile devices with media queries */
+	.m-wid-auto-on-mobile {
+		width: auto !important;
+	}
+	.m-hei-auto-on-mobile {
+		height: auto !important;
+		min-height: 50px !important;
+	}
+}
+
+/* Portrait tablet to landscape and desktop */
+@media ( min-width : 640px) and (max-width: 960px) {
+	/*visibilities according to the platform*/
+	.m-show-on-mobile {
+		display: inherit;
+		opacity: 1;
+	}
+	.m-show-on-desktop {
+		display: none;
+		opacity: 0;
+	}
+	.m-float-none-on-mobile {
+		float: none !important;
+	}
+
+	/* responsive support */
+	.m-responsive {
+		width: 50%;
+		float: left;
+		margin-left: 0px !important;
+		margin-right: 0px !important;
+	}
+	.m-responsive50 {
+		width: 100%;
+		float: left;
+		margin-left: 0px !important;
+		margin-right: 0px !important;
+	}
+	.m-responsive100 {
+		width: 100%;
+		float: left;
+		margin-left: 0px !important;
+		margin-right: 0px !important;
+	}
+	.m-container-indent {
+		padding: 5px;
+	}
+
+	/* make auto of element width attribute on mobile devices with media queries */
+	.m-wid-auto-on-mobile {
+		width: auto !important;
+	}
+	.m-hei-auto-on-mobile {
+		height: auto !important;
+		min-height: 50px !important;
+	}
+
+	/* font size resetting for responsive modes */
+	.fs14 {
+		font-size: 13px !important;
+	}
+	.fs15 {
+		font-size: 14px !important;
+	}
+	.fs16 {
+		font-size: 15px !important;
+	}
+	.fs17 {
+		font-size: 16px !important;
+	}
+	.fs18 {
+		font-size: 16px !important;
+	}
+	.fs19 {
+		font-size: 16px !important;
+	}
+	.fs20 {
+		font-size: 18px !important;
+	}
+	.fs21 {
+		font-size: 18px !important;
+	}
+	.fs22 {
+		font-size: 20px !important;
+	}
+	.fs23 {
+		font-size: 20px !important;
+	}
+	.fs24 {
+		font-size: 22px !important;
+	}
+	.fs25 {
+		font-size: 22px !important;
+	}
+	.fs26 {
+		font-size: 24px !important;
+	}
+	.fs27 {
+		font-size: 24px !important;
+	}
+	.fs28 {
+		font-size: 26px !important;
+	}
+	.fs29 {
+		font-size: 26px !important;
+	}
+	.fs30 {
+		font-size: 28px !important;
+	}
+	.fs40 {
+		font-size: 30px !important;
+	}
+	.fs50 {
+		font-size: 35px !important;
+	}
+	.fs60 {
+		font-size: 40px !important;
+	}
+	.fs100 {
+		font-size: 60px !important;
+	}
+	.fs130 {
+		font-size: 70px !important;
+	}
+}
+
+/* Landscape phone to portrait tablet */
+@media ( min-width :480px) and (max-width: 640px) {
+	/*visibilities according to the platform*/
+	.m-show-on-mobile {
+		display: inherit;
+		opacity: 1;
+	}
+	.m-show-on-desktop {
+		display: none;
+		opacity: 0;
+	}
+	.m-float-none-on-mobile {
+		float: none !important;
+	}
+
+	/* responsive support */
+	.m-responsive {
+		width: 100%;
+		float: left;
+		margin-left: 0px !important;
+		margin-right: 0px !important;
+	}
+	.m-responsive50 {
+		width: 100%;
+		float: left;
+		margin-left: 0px !important;
+		margin-right: 0px !important;
+	}
+	.m-responsive100 {
+		width: 100%;
+		float: left;
+		margin-left: 0px !important;
+		margin-right: 0px !important;
+	}
+	.m-container-indent {
+		padding: 5px;
+	}
+
+	/* make auto of element width attribute on mobile devices with media queries */
+	.m-wid-auto-on-mobile {
+		width: auto !important;
+	}
+	.m-hei-auto-on-mobile {
+		height: auto !important;
+		min-height: 50px !important;
+	}
+
+	/* font size resetting for responsive modes */
+	.fs12 {
+		font-size: 12px !important;
+	}
+	.fs13 {
+		font-size: 12px !important;
+	}
+	.fs14 {
+		font-size: 13px !important;
+	}
+	.fs15 {
+		font-size: 13px !important;
+	}
+	.fs16 {
+		font-size: 13px !important;
+	}
+	.fs17 {
+		font-size: 14px !important;
+	}
+	.fs18 {
+		font-size: 15px !important;
+	}
+	.fs19 {
+		font-size: 17px !important;
+	}
+	.fs20 {
+		font-size: 17px !important;
+	}
+	.fs21 {
+		font-size: 18px !important;
+	}
+	.fs22 {
+		font-size: 18px !important;
+	}
+	.fs23 {
+		font-size: 20px !important;
+	}
+	.fs24 {
+		font-size: 21px !important;
+	}
+	.fs25 {
+		font-size: 22px !important;
+	}
+	.fs26 {
+		font-size: 23px !important;
+	}
+	.fs27 {
+		font-size: 23px !important;
+	}
+	.fs28 {
+		font-size: 25px !important;
+	}
+	.fs29 {
+		font-size: 25px !important;
+	}
+	.fs30 {
+		font-size: 26px !important;
+	}
+	.fs40 {
+		font-size: 30px !important;
+	}
+	.fs50 {
+		font-size: 32px !important;
+	}
+	.fs60 {
+		font-size: 35px !important;
+	}
+	.fs100 {
+		font-size: 40px !important;
+	}
+	.fs130 {
+		font-size: 50px !important;
+	}
+}
+
+/* Portrait phones and down */
+@media ( max-width : 480px) {
+	/*visibilities according to the platform*/
+	.m-show-on-mobile {
+		display: inherit;
+		opacity: 1;
+	}
+	.m-show-on-desktop {
+		display: none;
+		opacity: 0;
+	}
+	.m-float-none-on-mobile {
+		float: none !important;
+	}
+
+	/* responsive support */
+	.m-responsive {
+		width: 100%;
+		float: left;
+		margin-left: 0px !important;
+		margin-right: 0px !important;
+	}
+	.m-responsive50 {
+		width: 100%;
+		float: left;
+		margin-left: 0px !important;
+		margin-right: 0px !important;
+	}
+	.m-responsive100 {
+		width: 100%;
+		float: left;
+		margin-left: 0px !important;
+		margin-right: 0px !important;
+	}
+	.m-container-indent {
+		padding: 5px;
+	}
+
+	/* make auto of element width attribute on mobile devices with media queries */
+	.m-wid-auto-on-mobile {
+		width: auto !important;
+	}
+	.m-hei-auto-on-mobile {
+		height: auto !important;
+	}
+
+	/* font size resetting for responsive modes */
+	.fs12 {
+		font-size: 12px !important;
+	}
+	.fs13 {
+		font-size: 12px !important;
+	}
+	.fs14 {
+		font-size: 13px !important;
+	}
+	.fs15 {
+		font-size: 13px !important;
+	}
+	.fs16 {
+		font-size: 13px !important;
+	}
+	.fs17 {
+		font-size: 14px !important;
+	}
+	.fs18 {
+		font-size: 15px !important;
+	}
+	.fs19 {
+		font-size: 17px !important;
+	}
+	.fs20 {
+		font-size: 17px !important;
+	}
+	.fs21 {
+		font-size: 18px !important;
+	}
+	.fs22 {
+		font-size: 18px !important;
+	}
+	.fs23 {
+		font-size: 20px !important;
+	}
+	.fs24 {
+		font-size: 21px !important;
+	}
+	.fs25 {
+		font-size: 22px !important;
+	}
+	.fs26 {
+		font-size: 23px !important;
+	}
+	.fs27 {
+		font-size: 23px !important;
+	}
+	.fs28 {
+		font-size: 25px !important;
+	}
+	.fs29 {
+		font-size: 25px !important;
+	}
+	.fs30 {
+		font-size: 25px !important;
+	}
+	.fs40 {
+		font-size: 28px !important;
+	}
+	.fs50 {
+		font-size: 30px !important;
+	}
+	.fs60 {
+		font-size: 32px !important;
+	}
+	.fs100 {
+		font-size: 35px !important;
+	}
+	.fs130 {
+		font-size: 40px !important;
+	}
+}
+
+/* clearfix for Container */
+.m-container:before, .m-container:after {
+	content: "";
+	display: table;
+	border-collapse: collapse;
+}
+
+.m-container:after {
+	clear: both;
+}

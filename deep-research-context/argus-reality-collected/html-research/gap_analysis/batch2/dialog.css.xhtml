@@ -1,0 +1,166 @@
+/***********************************************************************************************************************
+	ДИАЛОГ
+***********************************************************************************************************************/
+
+/*
+	Применяется после полного появления диалога
+	Делаем при aria-live="polite" т.к если сделать просто при aria-live то диалог невозможно будет закрыть
+*/
+.ui-dialog[aria-live="polite"] {
+	display: flex !important;
+}
+
+/*
+	Указываем flex-direction и размеры не завязываясь на полное появление диалога
+	Это необходимо делать при любом aria-live, чтобы диалог вел себя ожидаемо
+*/
+.ui-dialog[aria-live] {
+	flex-direction: column;
+	max-height: calc(100vh - 80px);
+	max-width: 95%;
+}
+
+.ui-dialog > .ui-dialog-titlebar {
+	display: flex;
+}
+
+.ui-dialog > .ui-dialog-titlebar::after {
+	display: none;
+}
+
+.ui-dialog > .ui-dialog-titlebar > .ui-dialog-titlebar-icon {
+	display: flex;
+	margin-top: 0;
+	align-items: center;
+	margin-left: auto;
+}
+
+.ui-dialog > .ui-dialog-titlebar,
+.ui-dialog > .ui-dialog-content {
+	flex-basis: 100%;
+}
+
+.ui-dialog > .ui-dialog-content {
+	height: calc(100% - 67px) !important; /* перекрываю inline css // 57 это высота заголовка диалога + 10 margin*/
+	padding: 10px 0 0;
+}
+
+/* выравнивание диалога по горизонтали с помощью css чтобы он сам выравнивался когда контент распиарет диалог */
+
+.ui-dialog.width-auto {
+	width: auto !important;
+	transform: translateX(-50%);
+	left: 50% !important;
+}
+
+/*
+1. Панель выпадайки в диалоге рендерится в конце body и позиционируется на экране относительно document
+поэтому панель скролится вместе со страницей.
+В этом случае нужно фиксировать панель относитьельно viewport, установив position: fixed.
+
+2. панель выпадайки можно рендерить сразу после самой выпадайки, добавив appendTo="@this",
+тогда панель не скролится со страницей, но распирает диалог. Распирание можно победить добавив
+.ui-dialog,
+.ui-dialog > .ui-dialog-content {
+	overflow: visible;
+}
+, но в этом случае у диалога пропадает скрол на маленьком экране.
+*/
+
+/*
+	panelStyleClass="fixed" надо прописывать выпадающим панелям, а вот appendTo="@this" прописывать нельзя
+
+	panelStyleClass="width-auto" выпадайка занимает всю ширину так как её никто не ограничивает, поэтому
+	можно добавить ей width-auto чтобы она занимала ширину по содержимому
+*/
+
+.fixed.ui-selectcheckboxmenu-panel,
+.fixed.ui-selectonemenu-panel {
+	position: fixed;
+}
+
+.width-auto.ui-selectcheckboxmenu-panel,
+.width-auto.ui-selectonemenu-panel {
+	width: auto !important;
+}
+
+.width-auto.ui-selectonemenu-panel > .ui-selectonemenu-items-wrapper {
+	overflow-y: hidden;
+}
+
+
+
+/***********************************************************************************************************************
+
+***********************************************************************************************************************/
+
+.ui-dialog > .ui-dialog-content > *:not(.dialog-footer-buttons) {
+	margin-right: 20px;
+	margin-left: 20px;
+	box-sizing: border-box;
+}
+
+.ui-dialog > .ui-dialog-content .dialog-footer-buttons {
+	margin-top: 10px;
+
+	padding: 10px 20px;
+	text-align: right;
+	border-top: 1px solid #d2d7d9;
+
+	position: sticky;
+	bottom: 0;
+	background-color: white;
+
+	margin-right: 0;
+	margin-left: 0;
+
+	z-index: 1; /* чтобы поверх кнопок не ездили элементы контента во время скрола */
+}
+
+.ui-dialog-content .message,
+.ui-dialog-content [class*="message-"] {
+	margin: 0 0 5px 0;
+}
+
+.ui-dialog > .ui-dialog-content .dialog-footer-buttons > .ui-button {
+	margin-left: 10px;
+}
+
+/***********************************************************************************************************************
+
+***********************************************************************************************************************/
+
+/* если внутри ui-dialog-content есть обертка dialog-footer-buttons значит нужен отрицательный отступ */
+.ui-dialog > .ui-dialog-content * .dialog-footer-buttons {
+	margin-left: -20px;
+	margin-right: -20px;
+}
+
+
+/***********************************************************************************************************************
+	поведение элементов в диалоге
+***********************************************************************************************************************/
+
+.ui-dialog > .ui-dialog-content .ui-treetable {
+	border: none;
+}
+
+/* меняю height на max-height, недостающие высоты нужно выписывать */
+.ui-dialog > .ui-dialog-content .ui-datatable > .ui-datatable-scrollable-body[style*="height:400px"] {
+	height: auto !important;
+	max-height: 400px;
+}
+
+
+/***********************************************************************************************************************
+
+***********************************************************************************************************************/
+
+.ui-dialog.m-ov-y-hidden .ui-dialog-content {
+	overflow: hidden;
+}
+
+.ui-dialog .ui-datatable.ui-datatable-scrollable table {
+	min-width: 350px;
+}
+

@@ -1,0 +1,162 @@
+/* здесь css для IE10+ */
+
+@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+
+	/* svg крутилка не поддерживается поэтому здесь прописываю gif */
+	body > .blockUI.ui-widget-overlay {
+		background: center no-repeat #bbb url("/ccwfm/javax.faces.resource/images/common/loading.gif.xhtml?ln=system&argus_v=1749652358876");
+		background-size: 32px;
+	}
+
+	/* диалог */
+	.ui-dialog > .ui-dialog-titlebar, .ui-dialog > .ui-dialog-content {
+		flex-basis: auto;
+	}
+
+	/* ui-grid */
+	[class*="ui-grid-col-"] {
+		/*white-space: nowrap; ставить нельзя иначе голый текст в td не переносится */
+	}
+
+	/* все виджеты в ячеечной структуре */
+	[class*='ui-grid-col-'] > .ui-widget,
+	table.grid > tbody > tr > td > .ui-widget,
+	[class*='name-value'] > dd > .ui-widget {
+		align-self: stretch;
+		flex-basis: auto;
+		width: 100%;
+	}
+
+	.ui-panelgrid .ui-panelgrid-cell.ui-grid-col-6 {
+		flex-basis: auto;
+		width: 50%;
+	}
+
+	/* виджет в ячейке который не нужно растягивать по горизонтали */
+	[class*="ui-grid-col-"] > .ui-chkbox,
+	table.grid > tbody > tr > td > .ui-chkbox,
+	[class*="name-value"] > dd > .ui-chkbox,
+
+	[class*="ui-grid-col-"] > .ui-spinner,
+	table.grid > tbody > tr > td > .ui-spinner,
+	[class*="name-value"] > dd > .ui-spinner,
+
+	[class*="ui-grid-col-"] > .ui-inputnumber,
+	table.grid > tbody > tr > td > .ui-inputnumber,
+	[class*="name-value"] > dd > .ui-inputnumber,
+
+	[class*="ui-grid-col-"] > .ui-button,
+	table.grid > tbody > tr > td > .ui-button,
+	[class*="name-value"] > dd > .ui-button,
+
+	[class*="ui-grid-col-"] > .ui-inputswitch,
+	table.grid > tbody > tr > td > .ui-inputswitch,
+	[class*="name-value"] > dd > .ui-inputswitch,
+
+	[class*="ui-grid-col-"] > .ui-selectonebutton,
+	table.grid > tbody > tr > td > .ui-selectonebutton,
+	[class*="name-value"] > dd > .ui-selectonebutton
+
+	{
+		flex-basis: auto;
+		width: auto;
+	}
+
+	/* slider фиксированный по высоте */
+	[class*="ui-grid-col-"] > .ui-slider,
+	table.grid > tbody > tr > td > .ui-slider,
+	[class*="name-value"] > dd > .ui-slider
+	{
+		height: 12px;
+	}
+
+	/* кнопка иконка без текста в ячейке */
+	[class*="ui-grid-col-"] > .ui-widget.ui-button-icon-only,
+	table.grid > tbody > tr > td > .ui-widget.ui-button-icon-only,
+	[class*="name-value"] > dd > .ui-widget.ui-button-icon-only
+	{
+		width: 33px;
+		flex-basis: 33px;
+	}
+
+
+	/* name-value типа grid */
+	[class*="name-value"] {
+		display: -ms-grid;
+		-ms-grid-columns: auto 1fr;
+	}
+
+	/* rows каждому элементу нужно прописать к какой строке он относится */
+
+	[class*="name-value"] > dd:nth-of-type(1),
+	[class*="name-value"] > dt:nth-of-type(1) {
+		-ms-grid-row: 1;
+	}
+
+	[class*="name-value"] > dd:nth-of-type(2),
+	[class*="name-value"] > dt:nth-of-type(2) {
+		-ms-grid-row: 2;
+	}
+
+	[class*="name-value"] > dd:nth-of-type(3),
+	[class*="name-value"] > dt:nth-of-type(3) {
+		-ms-grid-row: 3;
+	}
+
+	[class*="name-value"] > dd:nth-of-type(4),
+	[class*="name-value"] > dt:nth-of-type(4) {
+		-ms-grid-row: 4;
+	}
+
+	[class*="name-value"] > dd:nth-of-type(5),
+	[class*="name-value"] > dt:nth-of-type(5) {
+		-ms-grid-row: 5;
+	}
+
+	[class*="name-value"] > dd:nth-of-type(6),
+	[class*="name-value"] > dt:nth-of-type(6) {
+		-ms-grid-row: 6;
+	}
+
+	[class*="name-value"] > dd:nth-of-type(7),
+	[class*="name-value"] > dt:nth-of-type(7) {
+		-ms-grid-row: 7;
+	}
+
+	[class*="name-value"] > dd:nth-of-type(8),
+	[class*="name-value"] > dt:nth-of-type(8) {
+		-ms-grid-row: 8;
+	}
+
+	[class*="name-value"] > dd:nth-of-type(9),
+	[class*="name-value"] > dt:nth-of-type(9) {
+		-ms-grid-row: 9;
+	}
+
+	[class*="name-value"] > dd:nth-of-type(10),
+	[class*="name-value"] > dt:nth-of-type(10) {
+		-ms-grid-row: 10;
+	}
+
+	/* cols каждой колонке нужно прописать к какой колонке он относится */
+
+	[class*="name-value"] > dt {
+		-ms-grid-column: 1;
+	}
+
+	[class*="name-value"] > dd {
+		-ms-grid-column: 2;
+	}
+
+
+	/* для диалогов, так как flex не работает нормально */
+
+	[aria-live='polite'].ui-dialog {
+		display: block !important;
+	}
+
+	.ui-dialog-content {
+		max-height: 75vh;
+	}
+
+}

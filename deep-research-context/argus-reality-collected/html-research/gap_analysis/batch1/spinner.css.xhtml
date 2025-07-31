@@ -1,0 +1,35 @@
+/* спиннер */
+
+
+/* СТОИТ ЛИ СДЕЛАТЬ ДЕФОЛТНУЮ ШИРИНУ 100px */
+
+.ui-spinner {
+	width: 100px;
+}
+
+.ui-spinner > .ui-spinner-button {
+	position: absolute;
+	z-index: 0; /* иначе кнопки + - летают поверх диалога */
+}
+
+.ui-spinner > .ui-spinner-input {
+	width: 100%;
+	box-sizing: border-box;
+}
+
+/* спиннер без кнопок */
+.ui-spinner.no-buttons > .ui-spinner-button {
+	display: none;
+}
+
+/* спиннер внутри таблицы */
+.ui-cell-editor-input .ui-spinner input.ui-spinner-input {
+	box-sizing: border-box;
+	padding: 3px 9px !important;
+}
+
+.ui-spinner.width-100-percents > .ui-spinner-input {
+	width: 100%;
+	box-sizing: border-box;
+}
+

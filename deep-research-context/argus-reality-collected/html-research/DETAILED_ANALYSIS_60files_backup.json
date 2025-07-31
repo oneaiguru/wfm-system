@@ -1,0 +1,541 @@
+{
+  "schedule_management": {
+    "url": "/ccwfm/javax.faces.resource/env/styles/planning.css.xhtml",
+    "title": "",
+    "breadcrumbs": [],
+    "forms": [],
+    "buttons": [],
+    "menu_items": []
+  },
+  "employee_management": {
+    "url": "/ccwfm/views/env/personnel/WorkerListView-789ba2da5e53b.xhtml",
+    "title": "Сотрудники",
+    "breadcrumbs": [],
+    "forms": [
+      {
+        "action": "/ccwfm/views/env/personnel/WorkerListView.xhtml?cid=21",
+        "method": "post",
+        "inputs": [
+          {
+            "name": "default_form",
+            "type": "hidden",
+            "placeholder": "",
+            "value": "default_form"
+          },
+          {
+            "name": "javax.faces.ViewState",
+            "type": "hidden",
+            "placeholder": "",
+            "value": "-9033071853131131068:-2256355795496803823"
+          }
+        ]
+      },
+      {
+        "action": "/ccwfm/views/env/personnel/WorkerListView.xhtml?cid=21",
+        "method": "post",
+        "inputs": [
+          {
+            "name": "top_menu_form",
+            "type": "hidden",
+            "placeholder": "",
+            "value": "top_menu_form"
+          },
+          {
+            "name": "top_menu_form-j_idt51_input",
+            "type": "text",
+            "placeholder": "Искать везде...",
+            "value": ""
+          },
+          {
+            "name": "top_menu_form-j_idt51_hinput",
+            "type": "hidden",
+            "placeholder": "",
+            "value": ""
+          },
+          {
+            "name": "javax.faces.ViewState",
+            "type": "hidden",
+            "placeholder": "",
+            "value": "-9033071853131131068:-2256355795496803823"
+          }
+        ]
+      },
+      {
+        "action": "/ccwfm/views/env/personnel/WorkerListView.xhtml?cid=21",
+        "method": "post",
+        "inputs": [
+          {
+            "name": "mmf",
+            "type": "hidden",
+            "placeholder": "",
+            "value": "mmf"
+          },
+          {
+            "name": "javax.faces.ViewState",
+            "type": "hidden",
+            "placeholder": "",
+            "value": "-9033071853131131068:-2256355795496803823"
+          }
+        ]
+      },
+      {
+        "action": "/ccwfm/views/env/personnel/WorkerListView.xhtml?cid=21",
+        "method": "post",
+        "inputs": [
+          {
+            "name": "page_path_form",
+            "type": "hidden",
+            "placeholder": "",
+            "value": "page_path_form"
+          },
+          {
+            "name": "javax.faces.ViewState",
+            "type": "hidden",
+            "placeholder": "",
+            "value": "-9033071853131131068:-2256355795496803823"
+          }
+        ]
+      },
+      {
+        "action": "/ccwfm/views/env/personnel/WorkerListView.xhtml?cid=21",
+        "method": "post",
+        "inputs": [
+          {
+            "name": "worker_search_form",
+            "type": "hidden",
+            "placeholder": "",
+            "value": "worker_search_form"
+          },
+          {
+            "name": "worker_search_form-department_select_focus",
+            "type": "text",
+            "placeholder": "",
+            "value": ""
+          },
+          {
+            "name": "worker_search_form-department_select_input",
+            "type": "text",
+            "placeholder": "",
+            "value": ""
+          },
+          {
+            "name": "worker_search_form-segment_tree_search_input",
+            "type": "text",
+            "placeholder": "Поиск по сегменту",
+            "value": ""
+          },
+          {
+            "name": "worker_search_form-segment_tree_search_hinput",
+            "type": "hidden",
+            "placeholder": "",
+            "value": ""
+          },
+          {
+            "name": "worker_search_form-workers_search_input",
+            "type": "text",
+            "placeholder": "Поиск по ФИО / таб. номеру",
+            "value": ""
+          },
+          {
+            "name": "worker_search_form-workers_list_selection",
+            "type": "hidden",
+            "placeholder": "",
+            "value": ""
+          },
+          {
+            "name": "worker_search_form-workers_list_scrollState",
+            "type": "hidden",
+            "placeholder": "",
+            "value": "0,0"
+          },
+          {
+            "name": "worker_search_form-active_status_select",
+            "type": "radio",
+            "placeholder": "",
+            "value": "ALL"
+          },
+          {
+            "name": "worker_search_form-active_status_select",
+            "type": "radio",
+            "placeholder": "",
+            "value": "ACTIVE"
+          },
+          {
+            "name": "worker_search_form-active_status_select",
+            "type": "radio",
+            "placeholder": "",
+            "value": "INACTIVE"
+          },
+          {
+            "name": "javax.faces.ViewState",
+            "type": "hidden",
+            "placeholder": "",
+            "value": "-9033071853131131068:-2256355795496803823"
+          }
+        ]
+      },
+      {
+        "action": "/ccwfm/views/env/personnel/WorkerListView.xhtml?cid=21",
+        "method": "post",
+        "inputs": [
+          {
+            "name": "j_idt1045",
+            "type": "hidden",
+            "placeholder": "",
+            "value": "j_idt1045"
+          },
+          {
+            "name": "javax.faces.ViewState",
+            "type": "hidden",
+            "placeholder": "",
+            "value": "-9033071853131131068:-2256355795496803823"
+          }
+        ]
+      },
+      {
+        "action": "/ccwfm/views/env/personnel/WorkerListView.xhtml?cid=21",
+        "method": "post",
+        "inputs": [
+          {
+            "name": "global_editor-form",
+            "type": "hidden",
+            "placeholder": "",
+            "value": "global_editor-form"
+          },
+          {
+            "name": "javax.faces.ViewState",
+            "type": "hidden",
+            "placeholder": "",
+            "value": "-9033071853131131068:-2256355795496803823"
+          }
+        ]
+      },
+      {
+        "action": "/ccwfm/views/env/personnel/WorkerListView.xhtml?cid=21",
+        "method": "post",
+        "inputs": [
+          {
+            "name": "j_idt1055",
+            "type": "hidden",
+            "placeholder": "",
+            "value": "j_idt1055"
+          },
+          {
+            "name": "javax.faces.ViewState",
+            "type": "hidden",
+            "placeholder": "",
+            "value": "-9033071853131131068:-2256355795496803823"
+          }
+        ]
+      }
+    ],
+    "buttons": [
+      "Добавить нового сотрудника",
+      "Активировать сотрудника",
+      "Удалить сотрудника",
+      "Да",
+      "Нет",
+      "Сохранить",
+      "Отменить",
+      "Обновить"
+    ],
+    "menu_items": [
+      {
+        "text": "Мой кабинет",
+        "href": "/ccwfm/views/env/personnel/PersonalAreaIncomingView.xhtml"
+      },
+      {
+        "text": "Заявки",
+        "href": "/ccwfm/views/env/personnel/request/UserRequestView.xhtml"
+      },
+      {
+        "text": "Персонал",
+        "href": "#"
+      },
+      {
+        "text": "Сотрудники",
+        "href": "/ccwfm/views/env/personnel/WorkerListView.xhtml"
+      },
+      {
+        "text": "Группы",
+        "href": "/ccwfm/views/env/personnel/GroupListView.xhtml"
+      },
+      {
+        "text": "Службы",
+        "href": "/ccwfm/views/env/personnel/ServiceListView.xhtml"
+      },
+      {
+        "text": "Структура групп",
+        "href": "/ccwfm/views/env/personnel/SegmentsListView.xhtml"
+      },
+      {
+        "text": "Подразделения",
+        "href": "/ccwfm/views/env/personnel/DepartmentsView.xhtml"
+      },
+      {
+        "text": "Синхронизация персонала",
+        "href": "/ccwfm/views/env/personnel/synchronization/PersonnelSynchronizationView.xhtml"
+      },
+      {
+        "text": "Настройка ознакомлений",
+        "href": "/ccwfm/views/env/personnel/introduce/directory/WorkerIntroduceConfigView.xhtml"
+      },
+      {
+        "text": "Ознакомления",
+        "href": "/ccwfm/views/env/personnel/introduce/page/WorkerIntroduceView.xhtml"
+      },
+      {
+        "text": "Сбор данных по операторам",
+        "href": "/ccwfm/views/env/personnel/OperatorsHistoricalDataView.xhtml"
+      },
+      {
+        "text": "Передача данных по операторам",
+        "href": "/ccwfm/views/env/personnel/DataTransferByOperatorsView.xhtml"
+      },
+      {
+        "text": "Бизнес-правила",
+        "href": "/ccwfm/views/env/personnel/BusinessRulesView.xhtml"
+      },
+      {
+        "text": "Выработка",
+        "href": "/ccwfm/views/env/personnel/NormHoursView.xhtml"
+      },
+      {
+        "text": "Справочники",
+        "href": "#"
+      },
+      {
+        "text": "Правила работы",
+        "href": "/ccwfm/views/env/workrule/WorkRuleListView.xhtml"
+      },
+      {
+        "text": "Предпочтения",
+        "href": "/ccwfm/views/env/wish/WishAccessListView.xhtml"
+      },
+      {
+        "text": "Мероприятия",
+        "href": "/ccwfm/views/env/schedule/EventTemplateListView.xhtml"
+      },
+      {
+        "text": "Производственный календарь",
+        "href": "/ccwfm/views/env/schedule/ProductionCalendarView.xhtml"
+      },
+      {
+        "text": "Роли",
+        "href": "/ccwfm/views/env/security/RoleListView.xhtml"
+      },
+      {
+        "text": "Должности",
+        "href": "/ccwfm/views/env/personnel/PositionListView.xhtml"
+      },
+      {
+        "text": "Конфигурация эффективности рабочего времени",
+        "href": "/ccwfm/views/env/personnel/OperatorStateConfigView.xhtml"
+      },
+      {
+        "text": "Особые события",
+        "href": "/ccwfm/views/env/forecast/ForecastSpecialEventListView.xhtml"
+      },
+      {
+        "text": "Трудовые нормативы",
+        "href": "/ccwfm/views/env/personnel/WorkNormView.xhtml"
+      },
+      {
+        "text": "Настройка правил обмена",
+        "href": "/ccwfm/views/env/personnel/RequestRuleView.xhtml"
+      },
+      {
+        "text": "Отчёт по заработной плате",
+        "href": "/ccwfm/views/env/personnel/PayrollReportView.xhtml"
+      },
+      {
+        "text": "Обеды/перерывы",
+        "href": "/ccwfm/views/env/personnel/ShiftBreaksConfigView.xhtml"
+      },
+      {
+        "text": "Схемы отпусков",
+        "href": "/ccwfm/views/env/personnel/vocation/VacationSchemesView.xhtml"
+      },
+      {
+        "text": "Интеграционные системы",
+        "href": "/ccwfm/views/env/integration/IntegrationSystemView.xhtml"
+      },
+      {
+        "text": "Причины отсутствия",
+        "href": "/ccwfm/views/env/absenteism/AbsentReasonView.xhtml"
+      },
+      {
+        "text": "Часовые пояса",
+        "href": "/ccwfm/views/env/time/TimeZoneView.xhtml"
+      },
+      {
+        "text": "Схемы уведомлений",
+        "href": "/ccwfm/views/env/notification/NotificationSchemeView.xhtml"
+      },
+      {
+        "text": "Тип канала",
+        "href": "/ccwfm/views/env/personnel/ChannelTypeView.xhtml"
+      },
+      {
+        "text": "Деятельности",
+        "href": "/ccwfm/views/env/activity/ActivityListView.xhtml"
+      },
+      {
+        "text": "Прогнозирование",
+        "href": "#"
+      },
+      {
+        "text": "Настройки обновления",
+        "href": "/ccwfm/views/env/forecast/ForecastUpdateSettingsView.xhtml"
+      },
+      {
+        "text": "Просмотр нагрузки",
+        "href": "/ccwfm/views/env/forecast/ForecastListView.xhtml"
+      },
+      {
+        "text": "Спрогнозировать нагрузку",
+        "href": "/ccwfm/views/env/forecast/HistoricalDataListView.xhtml"
+      },
+      {
+        "text": "Импорт прогнозов",
+        "href": "/ccwfm/views/env/forecast/import/ImportForecastView.xhtml"
+      },
+      {
+        "text": "Анализ точности прогноза",
+        "href": "/ccwfm/views/env/forecast/ForecastAccuracyView.xhtml"
+      },
+      {
+        "text": "Массовое назначение прогнозов",
+        "href": "/ccwfm/views/env/assignforecast/MassiveAssignForecastsView.xhtml"
+      },
+      {
+        "text": "Анализ специальных дат",
+        "href": "/ccwfm/views/env/forecast/specialdate/SpecialDateAnalysisView.xhtml"
+      },
+      {
+        "text": "Планирование",
+        "href": "#"
+      },
+      {
+        "text": "Актуальное расписание",
+        "href": "/ccwfm/views/env/planning/ActualSchedulePlanView.xhtml"
+      },
+      {
+        "text": "Корректировка графиков работ",
+        "href": "/ccwfm/views/env/adjustment/WorkScheduleAdjustmentView.xhtml"
+      },
+      {
+        "text": "Мультискильное планирование",
+        "href": "/ccwfm/views/env/planning/SchedulePlanningSettingsView.xhtml"
+      },
+      {
+        "text": "Создание расписаний",
+        "href": "/ccwfm/views/env/planning/SchedulePlanningView.xhtml"
+      },
+      {
+        "text": "Критерии планирования",
+        "href": "/ccwfm/views/env/planning/UserPlanningConfigsView.xhtml"
+      },
+      {
+        "text": "Планирование графиков работ",
+        "href": "/ccwfm/views/env/schedule/OperatingScheduleSolutionView.xhtml"
+      },
+      {
+        "text": "Планирование вакансий",
+        "href": "/ccwfm/views/env/vacancy/VacancyPlanningView.xhtml"
+      },
+      {
+        "text": "Мониторинг",
+        "href": "#"
+      },
+      {
+        "text": "Управление группами",
+        "href": "/ccwfm/views/env/monitoring/GroupsManagementView.xhtml"
+      },
+      {
+        "text": "Оперативный контроль",
+        "href": "/ccwfm/views/env/monitoring/MonitoringDashboardView.xhtml"
+      },
+      {
+        "text": "Статусы операторов",
+        "href": "/ccwfm/views/env/monitoring/OperatorStatusesView.xhtml"
+      },
+      {
+        "text": "Настройка обновлений и оповещений",
+        "href": "/ccwfm/views/env/monitoring/UpdateSettingsView.xhtml"
+      },
+      {
+        "text": "Настройка пороговых значений",
+        "href": "/ccwfm/views/env/monitoring/ThresholdSettingView.xhtml"
+      },
+      {
+        "text": "Биржа",
+        "href": "/ccwfm/views/env/exchange/ExchangeView.xhtml"
+      },
+      {
+        "text": "Отчёты",
+        "href": "#"
+      },
+      {
+        "text": "Редактор отчётов",
+        "href": "/ccwfm/views/env/tmp/ReportTypeEditorView.xhtml"
+      },
+      {
+        "text": "Задачи на построение отчётов",
+        "href": "/ccwfm/views/env/tmp/task/ReportTaskListView.xhtml"
+      },
+      {
+        "text": "Соблюдение расписания",
+        "href": "/ccwfm/views/env/report/WorkerScheduleAdherenceReportView.xhtml"
+      },
+      {
+        "text": "Расчёт заработной платы",
+        "href": "/ccwfm/views/env/report/T13FormReportView.xhtml"
+      },
+      {
+        "text": "Отчёт по прогнозу и плану",
+        "href": "/ccwfm/views/env/report/ForecastAndPlanReportView.xhtml"
+      },
+      {
+        "text": "Список отчётов",
+        "href": "/ccwfm/views/env/tmp/ReportTypeMapView.xhtml"
+      },
+      {
+        "text": "Отчёт по опозданиям операторов",
+        "href": "/ccwfm/views/env/report/OperatorLateReportView.xhtml"
+      },
+      {
+        "text": "Отчёт по AHT",
+        "href": "/ccwfm/views/env/report/AhtReportView.xhtml"
+      },
+      {
+        "text": "Отчёт о %Ready",
+        "href": "/ccwfm/views/env/report/ReadyReportView.xhtml"
+      },
+      {
+        "text": "Отчёт по предпочтениям",
+        "href": "/ccwfm/views/env/report/WorkerWishReportView.xhtml"
+      },
+      {
+        "text": "График работы сотрудников",
+        "href": "/ccwfm/views/env/report/WorkerScheduleReportView.xhtml"
+      },
+      {
+        "text": "Отчёт по %absenteeism новый",
+        "href": "/ccwfm/views/env/report/AbsenteeismNewReportView.xhtml"
+      },
+      {
+        "text": "Отчёт по итогу планирования вакансий",
+        "href": "/ccwfm/views/env/report/ResultsOfVacancyPlanningReportView.xhtml"
+      }
+    ]
+  },
+  "manager_dashboard": {
+    "url": "/ccwfm/views/env/monitoring/MonitoringDashboardView-854106c7fc7838.xhtml",
+    "title": "",
+    "breadcrumbs": [],
+    "forms": [],
+    "buttons": [],
+    "menu_items": []
+  }
+}

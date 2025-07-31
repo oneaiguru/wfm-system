@@ -1,0 +1,682 @@
+/* jshint strict: implied, browser: true, laxbreak: true, laxcomma: true, sub: true */
+/* globals Argus, log, $, PrimeFaces, PF, checkState */
+// переопределение Argus.System нужно только для правильной работы Content Assist в Eclipse (чтобы виделись объекты system-inf.js)
+Argus.System = Argus.System || {};
+
+Argus.System.Comp = Argus.System.Comp || {};
+
+// некоторые компоненты реализуются полноценными виджетами в PrimeFaces.widget, а некоторые просто скриптами в
+// Argus.System.Comp
+
+/* --------------- */
+/* editableSection */
+/* --------------- */
+PrimeFaces.widget.EditableSection = PrimeFaces.widget.Inplace.extend({
+	init : function(cfg) {
+		this._super(cfg);
+
+		// namespace событий автосохранения
+		this.autosaveNS = '.autosave_' + this.id;
+
+		if (!this.cfg.disabled) {
+			// надо ограничение таббирования, чтобы нельзя было вылезти из секции - это нужно для ненарушения autosave,
+			// да и вообще
+			// за основу реализации взят кусок из файла dialog.js от PrimeFaces
+			var $this = this;
+			this.content.on('keydown.tabbing_' + this.id, function(e) {
+				if (e.keyCode === $.ui.keyCode.TAB) {
+					var tabbables = $this.content.find(':tabbable');
+					if (tabbables.length) {
+						var first = tabbables.filter(':first'), last = tabbables.filter(':last');
+
+						if ($(e.target).is(document.body)) {
+							first.focus(1);
+							e.preventDefault();
+						} else if (e.target === last[0] && !e.shiftKey) {
+							first.focus(1);
+							e.preventDefault();
+						} else if (e.target === first[0] && e.shiftKey) {
+							last.focus(1);
+							e.preventDefault();
+						}
+					}
+				}
+			});
+			// сохранение по Enter, отмена по Esc - только есть есть эдитор, т.е. нет режима глобального редактирования
+			if (this.cfg.editor) {
+				this.content.on('keydown.editorkeys_' + this.id, function(e) {
+					if (e.keyCode === $.ui.keyCode.ENTER) {
+						if (!Argus.System.Fn.isEnterHandler(e.target)) {
+							$this.save();
+						}
+					} else if (e.keyCode === $.ui.keyCode.ESCAPE) {
+						$this.cancel();
+					}
+				});
+			}
+		}
+
+		this.cfg.effect = 'fade'; // всегда fade, т.к. slide портит разметку редактора
+		this.cfg.effectSpeed = 100;
+	},
+
+	show : function() {
+		// собственно показывать content надо только после реквеста, поэтому _super будем вызывать в onsuccess
+		// для этого надо сделать функтор с забинденным this (используем jQuery, т.к. Function.prototype.bind нет в IE8)
+		var $this_super = $.proxy(this._super, this);
+		var $this = this;
+		var options = {
+			source : this.id,
+			update : '@none',
+			process : this.id,
+			formId : this.cfg.formId,
+			onsuccess : function(data, status, xhr, args) {
+				PrimeFaces.ajax.Response.handle(data, status, xhr); // update для порядка, хоть и не нужен пока (@none)
+				// вообще-то неправильно, наверное. что если update задел этот editableSection? кому _super вызывать?
+
+				// собственно отображение контента
+				$this_super();
+
+				if ($this.cfg.editor) {
+					// наличие эдитора означает отсутствие режима глобального редактирования, значит autosave нужен
+					$this.enableAutosave();
+				}
+
+				return true; // true = отмена дефолтной обработки (PrimeFaces.ajax.Response.handle)
+			}
+		};
+
+		options.params = [ {
+			name : this.id + '_show',
+			value : true
+		}, {
+			name : 'sys-edit-mode',
+			value : 'LOCAL'
+		} ];
+
+		if (this.hasBehavior('show')) {
+			var showBehavior = this.cfg.behaviors['show'];
+
+			showBehavior.call(this, options);
+		} else {
+			PrimeFaces.ajax.Request.handle(options);
+		}
+	},
+
+	enableAutosave : function() {
+		// важный момент: фокус может потеряться нажатием на кнопку за пределами секции, важно сделать сохранение
+		// секции до обработчиков click кнопки
+		// известно, что при переводе секции в режим редактирования, виджет Inplace установит фокус внутрь на первое
+		// подходящее поле
+
+		// firefox единственный не поддерживает focusin/focusout - jQuery компенсирует, но без relatedTarget
+		// firefox не дает relatedTarget и в focus/blur
+
+		// следующий подход давал неплохие результаты, timeout-функция во всех браузерах отрабатывала до click; но:
+		// 1. не отличить клики внутри секции, но не по focusable - например, пользователь промазал мимо инпута;
+		// 2. стало ясно, что придется делать воркэраунды, например, для компонентов с оверлеями типа p:calendar.
+		// p:calendar использует синглтон datepicker, который аппенден к body. после выбора даты в datepicker,
+		// фокусированным остается <a>-элемент пикера, нельзя ставить фокус обратно на поле, т.к. тогда пикер
+		// снова отобразится. получается, надо вешать focusout на этот <a>-элемент...
+		/*
+		 * var saveIfFocusLost = function(focusedElement) { if ($this.content.has(focusedElement).length > 0) { return; }
+		 * log.info('Autosaving section'); };
+		 * 
+		 * this.content.on('focusout.sys-comp-editable-section', function(e) { setTimeout(function() {
+		 * saveIfFocusLost(document.activeElement); }, 0); });
+		 */
+
+		// известно, что одновременно может редактироваться только одна секция - отсюда вопрос: почему бы не
+		// выбросить все focusout/blur, и не полагаться только на focusin/blur с логикой в духе "если фокус не
+		// внутри sys-comp-editable-section, то save редактируемый виджет EditableSection"?
+		// ответ: focusin и focus не срабатывают для не-focusable-элементов, типа div без tabindex -
+		// document.activeElement возвращает body, но события получения фокуса никто не получает
+		/* */
+
+		// можно делать, как делает PF для меню и прочих всплывающих - отталкиваться от mousedown снаружи секции. тогда:
+		// 1. без особых случаев для оверлеев тоже не обойтись, но будет проще;
+		// 2. надо отдельно предусматривать клавиатурную навигацию (Tab) - сделано в init.
+		// upd: новая проблема.
+		// 3. если по mousedown делать автосэйв-реквест, то появляется blockUI и принимает на себя
+		// mouseup и click - получается, они не доходят до нужного элемента (например, пользователь нажал на кнопку).
+		// вижу два решения.
+		// 3р1. проще всего обойти, биндясь на mouseup вместо mousedown, но тогда остается надеяться, что неизвестные
+		// обработчики mousedown и click не сделают ничего плохого: например, что если mousedown начал drag'n'drop? по
+		// крайней мере, реквесты PF не очень страшны, т.к. они в основном async=false - PF кладет их в
+		// PrimeFaces.ajax.Queue, за счет этого какой-нибудь сабмит action-кнопки произойдет после автосохранения. что
+		// если автосохранение заапдейтит всю страницу, а action-реквест сабмита был сформирован раньше по старому
+		// клиентскому состоянию? ц-ц-ц... и кстати в js компонентов PF можно найти и async=true реквесты, например,
+		// отложенная загрузка OutputPanel.
+		// 3р2. оставить mousedown; запоминать target, куда метили; по окончанию автосохранения кидать mouseup и click.
+		// опять же, что если автосохранение изменило состояние? вообще-то это нетипично для секций - обильно менять
+		// состояние снаружи... этот вариант решения выглядит соблазительным.
+		// FIXME [42922] обдумать автосохранение и доставка mouseup/click
+		var eventAutosaveNS = 'mouseup' + this.autosaveNS;
+		var $this = this;
+
+		var isOrHas = function(a, b) {
+			return a.is(b) || a.has(b).length > 0;
+		};
+		var doSave = function() {
+			log.info('Autosaving section', $this);
+			if ($this.content.is(':hidden')) {
+				log.error('Section content is already saved:', $this);
+				return;
+			}
+			$this.save();
+		};
+		// на html на всякий случай, если body занимает не весь вьюпорт браузера
+		$('html').off(eventAutosaveNS).on(eventAutosaveNS, function(e) {
+			// пропустить, если в клик в секции
+			var target = e.target;
+			if (isOrHas($this.content, target)) {
+				// log.debug('Clicked on ', target, ' inside the section ', $this.content);
+				return;
+			}
+			// пропустить, если клик в чем-то выпадающем типа календаря или меню
+			// селектор разбит на строки из-за проблемы с автоформатом
+			var overlaySelectorString = '.ui-datepicker, .ui-autocomplete-panel, .ui-selectonemenu-panel';
+			overlaySelectorString += ', .ui-selectcheckboxmenu-panel, .ui-editor-popup, #keypad-div';
+			overlaySelectorString += ', .ui-colorpicker-container';
+			overlaySelectorString += ', .ui-menuitem, .ui-menuitem-link'; //не реагировать на menubutton
+			overlaySelectorString += ', .blockUI'; // не реагировать на клики по блокеру UI
+			if (isOrHas($(overlaySelectorString), target)) {
+				// log.debug('Clicked on ', target, ' inside a datepicker');
+				return;
+			}
+			doSave();
+		});
+
+	},
+
+	disableAutosave : function() {
+		$('html').off(this.autosaveNS);
+	},
+
+	// XXX [MAINTAIN_PF 6.1] модифицированная копия метода
+	save : function(e) {
+		// FIXME
+		// Нужно снять обработчики, чтобы не вызвать save при следующем ивенте. Но снимать здесь безусловно нельзя, т.к.
+		// сохранение может не удасться (провал валидации). Снимать в oncomplete тоже нехорошо, т.к. пока выполняется
+		// автосохранение можно кликнуть и вызвать еще одно.
+		// Еще надо учитывать, что может быть сделано обычное сохранение кликом на кнопочку.
+		// Варианты.
+		// 1. Дизаблить в oncomplete; здесь делать return, если есть ajax.
+		// 2. Дизаблить здесь; реенаблить, если сохранение не удалось.
+		// Выбрал второй без рациональных причин. Смутно кажется надежнее.
+
+		// ниже не удалось добавить onstart из-за:
+		// http://code.google.com/p/primefaces/issues/detail?id=7547
+		// придется все-таки гарантировать отсутствие ajax
+		if (Argus.System.Ajax.isActive()) {
+			log.debug('Can\'t save editable section - there are active AJAX requests', this);
+			return;
+		}
+
+		this.disableAutosave();
+
+		var $this = this;
+
+		// Если сохранение не удалось и клик вызвал какой-то еще реквест, помимо автосохранения, то отменяем
+		// этот реквест в oncomplete (TASK-48356, TASK-50294).
+		// К сожалению, некоторые компоненты PrimeFaces содержат логику на кликах, которая выполняется сразу,
+		// вместо onsuccess/oncomplete своего реквеста. Для таких придется делать воркэраунды. Здесь сохраняется
+		// состояние для некоторых нехороших компонентов.
+		// (Это должно было быть в onstart, но вынуждено быть здесь - см. комментарий выше.)
+		$this.beforeWidgetsState = {};
+		for ( var wProp in PrimeFaces.widgets) {
+			var w = PrimeFaces.widgets[wProp];
+			if (w instanceof PrimeFaces.widget.TabView) {
+				$this.beforeWidgetsState[w.id] = function(w, selected) {
+					return function() {
+						w.stateHolder.val(selected);
+						w.cfg.selected = selected;
+					};
+				}(w, w.cfg.selected);
+			} else if (w instanceof PrimeFaces.widget.AccordionPanel) {
+				$this.beforeWidgetsState[w.id] = function(w, active) {
+					return function() {
+						w.cfg.active = active;
+						w.saveState();
+					};
+				}(w, w.cfg.active);
+			}
+		}
+
+		var options = {
+			source : this.id,
+			update : this.id,
+			process : this.id,
+			formId : this.cfg.formId,
+			oncomplete : function(xhr, status, args) {
+				if (args.validationFailed) {
+					// отмена других реквестов (см. комменты выше)
+					while (PrimeFaces.ajax.Queue.requests.length > 1) {
+						// реквест 0 - текущего автосохранения, остальные убрать
+
+						var sideRequest = PrimeFaces.ajax.Queue.requests[1];
+						// tabView и accordionPanel запоминают index выбранной вкладки и не будут реагировать на
+						// последующие
+						// клики на нее, если отменить реквест загрузки
+						if (sideRequest.event === 'tabChange') {
+							var wState = $this.beforeWidgetsState[sideRequest.source];
+							if (wState) {
+								wState.call();
+							} else {
+								log.error('No wState (', wState, ') for ', sideRequest.source);
+							}
+						}
+
+						PrimeFaces.ajax.Queue.requests.splice(1, 1);
+					}
+					// включить обработно автосейв (см. комменты в начале save)
+					$this.enableAutosave();
+				}
+				$this.beforeWidgetsState = null;
+			}
+		};
+
+		options.params = [ {
+			name : this.id + '_save',
+			value : true
+		} ];
+
+		if (this.hasBehavior('save')) {
+			var saveBehavior = this.cfg.behaviors['save'];
+
+			saveBehavior.call(this, options);
+		} else {
+			PrimeFaces.ajax.AjaxRequest(options);
+		}
+	},
+
+	cancel : function(e) {
+		// снять обработчики, чтобы не вызвать save при следующем ивенте
+		this.disableAutosave();
+		this._super(e);
+	},
+
+	hide : function() {
+		// нельзя вызывать hide, можно только save или cancel
+		log.error('Unsupported operation on the section', this);
+	}
+});
+
+/* --------------------- */
+/* editableDialogSection */
+/* --------------------- */
+PrimeFaces.widget.EditableDialogSection = PrimeFaces.widget.BaseWidget.extend({
+	init : function(cfg) {
+		this._super(cfg);
+	},
+
+	save : function() {
+		this.sendRequest('save', 'save');
+	},
+
+	cancel : function() {
+		this.sendRequest('cancel', 'cancel');
+	},
+
+	close : function() {
+		this.sendRequest('close', 'save');
+	},
+
+	sendRequest : function(requestSuffix, eventName) {
+		var options = {
+			source : this.id,
+			update : this.id,
+			process : this.id
+		};
+
+		options.params = [ {
+			name : this.id + '_' + requestSuffix,
+			value : true
+		} ];
+
+		options.partialSubmit = true;
+
+		if (this.hasBehavior(eventName)) {
+			var eventBehavior = this.cfg.behaviors[eventName];
+
+			eventBehavior.call(this, options);
+		} else {
+			PrimeFaces.ajax.AjaxRequest(options);
+		}
+	},
+
+	hasBehavior : function(event) {
+		if (this.cfg.behaviors) {
+			return this.cfg.behaviors[event] !== undefined;
+		}
+
+		return false;
+	}
+});
+
+Argus.System.Comp.ExpandButton = {
+	resizeLayout : function(panePath, button) {
+		var buttonImageSpan = $(button).children(':first-child');
+		var pane = $("[data-combinedposition='" + panePath + "']");
+		var content = $('#content_body');
+		var oldSize = $(button).data('oldSize');
+
+		if (oldSize === null || oldSize === undefined) {
+			$(button).data('oldSize', pane.height());
+			PF('mainLayoutVar').sizePane(panePath, content.height());
+			buttonImageSpan.removeClass('ui-expand-button-icon-up').addClass('ui-expand-button-icon-down');
+		} else {
+			PF('mainLayoutVar').sizePane(panePath, oldSize);
+			$(button).data('oldSize', null);
+			buttonImageSpan.removeClass('ui-expand-button-icon-down').addClass('ui-expand-button-icon-up');
+		}
+	}
+};
+
+checkState(PrimeFaces.widget.StickyTranslate === undefined);
+PrimeFaces.widget.StickyTranslate = PrimeFaces.widget.BaseWidget.extend({
+	init : function(cfg) {
+		this._super(cfg);
+
+		this.target = PrimeFaces.expressions.SearchExpressionFacade.resolveComponentsAsSelector(this.cfg.target);
+		checkState(this.target.length === 1);
+
+		if (this.cfg.scrollContainer !== undefined) {
+			this.scrollContainer = PrimeFaces.expressions.SearchExpressionFacade
+					.resolveComponentsAsSelector(this.cfg.scrollContainer);
+		} else {
+			this.scrollContainer = this.target.closest('.ui-layout-content');
+		}
+		checkState(this.scrollContainer.length === 1);
+
+		this.calcOffset();
+
+		this.rebindEvents();
+	},
+
+	calcOffset : function() {
+		// узнаем и запомним изначальное смещение относительно скроллируемой области на случай, если над
+		// залепляемым куском есть что-то еще
+		checkState(!this.target[0].style.transform); // иначе узнаем неправильный оффсет с трансформом
+
+		// this.offsetTop = $thead.position().top; // дает неправильный результат в IE9 (-42 в TaskSummaryView)
+		// из наблюдения этой ошибки также принято решение не пытаться выяснять scrollContainer автоматически
+		// так что получаем оффсет как разницу абсолютных (во вьюпорте) позиций for и scrollContainer
+		// не учтет паддинг/бордер в scrollContainer, но пока устраивает
+
+		this.offsetTop = this.target[0].getBoundingClientRect().top
+				- this.scrollContainer[0].getBoundingClientRect().top;
+
+		// ++this.offsetTop; // а то просвет сверху остается
+		// нет, все-таки просвет остается только иногда в IE; а вот если добавить этот пиксель, то верхний бордер thead
+		// будет во всех браузерах не виден. пусть лучше будет иногда просвет.
+
+		// контейнер может быть уже проскроллен: например, если это update
+		this.offsetTop += this.scrollContainer[0].scrollTop;
+
+		log.debug('Для', this.target, 'рассчитан отступ', this.offsetTop, 'внутри', this.scrollContainer);
+	},
+
+	rebindEvents : function(dontBind) {
+		var $this = this;
+
+		var handle = this.getOnScrollHandler();
+
+		var scrollNS = 'scroll.stickyTranslate' + this.id;
+		this.scrollContainer.off(scrollNS);
+
+		if (!dontBind) {
+			this.scrollContainer.on(scrollNS, function() {
+				handle();
+			});
+		}
+
+		// в конце реквестов тоже надо обновлять, т.к. все могло разъехаться
+		// например, в сводных отчетах по нажатию кнопок разворачивания/сворачивания
+		var ajaxNS = 'stickyTranslate.' + this.id;
+		Argus.System.Ajax.offComplete(ajaxNS);
+
+		if (!dontBind) {
+			Argus.System.Ajax.onComplete(function() {
+				handle();
+			}, ajaxNS);
+		}
+	},
+
+	getOnScrollHandler : function() {
+		var $this = this;
+
+		// в IE9 transform с префиксом
+		var transformProp = PrimeFaces.env.isIE(9) ? 'msTransform' : 'transform';
+
+		var applyFunc = function(translate) {
+			$this.target[0].style[transformProp] = translate;
+		};
+
+		// в IE9-11 и Edge не работает трансформация thead, но работает td
+		if ((PrimeFaces.env.isIE() || Argus.System.Fn.isBrowserEdge()) && this.target.is('thead')) {
+			applyFunc = function(translate) {
+				$this.target.children().children().each(function() {
+					this.style[transformProp] = translate;
+				});
+			};
+		}
+
+		return function() {
+			var scrollTop = $this.scrollContainer[0].scrollTop;
+
+			var translate;
+			if (scrollTop > $this.offsetTop)
+				translate = 'translateY(' + (scrollTop - $this.offsetTop) + 'px)';
+			else
+				translate = '';
+
+			applyFunc(translate);
+		};
+	},
+
+	destroy : function() {
+		// unbind event handlers
+		this.rebindEvents(true);
+	}
+
+});
+/**
+ * @author: o.bazdyrev 
+ * Доработанная Panel, умеющая сохранять и восстанавливать свое состояние (свернута/развернута) из localStorage
+ * PrimeFaces Panel Widget
+ */
+PrimeFaces.widget.StatefulPanel = PrimeFaces.widget.BaseWidget.extend({
+    
+    init: function(cfg) {
+        this._super(cfg);
+        this.header = this.jq.children('div.ui-panel-titlebar');
+        this.title = this.header.children('span.ui-panel-title');
+        this.content = $(this.jqId + '_content');
+        
+        this.bindEvents();
+        
+        // загружаем состояние
+        var collapsed = localStorage.getItem(this.jqId + '-collapsed') === 'true';
+        if (collapsed) {
+        	this.collapse();
+        	$(this.jqId + '_content').css({'display': 'none'});
+        	$(this.jqId).removeClass('ui-hidden-container');        	
+        }
+    },
+    
+    bindEvents: function() {
+        if(this.cfg.toggleable) {
+            this.bindToggler();
+        }
+
+        if(this.cfg.closable) {
+            this.bindCloser();
+        }
+        
+        if(this.cfg.hasMenu) {
+            $(this.jqId + '_menu').on('click.panel', function(e) {
+                e.preventDefault();
+            });
+        }
+        
+        //visuals for action items
+        this.header.find('.ui-panel-titlebar-icon').on('mouseover.panel',function() {
+            $(this).addClass('ui-state-hover');
+        }).on('mouseout.panel',function() {
+            $(this).removeClass('ui-state-hover');
+        }).on('click.panel', function(e) {
+            e.preventDefault();
+        });
+    },
+            
+    toggle: function() {
+        if(this.cfg.collapsed) {
+            this.expand();
+            PrimeFaces.invokeDeferredRenders(this.id);
+        }
+        else {
+            this.collapse();
+        }
+    },
+    
+    expand: function() {
+        this.toggleState(false, 'ui-icon-plusthick', 'ui-icon-minusthick');
+        
+        if(this.cfg.toggleOrientation === 'vertical')
+            this.slideDown();
+        else if(this.cfg.toggleOrientation === 'horizontal')
+            this.slideRight();    
+        
+        // сохраняем состояние        
+        localStorage.setItem(this.jqId + '-collapsed', 'false');
+    },
+    
+    collapse: function() {
+        this.toggleState(true, 'ui-icon-minusthick', 'ui-icon-plusthick');
+        
+        if(this.cfg.toggleOrientation === 'vertical')
+            this.slideUp();
+        else if(this.cfg.toggleOrientation === 'horizontal')
+            this.slideLeft();
+        
+        // сохраняем состояние        
+        localStorage.setItem(this.jqId + '-collapsed', 'true');
+    },
+    
+    slideUp: function() {        
+        this.content.slideUp(this.cfg.toggleSpeed, 'easeInOutCirc');
+    },
+    
+    slideDown: function() {        
+        this.content.slideDown(this.cfg.toggleSpeed, 'easeInOutCirc');
+    },
+    
+    slideLeft: function() {
+        var _self = this;
+        
+        this.originalWidth = this.jq.width();
+                
+        this.title.hide();
+        this.toggler.hide();
+        this.content.hide();
+
+        this.jq.animate({
+            width: '42px'
+        }, this.cfg.toggleSpeed, 'easeInOutCirc', function() {
+            _self.toggler.show();
+            _self.jq.addClass('ui-panel-collapsed-h');
+        });
+    },
+    
+    slideRight: function() {
+        var _self = this,
+        expandWidth = this.originalWidth||'100%';
+        
+        this.toggler.hide();
+        
+        this.jq.animate({
+            width: expandWidth
+        }, this.cfg.toggleSpeed, 'easeInOutCirc', function() {
+            _self.jq.removeClass('ui-panel-collapsed-h');
+            _self.title.show();
+            _self.toggler.show();
+        
+            _self.content.css({
+                'visibility': 'visible'
+                ,'display': 'block'
+                ,'height': 'auto'
+            });
+        });
+    },
+    
+    toggleState: function(collapsed, removeIcon, addIcon) {
+        this.toggler.children('span.ui-icon').removeClass(removeIcon).addClass(addIcon);
+        this.cfg.collapsed = collapsed;
+        this.toggleStateHolder.val(collapsed);
+        
+        this.fireToggleEvent();
+    },
+    
+    fireToggleEvent: function() {
+        if(this.cfg.behaviors) {
+            var toggleBehavior = this.cfg.behaviors['toggle'];
+            
+            if(toggleBehavior) {
+                toggleBehavior.call(this);
+            }
+        }
+    },
+    
+    close: function() {
+        if(this.visibleStateHolder) {
+            this.visibleStateHolder.val(false);
+        }
+        
+        var $this = this;
+        this.jq.fadeOut(this.cfg.closeSpeed,
+            function(e) {
+                if($this.cfg.behaviors) {
+                    var closeBehavior = $this.cfg.behaviors['close'];
+                    if(closeBehavior) {
+                        closeBehavior.call($this);
+                    }
+                }
+            }
+        );
+    },
+    
+    show: function() {
+        var $this = this;
+        $(this.jqId).fadeIn(this.cfg.closeSpeed, function() {
+            PrimeFaces.invokeDeferredRenders($this.id);
+        });
+
+        this.visibleStateHolder.val(true);
+    },
+    
+    bindToggler: function() {
+        var $this = this;
+        
+        this.toggler = $(this.jqId + '_toggler');
+        this.toggleStateHolder = $(this.jqId + '_collapsed');
+
+        this.toggler.click(function(e) {
+            $this.toggle();
+            e.preventDefault();
+        });
+    },
+    
+    bindCloser: function() {
+        var $this = this;
+        
+        this.closer = $(this.jqId + '_closer');
+        this.visibleStateHolder = $(this.jqId + "_visible");
+
+        this.closer.click(function(e) {
+            $this.close();
+            e.preventDefault();
+        });
+    }
+
+});

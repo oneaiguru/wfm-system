@@ -1,0 +1,106 @@
+/* jshint strict: implied, browser: true, laxbreak: true, laxcomma: true, sub: true */
+/* globals Argus, log, $, PrimeFaces, PF, checkState, PrimeFacesExt */
+/**
+ * Файл с локализациями для компонентов PF.
+ * https://github.com/primefaces/primefaces/wiki/Locales
+ * TODO Client-Side Bean Validation
+ */
+PrimeFaces.locales ['ru'] = {
+    closeText: 'Закрыть',
+    prevText: 'Назад',
+    nextText: 'Вперёд',
+    monthNames: ['Январь', 'Февраль' , 'Март' , 'Апрель' , 'Май' , 'Июнь' , 'Июль' , 'Август' , 'Сентябрь','Октябрь','Ноябрь','Декабрь' ],
+    monthNamesShort: ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек' ],
+    dayNames: ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'],
+    dayNamesShort: ['Воск','Пон' , 'Вт' , 'Ср' , 'Четв' , 'Пят' , 'Суб'],
+    dayNamesMin: ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
+    weekHeader: 'Неделя',
+    firstDay: 1,
+    isRTL: false,
+    showMonthAfterYear: false,
+    yearSuffix:'',
+    timeOnlyTitle: 'Выбрать время',
+    timeText: 'Время',
+    hourText: 'Час',
+    minuteText: 'Минута',
+    secondText: 'Секунда',
+    currentText: 'Сегодня',
+    ampm: false,
+    month: 'Месяц',
+    week: 'Неделя',
+    day: 'День',
+    allDayText: 'Весь день',
+
+    // Timeline после переезда в PF в версии 6
+    'MONTHS': ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"],
+    'MONTHS_SHORT': ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
+    'DAYS': ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"],
+    'DAYS_SHORT': ["Вос", "Пон", "Втo", "Срe", "Чет", "Пят", "Суб"],
+    'ZOOM_IN': "Увeличить",
+    'ZOOM_OUT': "Умeньшить",
+    'MOVE_LEFT': "Сдвинуть налeво",
+    'MOVE_RIGHT': "Сдвинуть направо",
+    'NEW': "Новый",
+    'CREATE_NEW_EVENT': "Создать новоe событиe",
+
+    messages: {
+        'javax.faces.component.UIInput.REQUIRED': '{0}: Ошибка валидации: Необходимо ввести значение.',
+        'javax.faces.converter.IntegerConverter.INTEGER': '{2}: \'{0}\' должно быть число, состоящее из одной или более цифр.',
+        'javax.faces.converter.IntegerConverter.INTEGER_detail': '{2}: \'{0}\' должно быть число между -2147483648 и 2147483647 Пример: {1}',
+        'javax.faces.converter.DoubleConverter.DOUBLE': '{2}: \'{0}\' должно быть число, состоящее из одной или более цифр.',
+        'javax.faces.converter.DoubleConverter.DOUBLE_detail': '{2}: \'{0}\' должно быть число между 4.9E-324 и 1.7976931348623157E308  Пример: {1}',
+        'javax.faces.converter.BigIntegerConverter.BIGINTEGER': '{2}: \'{0}\' должно быть число, состоящее из одной или более цифр.',
+        'javax.faces.converter.BigIntegerConverter.BIGINTEGER_detail': '{2}: \'{0}\' должно быть число, состоящее из одной или более цифр. Пример: {1}',
+        'javax.faces.converter.ByteConverter.BYTE': '{2}: \'{0}\' должно быть число между 0 и 255.',
+        'javax.faces.converter.ByteConverter.BYTE_detail': '{2}: \'{0}\' должно быть число между 0 и 255.  Пример: {1}',
+        'javax.faces.converter.CharacterConverter.CHARACTER': '{1}: \'{0}\' не допустимый символ.',
+        'javax.faces.converter.CharacterConverter.CHARACTER_detail': '{1}: \'{0}\' должен быть ASCII символ.',
+        'javax.faces.converter.ShortConverter.SHORT': '{2}: \'{0}\' должно быть число, состоящее из одной или более цифр.',
+        'javax.faces.converter.ShortConverter.SHORT_detail': '{2}: \'{0}\' должно быть число между -32768 и 32767 Пример: {1}',
+        'javax.faces.converter.BooleanConverter.BOOLEAN': '{1}: \'{0}\' должно быть \'да\' или \'нет\'',
+        'javax.faces.converter.BooleanConverter.BOOLEAN_detail': '{1}: \'{0}\' должно быть \'да\' или \'нет\'.  Любое значение отличное от \'да\' будет преобразовано в \'нет\'.',
+        'javax.faces.validator.LongRangeValidator.MAXIMUM': '{1}: Ошибка валидации: Значение больше чем допустимый максимум \'{0}\'',
+        'javax.faces.validator.LongRangeValidator.MINIMUM': '{1}: Ошибка валидации: Значение меньше чем допустимый минимум \'{0}\'',
+        'javax.faces.validator.LongRangeValidator.NOT_IN_RANGE': '{2}: Ошибка валидации: Указанный атрибут не в ожидаемом промежутке значений {0} и {1}.',
+        'javax.faces.validator.LongRangeValidator.TYPE={0}': 'Ошибка валидации: Значение не верного типа.',
+        'javax.faces.validator.DoubleRangeValidator.MAXIMUM': '{1}: Ошибка валидации: Значение больше чем допустимый максимум \'{0}\'',
+        'javax.faces.validator.DoubleRangeValidator.MINIMUM': '{1}: Ошибка валидации: Значение меньше чем допустимый минимум \'{0}\'',
+        'javax.faces.validator.DoubleRangeValidator.NOT_IN_RANGE': '{2}: Ошибка валидации: Указанный атрибут не в ожидаемом промежутке значений {0} и {1}',
+        'javax.faces.validator.DoubleRangeValidator.TYPE={0}': 'Ошибка валидации: Значение не верного типа',
+        'javax.faces.converter.FloatConverter.FLOAT': '{2}: \'{0}\' должно быть число, состоящее из одной или более цифр.',
+        'javax.faces.converter.FloatConverter.FLOAT_detail': '{2}: \'{0}\' должно быть число между 1.4E-45 и 3.4028235E38  Пример: {1}',
+        'javax.faces.converter.DateTimeConverter.DATE': '{2}: \'{0}\' не может быть распознано как дата.',
+        'javax.faces.converter.DateTimeConverter.DATE_detail': '{2}: \'{0}\' не может быть распознано как дата. Пример: {1}',
+        'javax.faces.converter.DateTimeConverter.TIME': '{2}: \'{0}\' не может быть распознано как время.',
+        'javax.faces.converter.DateTimeConverter.TIME_detail': '{2}: \'{0}\' не может быть распознано как время. Пример: {1}',
+        'javax.faces.converter.DateTimeConverter.DATETIME': '{2}: \'{0}\' не может быть распознано как дата и время.',
+        'javax.faces.converter.DateTimeConverter.DATETIME_detail': '{2}: \'{0}\' не может быть распознано как дата и время. Пример: {1}',
+        'javax.faces.converter.NumberConverter.PERCENT': '{2}: \'{0}\' не может быть распознано как проценты.',
+        'javax.faces.converter.NumberConverter.PERCENT_detail': '{2}: \'{0}\' не может быть распознано как проценты. Пример: {1}',
+        'javax.faces.converter.NumberConverter.NUMBER': '{2}: \'{0}\' не может быть распознано как дата.',
+        'javax.faces.converter.NumberConverter.NUMBER_detail': '{2}: \'{0}\' не число. Пример: {1}',
+        'javax.faces.converter.NumberConverter.PATTERN': '{2}: \'{0}\' не число допустимого формата.',
+        'javax.faces.converter.NumberConverter.PATTERN_detail': '{2}: \'{0}\' не число допустимого формата. Пример: {1}',
+        'javax.faces.validator.LengthValidator.MINIMUM': '{1}: Ошибка валидации: Длина меньше чем допустимый минимум \'{0}\'',
+        'javax.faces.validator.LengthValidator.MAXIMUM': '{1}: Ошибка валидации: Длина больше чем допустимый максимум \'{0}\'',
+        'javax.faces.validator.RegexValidator.NOT_MATCHED': 'Не соответствует регулярнрому выражению',
+        'javax.faces.validator.RegexValidator.NOT_MATCHED_detail': 'Не соответствует регулярнрому выражению \'{0}\'',
+        'javax.faces.validator.RegexValidator.MATCH_EXCEPTION': 'Ошибка в регулярном выражении.',
+        'javax.faces.validator.RegexValidator.MATCH_EXCEPTION_detail': 'Ошибка в регулярном выражении, \'{0}\'',
+        'javax.faces.converter.LongConverter.LONG' : '\'{0}\' Слишком большое число',
+        'javax.faces.converter.LongConverter.LONG_detail' : '\'{0}\' Слишком большое число'
+    }	
+};
+
+// PFE может не быть на некоторых страницах
+if (typeof PrimeFacesExt !== 'undefined') {
+	PrimeFacesExt.locales.TimePicker['ru'] = {
+	    hourText: 'Часы',
+	    minuteText: 'Минуты',
+	    amPmText: ['AM', 'PM'] ,
+	    closeButtonText: 'Закрыть',
+	    nowButtonText: 'Тeкущee врeмя',
+	    deselectButtonText: 'Очистить'
+	};
+	
+}

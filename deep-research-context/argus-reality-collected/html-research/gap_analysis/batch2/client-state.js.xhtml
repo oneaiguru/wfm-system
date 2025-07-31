@@ -1,0 +1,656 @@
+'use strict';
+/* jshint strict: global, browser: true, laxbreak: true, laxcomma: true, sub: true */
+/* globals Argus, log, $, PrimeFaces, PF, checkState */
+/**
+ * Состояние клиента.
+ * <p>
+ * Наблюдение за пользовательскими изменениями внешнего вида компонентов, т.е Presentation State. Сохранение изменений в
+ * localStorage. При открытии/обновлении страницы восстановление и применение пользовательских настроек.
+ * <p>
+ * Для использования необходимо ассоциировать sysinf:clientState с компонентом, нуждающимся в опеке.
+ */
+Argus.System.ClientState = {
+
+	_STORAGE_KEY_PREFIX : 'SysInf-ClState-',
+
+	/**
+	 * Зарегистрированные компоненты и инстансы StateAccessor для текущих состояний. Для одного компонента в отдельный
+	 * момент здесь может быть только один StateAccessor, актуальный в этот момент. Хранятся в виде пар свойств
+	 * widgetVar: StateAccessor.
+	 */
+	_registeredComponents : {},
+
+	/**
+	 * Регистрирует компонент и его идентификатор состояния. Вызывается компонентом sysinf:clientState.
+	 * 
+	 * @param widget
+	 *            виджет компонента
+	 * @param stateId
+	 *            идентификатор состояния компонента
+	 */
+	register : function(widget, stateId) {
+		var stateAccessor = this._createStateAccessorInstance(widget, stateId);
+		this._registeredComponents[widget.widgetVar] = stateAccessor;
+		log.debug('Зарегистрирован компонент', widget, 'с объектом доступа к состоянию ' + stateAccessor);
+	},
+
+	/**
+	 * Инициализация механизма ClientState в целом. Вызывается в конце рендеринга тела страницы.
+	 */
+	init : function() {
+		if (!Argus.System.Storage.Local.isAvailable()) {
+			log.fatal('Хранение клиентского состояния недоступно - не поддерживается localStorage');
+			return;
+		}
+
+		$(function() {
+			Argus.System.ClientState._reinit();
+		});
+		Argus.System.Ajax.onComplete(function() {
+			Argus.System.ClientState._reinit();
+		});
+	},
+
+	/**
+	 * Переинициализация сохранения состояния клиента. Восстанавливает сохраненное состояние, инициализирует
+	 * отслеживание и сохранение изменений.
+	 */
+	_reinit : function() {
+		var widgetVars = Object.keys(this._registeredComponents);
+		if (widgetVars.length === 0) {
+			// log.debug('Пропуск переинициализации ClientState - нет зарегистрированных компонентов');
+			return;
+		}
+		log.info('Запуск переинициализации ClientState для зарегистрированных компонентов ' + widgetVars);
+		for ( var widgetVar in this._registeredComponents) {
+			var widget = PF(widgetVar);
+
+			// restoreAndApplyState в отдельном методе, т.к. нужно такое API для вызова снаружи
+			this.restoreAndApplyState(widget);
+
+			var stateAccessor = this._registeredComponents[widgetVar];
+			stateAccessor.watchAndSaveState(widget);
+		}
+		log.info('Выполнена переинициализация ClientState');
+	},
+
+	/**
+	 * Возвращает идентификатор текущего состояния по виджету.
+	 * 
+	 * @param widget
+	 *            виджет
+	 * @returns идентификатор текущего состояния
+	 */
+	getStateId : function(widget) {
+		return this._registeredComponents[widget.widgetVar].getStateId();
+	},
+
+	/**
+	 * Для указанного виджета берет из хранилища соответствующее виджету текущее состояние и применяет его. Это API для
+	 * программного применения состояния снаружи, например, для реализации персистенции. Перед вызовом этого метода
+	 * нужно вызывать saveState для задания нужного состояния.
+	 */
+	restoreAndApplyState : function(widget) {
+		// Виджет может быть зарегистрирован, но не загружен, что приведет к исключению и неработоспособности страницы.
+		if (widget !== null) {
+			var stateAccessor = this._registeredComponents[widget.widgetVar];
+			stateAccessor.restoreAndApplyState();
+		}
+	},
+
+	/**
+	 * Достает состояние из localStorage в виде строки, понятной соответствующему StateAccessor. Не надо пытаться ее
+	 * парсить. Часть API для персистентности.
+	 * 
+	 * @param stateId
+	 *            идентификатор состояния
+	 * @returns {string} строка-состояние; null при отстутствии или ошибке
+	 */
+	getStateString : function(stateId) {
+		return Argus.System.Storage.Local.getStringValue(this._STORAGE_KEY_PREFIX + stateId);
+	},
+
+	/**
+	 * Сохраняет состояние в localStorage в виде строки, понятной соответствующему StateAccessor. Ожидается строка,
+	 * которая когда-то было получена из #getStateString. Часть API для персистентности.
+	 * 
+	 * @param stateId
+	 *            идентификатор состояния
+	 * @param state
+	 *            строка-состояние
+	 * @returns успех операции
+	 */
+	setStateString : function(stateId, state) {
+		return Argus.System.Storage.Local.setStringValue(this._STORAGE_KEY_PREFIX + stateId, state);
+	},
+
+	/**
+	 * Удалить состояние stateId из localStorage.
+	 *
+	 * @param stateId
+	 *            идентификатор состояния
+	 * @returns {*|boolean} успех операции
+	 */
+	deleteState : function(stateId) {
+		return Argus.System.Storage.Local.removeKey(this._STORAGE_KEY_PREFIX + stateId);
+	},
+
+	/**
+	 * Получить все имеющиеся в localStorage stateId с указанным префиксом. Часть API для персистентности, позволяющая
+	 * проще реализовать персистентность в виде сохранения всех состояний компонента за раз. (Для восстановления всех
+	 * состояний особое API не нужно - просто вызывай setStateString в цикле.)
+	 * 
+	 * @param stateIdPrefix
+	 *            префикс искомых идентификаторов состояния
+	 * @returns массив строк-идентификаторов
+	 */
+	getStateIds : function(stateIdPrefix) {
+		var stateIds = [];
+		var prefixLen = this._STORAGE_KEY_PREFIX.length;
+		Argus.System.Storage.Local.forEachKey(function(key) {
+			if (key.startsWith(this._STORAGE_KEY_PREFIX + stateIdPrefix))
+				stateIds.push(key.substring(prefixLen));
+		});
+		return stateIds;
+	},
+
+	/**
+	 * Создает и возвращает соответствующий компоненту StateAccessor для указанного stateId.
+	 */
+	_createStateAccessorInstance : function(widget, stateId) {
+		if (!this._STATE_ACCESSORS) {
+			this._STATE_ACCESSORS = this._getStateAccessors();
+		}
+
+		for (var i = 0; i < this._STATE_ACCESSORS.length; ++i) {
+			var StateAccessor = this._STATE_ACCESSORS[i];
+
+			if (StateAccessor.prototype.handles(widget)) {
+				return new StateAccessor(widget, stateId);
+			}
+		}
+	},
+
+	/**
+	 * Инициализирует и прячет в себе реализации доступа к состояниям разных компонентов.
+	 */
+	_getStateAccessors : function() {
+		// StateAccessor super class - описание API
+
+		/**
+		 * Конструктор StateAccessor.
+		 * 
+		 * @param widget
+		 *            виджет
+		 * @param stateId
+		 *            идентификатор состояния
+		 */
+		function StateAccessor(widget, stateId) {
+			this._widget = widget;
+			this._stateId = stateId;
+		}
+
+		/**
+		 * stateId, которому посвящен инстанс StateAccessor.
+		 */
+		StateAccessor.prototype.getStateId = function() {
+			return this._stateId;
+		};
+
+		/**
+		 * Обрабатывает ли переданный компонент. Для каждого компонента может быть только один обрабатывающий
+		 * StateAccessor. Эта функция вызывается "статически".
+		 */
+		StateAccessor.prototype.handles = function(widget) {
+			throw new Error('Not implemented');
+		};
+
+		/**
+		 * Применяет сохраненное в localStorage состояние.
+		 * 
+		 * @param widget
+		 *            виджет
+		 */
+		StateAccessor.prototype.restoreAndApplyState = function() {
+			throw new Error('Not implemented');
+		};
+
+		/**
+		 * Начинает наблюдение за изменениями состояния и сохраняет в localStorage.
+		 * 
+		 * @param widget
+		 *            виджет
+		 */
+		StateAccessor.prototype.watchAndSaveState = function() {
+			throw new Error('Not implemented');
+		};
+
+		StateAccessor.prototype.toString = function() {
+			return this.constructor.name + '[widget=' + this._widget.widgetVar + ',stateId=' + this._stateId + ']';
+		};
+
+		// далее вспомогательные методы, не API
+
+		/**
+		 * Достает состояние из localStorage.
+		 * 
+		 * @param stateId
+		 *            идентификатор состояния
+		 * @param jsonReviver
+		 *            reviver для JSON.parse; опционально
+		 * @returns {*} объект-состояние; null при отстутствии или ошибке
+		 */
+		StateAccessor.prototype._restoreState = function(stateId, jsonReviver) {
+			return Argus.System.Storage.Local.getValue(Argus.System.ClientState._STORAGE_KEY_PREFIX + stateId,
+					jsonReviver);
+		};
+
+		/**
+		 * Сохраняет состояние в localStorage.
+		 * 
+		 * @param stateId
+		 *            идентификатор состояния
+		 * @param state
+		 *            объект-состояние
+		 * @param jsonReplacer
+		 *            replace для JSON.stringify; опционально
+		 * @returns успех операции
+		 */
+		StateAccessor.prototype._saveState = function(stateId, state, jsonReplacer) {
+			var ret = Argus.System.Storage.Local.setValue(Argus.System.ClientState._STORAGE_KEY_PREFIX + stateId,
+					state, jsonReplacer);
+			log.debug('Сохранено новое ClientState для', this, ':', state);
+			return ret;
+		};
+
+		/**
+		 * Доступ к состоянию компонента p:dataTable: ширина, расположение и видимость колонок.
+		 * <p>
+		 * ColumnToggler по сути отдельный компонент со своими разметкой и виджетом, но все-таки воспринимается как
+		 * управлятель состоянием таблицы. Т.е. clientState д.б. достаточно повесить на таблицу, а все состояние таблицы
+		 * ожидается в одном state-объекте. Поэтому занимаемся тогглером тоже в этом "классе".
+		 */
+		function DataTableAccessor(table, stateId) {
+			StateAccessor.apply(this, arguments);
+
+			var tableId = table.id;
+			// рассчет, что создание Accessor происходит после инициализации виджета не только таблицы, но и тогглера
+			for ( var widgetVar in PrimeFaces.widgets) {
+				var widget = PrimeFaces.widgets[widgetVar];
+				if (widget instanceof PrimeFaces.widget.ColumnToggler && widget.tableId === tableId) {
+					// запоминаем наличие виджета p:columnToggler
+					this._columnToggler = widget;
+					break;
+				}
+			}
+		}
+
+		DataTableAccessor.prototype = Object.create(StateAccessor.prototype);
+		// TODO [32331] constructor поддерживается в IE9? не понимаю, зачем он вообще
+		// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/create#Classical_inheritance_with_Object.create()
+		DataTableAccessor.prototype.constructor = DataTableAccessor;
+
+		DataTableAccessor.prototype.handles = function(widget) {
+			return widget instanceof PrimeFaces.widget.DataTable;
+		};
+
+		DataTableAccessor.prototype.restoreAndApplyState = function() {
+			if (this._widget.cfg.resizableColumns || this._widget.cfg.draggableColumns || this._columnToggler) {
+				var $this = this;
+				var state = this._restoreState(this._stateId, function(key, value) {
+					// преобразываем в нужных местах в красивые _ColumnState
+					if (Array.isArray(this) && typeof value === 'object') {
+						return new $this._ColumnState(value.n, value.w, value.h !== 1);
+					} else {
+						return value;
+					}
+				});
+				if (state === null)
+					return;
+
+				// флажок "применяем состояние" для его учета в слушалках изменения, чтобы не возбуждаться из-за
+				// изменений, которые сами сделали
+				this._applying = true;
+				try {
+					this._applyTableState(state);
+				} finally {
+					this._applying = false;
+				}
+			}
+		};
+
+		DataTableAccessor.prototype.watchAndSaveState = function() {
+			if (this._widget.cfg.resizableColumns) {
+				this._bindResizable();
+			}
+			if (this._widget.cfg.draggableColumns) {
+				this._bindReorderable();
+			}
+			if (this._columnToggler)
+				this._bindToggleable();
+		};
+
+		/**
+		 * Состояние колонки DataTable.
+		 * 
+		 * @param name
+		 *            имя колонки (из шапки)
+		 * @param width
+		 *            ширина колонки
+		 * @param visible
+		 *            видимость колонки
+		 * @constructor
+		 */
+		DataTableAccessor.prototype._ColumnState = function(name, width, visible) {
+			// минимальные имена - экономия localStorage (а также потенциально траффика и места в БД)
+			// проверки null тоже ради экономии, чтобы не держать пустые свойства без причины
+			this.n = name;
+			if (width !== null)
+				this.w = width;
+			// считаем по дефолту видимой, только в обратном случае что-то пишем. пишем hidden, так значение truthy.
+			if (visible === false)
+				this.h = 1; // "1" короче чем "true"
+			// геттеры, чтобы короткие имена не усложняли чтение кода, которое достает состояние
+			this.getName = function() {
+				return this.n;
+			};
+			this.getWidth = function() {
+				return this.w;
+			};
+			this.isVisible = function() {
+				return !this.h;
+			};
+		};
+
+		/**
+		 * Применяет состояние таблицы.
+		 */
+		DataTableAccessor.prototype._applyTableState = function(state) {
+			if (this._widget.cfg.resizableColumns)
+				this._applyColumnWidths(state);
+			if (this._widget.cfg.draggableColumns)
+				this._applyColumnOrder(state);
+			if (this._columnToggler)
+				this._applyColumnVisibility(state);
+		};
+
+		/**
+		 * Применяет порядок колонок.
+		 */
+		DataTableAccessor.prototype._applyColumnOrder = function(state) {
+			var headersMap = this._widget.findHeadersMap();
+			var headers = this._widget.findHeaders();
+
+			var cur, prev, iCur, iAfterPrev;
+			var moved = false;
+			for (var i = 0; i < state.length; ++i) {
+				cur = headersMap[state[i].getName()];
+				if (!cur) {
+					log.warn('Не найдена колонка с именем', state[i].getName(), 'в таблице', this._widget);
+					// м.б. колонку удалили или переименовали в новой версии, идем дальше
+					continue;
+				}
+				iCur = headers.index(cur);
+				if (!state[i].isVisible()) {
+					// log.debug('Игнорируем порядок невидимой колонки', state[i].getName(), cur);
+					continue;
+				}
+
+				// просто так не двигаем, если уже подходит порядок.
+				// новые колонки игнорируем в определении порядка, т.е. проверяем "текущая колонка где-то справа от
+				// предыдущей", а не "непосредственно соседняя справа" - чтобы меньше двигать.
+
+				// проверим, нет ли между предыдущей и текущей колонок, которые должны быть справа
+				iAfterPrev = prev ? headers.index(prev) + 1 : 0 /* первая колонка */;
+				var betweenPrevAndCur = headers.slice(iAfterPrev, iCur);
+				var expectedAfterCur = state.slice(i + 1);
+				var alreadyInPlace = betweenPrevAndCur.length === 0;
+				alreadyInPlace = alreadyInPlace || expectedAfterCur.every(function(val) { // jshint ignore:line
+					// JSHint ругается на функцию в цикле, но нужно замыкать свою between* на каждой итерации
+					return !betweenPrevAndCur.is(headersMap[val.getName()]);
+				});
+				if (!alreadyInPlace) {
+					if (!prev) {
+						// на первой итерации просто ставим на первое место
+						this._widget.dragDropColumn(cur, headers[0], -1);
+					} else {
+						this._widget.dragDropColumn(cur, prev, 1);
+					}
+
+					// надо соответственно обновить порядок в headers, но селектить заново слишком жирно и чревато
+					// лишним reflow, поэтому поправим вручную
+					var headersArray = headers.toArray();
+					headersArray.splice(iAfterPrev, 0, headersArray.splice(iCur, 1)[0]);
+					headers = $(headersArray);
+					log.debug('Колонка', state[i].getName(), 'перенесена', cur);
+					moved = true;
+				} else {
+					// log.debug('Не переносим колонку', state[i].getName(), ', т.к. уже на месте', cur);
+				}
+				prev = cur;
+			}
+			// м.б., эффективнее было бы итерироваться по хедерам, предварительно построив массив th state для проверок
+			// начального порядка
+			if (moved) {
+				// при программном реордере часто ломаются рейсазеры (становятся display: none)
+				// наверное, нужно провоцировать еще какие-то события (drag/start/stop...) - надо внимательно читать
+				// исходники PF
+				// ручным драг'н'дропом кстати тоже иногда ломаются
+				// XXX [32331] костыль-компенсация в надежде, что этого достаточно, и больше ничего не сломано
+				var resizers = this._widget.findHeaders().find('> .ui-column-resizer');
+				resizers.css('display', '');
+				// TODO [32331] недостаточно, правый крайний ресайзер регулярно ломается, если рядом с ними сдвиги
+			}
+		};
+
+		/**
+		 * Применяет ширины колонок.
+		 */
+		DataTableAccessor.prototype._applyColumnWidths = function(state, recursive) {
+			if (this._widget.cfg.scrollable) {
+				if (this._widget.scrollBody.find('> table').css('table-layout') === 'auto') {
+					log.error('Невозможно применить ширины колонок при table-layout=auto', this._widget);
+					return;
+				}
+			}
+
+			var headersMap = this._widget.findHeadersMap();
+			var first = true;
+			for (var i = 0; i < state.length; ++i) {
+				var th = headersMap[state[i].getName()];
+				if (!th) {
+					log.warn('Не найдена колонка с именем', state[i].getName(), 'в таблице', this._widget);
+					// м.б. колонку удалили или переименовали в новой версии, идем дальше
+					continue;
+				}
+				if (!state[i].isVisible()) {
+					// log.debug('Не ресайзим невидимую колонку', state[i].getName(), th);
+					continue;
+				}
+
+				var $th = $(th);
+
+				// проставление ширин вручную не прошло, scrollable таблицы разваливаются - слишком много тонкостей
+				// поэтому пользуемся resize-обработчиком PF
+
+				// одного цикла по resize тоже недостаточно - resize каждой колонки влияет на остальные колонки и всю
+				// таблицу. в итоге надо раз 10 вызвать ресайз для всех колонок, чтобы приблизиться к нужному состоянию.
+				// чтобы такого не было, сначала прикинем и зададим общую конечную ширину таблицы.
+
+				// Если принудительно устанавливать для таблиц с resizeMode==="fit", то таблица не занимает всю ширину.
+				if (this._widget.cfg.resizeMode !== 'fit' && first) {
+					// var outerdiff = $th.outerWidth() - $th.width();
+					// var tableTargetWidth = state.reduce(function(total, s) { // jshint ignore:line
+					// return total + s.getWidth() + outerdiff;
+					// }, -outerdiff);
+					// log.debug('Приближение целевой ширины таблицы =', tableTargetWidth);
+
+					// оказалось, нет разницы между приближением и просто небольшим фиксированным значением
+					var tableTargetWidth = 100;
+
+					var table = this._widget.thead.parent();
+					table.width(tableTargetWidth);
+					if (this._widget.cfg.scrollable) {
+						var cloneTable = this._widget.theadClone.parent();
+						cloneTable.width(tableTargetWidth);
+					}
+
+					first = false;
+				}
+
+				// liveResize, columnGroup не поддерживаются
+				// XXX [MAINTAIN_PF 5.2.12] расчет, что все нужные части аргумента ui для функции resize заполнены
+				this._widget.resize(null, {
+					// columnHeader = ui.helper.parent();
+					helper : {
+						parent : function() { // jshint ignore:line
+							return $th;
+						}
+					},
+					// change = (ui.position.left - ui.originalPosition.left),
+					position : {
+						left : state[i].getWidth()
+					},
+					originalPosition : {
+						left : $th.width()
+					}
+				});
+			}
+			// даже с приближением ширины таблицы выше надо повторить подгон колонок, но зато всего один раз
+			var $this = this;
+			if (!recursive)
+				setTimeout(function() {
+					$this._applyColumnWidths(state, true);
+				}, 1);
+		};
+
+		DataTableAccessor.prototype._findColumnIndex = function(headers, headersMap, columnName) {
+			// headers для определения позиции, headersMap чтобы не искать одни и те же columnName каждый вызов
+			var th = headersMap[columnName];
+			if (!th)
+				return -1;
+			return headers.index(th);
+		};
+
+		/**
+		 * Применяет видимость колонок.
+		 */
+		DataTableAccessor.prototype._applyColumnVisibility = function(state) {
+			var headersMap = this._widget.findHeadersMap();
+
+			// XXX [MAINTAIN_PF 5.2.12] расчет на наличие id колонки в data('column') li-айтема p:columnToggler
+			function filterByData(columnId) {
+				return function() {
+					return $(this).data('column') === columnId;
+				};
+			}
+
+			for (var i = 0; i < state.length; ++i) {
+				var th = headersMap[state[i].getName()];
+				if (!th) {
+					log.warn('Не найдена колонка с именем', state[i].getName(), 'в таблице', this._widget);
+					// м.б. колонку удалили или переименовали в новой версии, идем дальше
+					continue;
+				}
+				var visibleExpected = state[i].isVisible();
+				var visibleActual = this._widget.isColumnVisible(th);
+
+				if (visibleExpected !== visibleActual) {
+					var columnId = th.id;
+					var checkbox = this._columnToggler.itemContainer.children().filter(filterByData(columnId)).find(
+							'.ui-chkbox-box');
+					checkState(checkbox);
+
+					if (visibleExpected)
+						this._columnToggler.check(checkbox);
+					else
+						this._columnToggler.uncheck(checkbox);
+					log.debug(visibleExpected ? 'Отображена' : 'Скрыта', 'колонка', state[i].getName(), th);
+				}
+			}
+		};
+
+		/**
+		 * Сохраняет состояние таблицы.
+		 */
+		DataTableAccessor.prototype._saveTableState = function() {
+			// порядок сохраняется просто как последовательность в массиве
+			var state = [];
+			var cols = this._widget.findHeaders();
+			for (var i = 0; i < cols.length; ++i) {
+				var $col = $(cols[i]);
+
+				var width = $col.width();
+				var name = this._widget.getColumnName($col[0]);
+				var visible = this._widget.isColumnVisible($col[0]);
+
+				state.push(new this._ColumnState(name, width, visible));
+			}
+
+			this._saveState(this.getStateId(), state);
+		};
+
+		/**
+		 * Привязывает обработчик события изменения ширины колонки.
+		 */
+		DataTableAccessor.prototype._bindResizable = function() {
+			var $this = this;
+			// таймаут, чтобы успел отработать обработчик ресайзера
+			var saveStateFunc = function() {
+				setTimeout(function() {
+					$this._saveTableState();
+				}, 1000);
+			};
+
+			var resizers = this._widget.findHeaders().find('> .ui-column-resizer');
+			resizers.off('dragstop.sysinfclientstate').on('dragstop.sysinfclientstate', saveStateFunc);
+		};
+
+		/**
+		 * Привязывает обработчик события изменения порядка колонок.
+		 */
+		DataTableAccessor.prototype._bindReorderable = function() {
+			var $this = this;
+			var saveStateFunc = function() {
+				setTimeout(function() {
+					$this._saveTableState();
+
+					// Восстанавливаем ресайзер, на случай, если был скрыт. Если менять колонки местами с последней, то он скрывается.
+					$.each($('.ui-column-resizer'), function (i, val) {
+						$(val).css('display', '');
+					});
+				}, 1000);
+			};
+
+			this._widget.findHeaders().off('drop.sysinfclientstate').on('drop.sysinfclientstate', saveStateFunc);
+		};
+
+		/**
+		 * Привязывает обработчик события изменения видимости колонки.
+		 */
+		DataTableAccessor.prototype._bindToggleable = function() {
+			// полагаемся на документированный behavior toggle
+			// исключение, только если на тогглере висят обработчики, которые заданы не здесь же
+			if (this._columnToggler.cfg.behaviors
+				&& (this._columnToggler.cfg.behaviors.toggle !== undefined
+				&& this._columnToggler.cfg.behaviors.toggle.byClientStateDataTableAccessor === undefined)) {
+				// для простоты пока рассчитываем на тогглер без серверных обработчиков
+				throw new Error('Не реализована поддержка p:columnToggler с behavior и clientState');
+			}
+			var $this = this;
+			this._columnToggler.cfg.behaviors = {
+				toggle : function(ext) {
+					// по параметрам можно узнать, что с какой колонкой сделали, но не нужно, т.к. _saveTableState само
+					// узнает
+					if (!$this._applying) {
+						$this._saveTableState();
+					}
+				}
+			};
+			// Признак, что обработчик был задан здесь.
+			this._columnToggler.cfg.behaviors.toggle.byClientStateDataTableAccessor = true;
+		};
+
+		return [ DataTableAccessor ];
+	}
+};

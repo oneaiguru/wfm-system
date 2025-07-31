@@ -1,0 +1,121 @@
+/***********************************************************************************************************************
+	SelectCheckboxMenu
+***********************************************************************************************************************/
+
+/* линия снизу */
+
+.ui-selectcheckboxmenu {
+	border-bottom: none;
+	display: flex;
+	padding-right: 0;
+}
+
+.ui-selectcheckboxmenu.ui-state-focus,
+.ui-selectcheckboxmenu:hover {
+	border-bottom: none;
+}
+
+.ui-selectcheckboxmenu > .ui-inputfield,
+.ui-selectcheckboxmenu > .ui-selectcheckboxmenu-label-container {
+	flex-basis: 100%;
+}
+
+.ui-selectcheckboxmenu > .ui-selectcheckboxmenu-trigger { /* trigger */
+	flex-shrink: 0;
+	position: static;
+	height: auto;
+}
+
+.ui-selectcheckboxmenu > .ui-inputfield,
+.ui-selectcheckboxmenu > .ui-selectcheckboxmenu-label-container > .ui-selectcheckboxmenu-label,
+.ui-selectcheckboxmenu > .ui-selectcheckboxmenu-trigger {
+	border-bottom: solid 1px #B0BEC5;
+}
+
+.ui-selectcheckboxmenu.ui-state-hover > .ui-inputfield,
+.ui-selectcheckboxmenu > .ui-selectcheckboxmenu-label-container > .ui-selectcheckboxmenu-label.ui-state-hover,
+.ui-selectcheckboxmenu > .ui-selectcheckboxmenu-trigger.ui-state-hover {
+	border-bottom-color: #03a9f4;
+}
+
+.ui-selectcheckboxmenu.ui-state-focus > .ui-inputfield,
+.ui-selectcheckboxmenu.ui-state-focus > .ui-selectcheckboxmenu-label-container > .ui-selectcheckboxmenu-label,
+.ui-selectcheckboxmenu > .ui-selectcheckboxmenu-trigger.ui-state-focus {
+	border-bottom-color: #0276aa;
+}
+
+
+/***********************************************************************************************************************
+	SelectCheckboxMenu - multiple-container
+***********************************************************************************************************************/
+
+.ui-selectcheckboxmenu > .ui-selectcheckboxmenu-multiple-container {
+	min-height: 29px;
+	padding-top: 2px;
+	padding-bottom: 1px;
+}
+
+.ui-selectcheckboxmenu > .ui-selectcheckboxmenu-multiple-container > .ui-selectcheckboxmenu-token {
+	margin: 0 1px 1px 0;
+	padding-top: 0;
+	padding-bottom: 0;
+	border-radius: 4px;
+}
+
+
+
+.ui-selectcheckboxmenu > .ui-selectcheckboxmenu-multiple-container > .ui-selectcheckboxmenu-token > .ui-selectcheckboxmenu-token-label {
+	line-height: 20px;
+	padding: 4px 18px 4px 10px;
+}
+
+/**
+	Исправляет баг с двойной прозрачностью
+ */
+.ui-selectcheckboxmenu.ui-state-disabled > .ui-selectcheckboxmenu-multiple-container.ui-state-disabled {
+	opacity: unset;
+}
+
+/***********************************************************************************************************************
+	выпадающая панель
+***********************************************************************************************************************/
+
+.ui-selectcheckboxmenu-panel {
+	background-color: #f5f5f5;
+}
+
+.ui-selectcheckboxmenu-panel > .ui-selectcheckboxmenu-items-wrapper {
+	overflow-y: scroll; /* без этого появляется горизонтальный скрол */
+}
+
+.ui-selectcheckboxmenu-panel > .ui-selectcheckboxmenu-items-wrapper > .ui-selectcheckboxmenu-items > .ui-selectcheckboxmenu-item {
+	padding: 5px 10px;
+}
+
+.ui-selectcheckboxmenu-panel > .ui-selectcheckboxmenu-header {
+	width: auto !important;
+	display: flex;
+	padding: 10px;
+}
+.ui-selectcheckboxmenu-panel > .ui-selectcheckboxmenu-header > .ui-selectcheckboxmenu-close{
+	width: 30px;
+	display: flex;
+	align-items: center;
+	justify-content: right;
+	margin-left: auto;
+}
+
+.ui-selectcheckboxmenu-panel > .ui-selectcheckboxmenu-header > .ui-chkbox {
+	margin-top: 0;
+}
+
+.ui-selectcheckboxmenu-panel > .ui-selectcheckboxmenu-header > .ui-selectcheckboxmenu-filter-container {
+	flex-basis: 100%;
+	width: auto;
+}
+
+.ui-selectcheckboxmenu-panel > .ui-selectcheckboxmenu-header > .ui-selectcheckboxmenu-filter-container > .ui-inputfield {
+	min-height: 33px;
+	box-sizing: border-box;
+	width: 100%;
+}

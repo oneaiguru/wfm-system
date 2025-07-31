@@ -1,0 +1,7 @@
+=== ZIP CONTENT SURVEY ===
+Total zips: 129
+
+Numbered zips (likely different pages):
+     100
+Dated zips (likely snapshots):
+      28

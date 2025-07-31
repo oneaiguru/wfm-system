@@ -1,0 +1,506 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<head id="j_idt4">
+			
+			
+			<title>Планирование графиков работ</title>
+
+			<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+			<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+			<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+			<meta name="apple-mobile-web-app-capable" content="yes" /><link type="text/css" rel="stylesheet" href="/ccwfm/javax.faces.resource/fa/font-awesome.css.xhtml?ln=primefaces&amp;v=6.1" />
+			
+			<script type="text/javascript" src="/ccwfm/javax.faces.resource/system-inf/scripts/console-fix.js.xhtml?argus_v=1749652358876">
+			</script><link type="text/css" rel="stylesheet" href="/ccwfm/javax.faces.resource/components.css.xhtml?ln=primefaces&amp;v=6.1" /><script type="text/javascript" src="/ccwfm/javax.faces.resource/jquery/jquery.js.xhtml?ln=primefaces&amp;v=6.1"></script><script type="text/javascript" src="/ccwfm/javax.faces.resource/core.js.xhtml?ln=primefaces&amp;v=6.1"></script><script type="text/javascript" src="/ccwfm/javax.faces.resource/components.js.xhtml?ln=primefaces&amp;v=6.1"></script><script type="text/javascript" src="/ccwfm/javax.faces.resource/jquery/jquery-plugins.js.xhtml?ln=primefaces&amp;v=6.1"></script><script type="text/javascript" src="/ccwfm/javax.faces.resource/primefaces-extensions.js.xhtml?ln=primefaces-extensions&amp;v=6.1"></script><link type="text/css" rel="stylesheet" href="/ccwfm/javax.faces.resource/blockui/blockui.css.xhtml?ln=primefaces-extensions&amp;v=6.1" /><script type="text/javascript" src="/ccwfm/javax.faces.resource/blockui/blockui.js.xhtml?ln=primefaces-extensions&amp;v=6.1"></script><script type="text/javascript" src="/ccwfm/javax.faces.resource/system-inf/scripts/system-inf.js.xhtml?argus_v=1749652358876"></script><script type="text/javascript" src="/ccwfm/javax.faces.resource/system-inf/scripts/components.js.xhtml?argus_v=1749652358876"></script><script type="text/javascript" src="/ccwfm/javax.faces.resource/resources/inf/selectonetree/widget.js.xhtml?argus_v=1749652358876"></script><link type="text/css" rel="stylesheet" href="/ccwfm/javax.faces.resource/resources/inf/selectonetree/selectonetree.css.xhtml?argus_v=1749652358876" /><link type="text/css" rel="stylesheet" href="/ccwfm/javax.faces.resource/scrollpanel/scrollpanel.css.xhtml?ln=primefaces&amp;v=6.1" /><script type="text/javascript" src="/ccwfm/javax.faces.resource/scrollpanel/scrollpanel.js.xhtml?ln=primefaces&amp;v=6.1"></script><script type="text/javascript" src="/ccwfm/javax.faces.resource/chartjs/luxon.min.js.xhtml?ln=primefaces&amp;v=6.1"></script><script type="text/javascript" src="/ccwfm/javax.faces.resource/chartjs/chartjs.js.xhtml?ln=primefaces&amp;v=6.1"></script><script type="text/javascript" src="/ccwfm/javax.faces.resource/chartjs/chartjs-extension.js.xhtml?ln=primefaces&amp;v=6.1"></script><script type="text/javascript" src="/ccwfm/javax.faces.resource/chartjs/chartjs-adapter-luxon.js.xhtml?ln=primefaces&amp;v=6.1"></script><script type="text/javascript" src="/ccwfm/javax.faces.resource/chartjs/widget.js.xhtml?ln=primefaces&amp;v=6.1"></script><script type="text/javascript" src="/ccwfm/javax.faces.resource/chartjs/chartjs-plugin-zoom.js.xhtml?ln=primefaces&amp;v=6.1"></script><script type="text/javascript" src="/ccwfm/javax.faces.resource/chartjs/hammer.js.xhtml?ln=primefaces&amp;v=6.1"></script><script type="text/javascript" src="/ccwfm/javax.faces.resource/resources/inf/treesearch/widget.js.xhtml?argus_v=1749652358876"></script><link type="text/css" rel="stylesheet" href="/ccwfm/javax.faces.resource/resources/inf/treesearch/treesearch.css.xhtml?argus_v=1749652358876" /><link type="text/css" rel="stylesheet" href="/ccwfm/javax.faces.resource/helpers-part2.css.xhtml?argus_v=1749652358876" /><link type="text/css" rel="stylesheet" href="/ccwfm/javax.faces.resource/modena-theme/theme.css.xhtml?argus_v=1749652358876" /><link type="text/css" rel="stylesheet" href="/ccwfm/javax.faces.resource/inf/styles/ccwfm-inf.css.xhtml?argus_v=1749652358876" /><link type="text/css" rel="stylesheet" href="/ccwfm/javax.faces.resource/env/styles/primefaces-overrides.css.xhtml?argus_v=1749652358876" /><link type="text/css" rel="stylesheet" href="/ccwfm/javax.faces.resource/system/styles/components.css.xhtml?argus_v=1749652358876" /><link type="text/css" rel="stylesheet" href="/ccwfm/javax.faces.resource/env/styles/notifications.css.xhtml?argus_v=1749652358876" /><link type="text/css" rel="stylesheet" href="/ccwfm/javax.faces.resource/primeflex-features.css.xhtml?argus_v=1749652358876" /><script type="text/javascript" src="/ccwfm/javax.faces.resource/system-inf/scripts/loglevel.min.js.xhtml?argus_v=1749652358876"></script><script type="text/javascript" src="/ccwfm/javax.faces.resource/system-inf/scripts/primefaces-overrides.js.xhtml?argus_v=1749652358876"></script><script type="text/javascript" src="/ccwfm/javax.faces.resource/inf/js/primefaces-overrides.js.xhtml?argus_v=1749652358876"></script><script type="text/javascript" src="/ccwfm/javax.faces.resource/inf/js/primefaces-extensions-overrides.js.xhtml?argus_v=1749652358876"></script><script type="text/javascript" src="/ccwfm/javax.faces.resource/system-inf/scripts/localization.js.xhtml?argus_v=1749652358876"></script><script type="text/javascript" src="/ccwfm/javax.faces.resource/inf/js/localization.js.xhtml?argus_v=1749652358876"></script><script type="text/javascript" src="/ccwfm/javax.faces.resource/inf/js/ccwfm-inf.js.xhtml?argus_v=1749652358876"></script><script type="text/javascript" src="/ccwfm/javax.faces.resource/system-inf/scripts/client-state.js.xhtml?argus_v=1749652358876"></script><link type="text/css" rel="stylesheet" href="/ccwfm/javax.faces.resource/env/styles/ccwfm-env.css.xhtml?argus_v=1749652358876" /><link type="text/css" rel="stylesheet" href="/ccwfm/javax.faces.resource/env/styles/planning.css.xhtml?argus_v=1749652358876" /><script type="text/javascript" src="/ccwfm/javax.faces.resource/inf/js/selectable-grid.js.xhtml?argus_v=1749652358876"></script><style type="text/css">
+		.container {
+			width: 280px;
+			height: 6px;
+		}
+
+		.indeterminate-progress-bar, .indeterminate-progress-bar > .progress-block {
+			border-style: solid;
+			border-width: 1px;
+			border-color: rgba(129, 212, 250, 0.25);
+			border-radius: 5px;
+		}
+
+		.indeterminate-progress-bar {
+			height: 6px;
+			background-color: rgb(129, 212, 250);
+		}
+
+		.indeterminate-progress-bar > .progress-block {
+			-webkit-animation-name: none;
+			-webkit-animation-duration: 1.5s;
+			-webkit-animation-timing-function: linear;
+			-webkit-animation-delay: 0s;
+			-webkit-animation-iteration-count: infinite;
+			-webkit-animation-direction: alternate;
+			-webkit-animation-play-state: paused;
+
+			animation-name: none;
+			animation-duration: 1.5s;
+			animation-timing-function: linear;
+			animation-delay: 0s;
+			animation-iteration-count: infinite;
+			animation-direction: alternate;
+			animation-play-state: paused;
+		}
+
+		.indeterminate-progress-bar.active > .progress-block {
+			-webkit-animation-name: bar-movement;
+			-webkit-animation-play-state: running;
+			animation-name: bar-movement;
+			animation-play-state: running;
+		}
+
+		.indeterminate-progress-bar.paused > .progress-block {
+			-webkit-animation-name: bar-movement;
+			-webkit-animation-play-state: paused;
+			animation-name: bar-movement;
+			animation-play-state: paused;
+		}
+
+		@-webkit-keyframes bar-movement {
+			from { left: -1px; }
+			to { left: calc(75% + 1px); }
+		}
+
+		@keyframes bar-movement {
+			from { left: -1px; }
+			to { left: calc(75% + 1px); }
+		}
+
+		.progress-block {
+			position: relative;
+			top: -1px;
+			left: -1px;
+			width: 25%;
+			height: 100%;
+			background: rgba(3, 136, 209, 0.43);
+		}
+	</style><link type="text/css" rel="stylesheet" href="/ccwfm/javax.faces.resource/prod/system/globalEditor.css.xhtml?argus_v=1749652358876" /><link type="text/css" rel="stylesheet" href="/ccwfm/javax.faces.resource/modena-layout/css/core-layout.css.xhtml?argus_v=1749652358876" /><link type="text/css" rel="stylesheet" href="/ccwfm/javax.faces.resource/modena-layout/css/animate.css.xhtml?argus_v=1749652358876" /><link type="text/css" rel="stylesheet" href="/ccwfm/javax.faces.resource/modena-layout/css/modena-font.css.xhtml?argus_v=1749652358876" /><link type="text/css" rel="stylesheet" href="/ccwfm/javax.faces.resource/modena-layout/css/ripple-effect.css.xhtml?argus_v=1749652358876" /><link type="text/css" rel="stylesheet" href="/ccwfm/javax.faces.resource/modena-layout/css/perfect-scrollbar.css.xhtml?argus_v=1749652358876" /><link type="text/css" rel="stylesheet" href="/ccwfm/javax.faces.resource/modena-layout/css/font-awesome.css.xhtml?argus_v=1749652358876" /><link type="text/css" rel="stylesheet" href="/ccwfm/javax.faces.resource/modena-layout/css/modena-layout.css.xhtml?argus_v=1749652358876" /><link type="text/css" rel="stylesheet" href="/ccwfm/javax.faces.resource/primeicons/primeicons.css.xhtml?argus_v=1749652358876" /><script type="text/javascript">if(window.PrimeFaces){PrimeFaces.settings.locale='ru';}</script>
+
+		<link rel="shortcut icon" href="/ccwfm/javax.faces.resource/system/images/common/wfmcc_logo.ico.xhtml?argus_v=1749652358876" type="image/x-icon" /><!--[if lte IE 9]>
+				<link rel="stylesheet" href="/ccwfm/javax.faces.resource/ie9.css.xhtml?argus_v=1749652358876" /><![endif]-->
+		
+		
+		<script>
+            Argus.System.Page.initHeadEnd(false, 1749647999484,
+                false, '/ccwfm',
+                48, 1320000,
+                'p250725132610895146','JpAuDiF8tGx98sh1_VzJv8P1wAIDT4iDYddr45Sq');
+		</script><script type="text/javascript" src="/ccwfm/javax.faces.resource/modena-layout/js/ripple-effect.js.xhtml?argus_v=1749652358876"></script><script type="text/javascript" src="/ccwfm/javax.faces.resource/modena-layout/js/perfect-scrollbar.js.xhtml?argus_v=1749652358876"></script><script type="text/javascript" src="/ccwfm/javax.faces.resource/modena-layout/js/layout.js.xhtml?argus_v=1749652358876"></script>
+
+		<style type="text/css">
+			
+			.filter .ui-selectonemenu-label, .filter .ui-selectonemenu-list-item, .filter .ui-selectonemenu-label {
+				font-size: 15px!important;
+			}
+
+			.filter > .ui-selectonemenu-trigger > span{
+				height: 40%;
+			}
+
+			.filter > .ui-button {
+				font-size: 15px !important;
+			}
+			.filter .ui-icon-check {
+				width: 14px!important;
+				height: 14px !important;
+			}
+
+			.filterComplete{
+				padding-top: 5px !important;
+				padding-bottom: 5px !important;
+			}
+			.ui-chkbox .ui-chkbox-label {
+				padding-top: 5px;
+				font-size: 15px !important;
+				color: #546e7a;
+			}
+
+			.filter  .ui-button-text-only .ui-button-text {
+				padding: 5px 5px !important;
+			}
+		</style></head><body class="m-gray-modena m-geometry " style="height:auto;"><div id="j_idt35" class="ui-outputpanel ui-widget">
+			<script>
+				Argus.System.Page.update(48);
+			</script>
+<form id="default_form" name="default_form" method="post" action="/ccwfm/views/env/schedule/OperatingScheduleSolutionView.xhtml?cid=48" enctype="application/x-www-form-urlencoded">
+<input type="hidden" name="default_form" value="default_form" />
+<input type="hidden" name="javax.faces.ViewState" value="-3052629644683954897:-859343460572683809" autocomplete="off" />
+</form></div><div id="j_idt37"></div><script id="j_idt37_s" type="text/javascript">$(function(){PrimeFaces.cw("AjaxStatus","widget_j_idt37",{id:"j_idt37",start:function(){Argus.System.Ajax._trigger('start')},error:function(){Argus.System.Ajax._trigger('error')},success:function(){Argus.System.Ajax._trigger('success')},complete:function(){Argus.System.Ajax._trigger('complete')}});});</script><div id="j_idt38_content" style="display: none;"><img id="j_idt39" src="/ccwfm/javax.faces.resource/system/images/common/loading.gif.xhtml?argus_v=1749652358876" alt="" class="sys-block-ui" /></div><script id="j_idt38_s" type="text/javascript">$(function() {PrimeFaces.cw('ExtBlockUI', 'blockUIVar',{id:'j_idt38',widgetVar:'blockUIVar',source:'j_idt34',target:'@(body, .sys-autoblockable)',autoShow:false,css:{'background-color' : '#BBBBBB', 'border-radius': '10px', 'border-color': '#BBBBBB', opacity: 0},overlayCSS:{opacity: 0},centerX:true,centerY:true,content:'#j_idt38_content',contentExtern:false,namingContSep:'-',regEx:/javax.faces.source=j_idt34(.)*$/},true);});</script><span id="j_idt40"></span><script type="text/javascript">$(function(){PrimeFaces.focus(null, 'content_body');});</script>
+	
+	
+	<div id="layout_topbar">
+
+		
+		<a id="mobile_menu_button"> 
+			<span class="m-button-line" id="button_line1"></span> 
+			<span class="m-button-line" id="button_line2"></span> 
+			<span class="m-button-line" id="button_line3"></span>
+		</a><a id="logo" href="/ccwfm/views/env/home/HomeView.xhtml" class="ui-link ui-widget"><img id="j_idt42" src="/ccwfm/javax.faces.resource/inf/images/argus_logo_white_ru_RU.png.xhtml?argus_v=1749652358876" alt="" class="m-fleft" style="height: 40px; margin-top: 0;" /></a>
+
+		
+		<a id="show_top_menu" class="m-show-on-mobile ripplelink"> 
+			<i class="icon-more_vert" id="active"></i> 
+			<i class="icon-close m-disp-none" id="passive"></i>
+		</a>
+<form id="top_menu_form" name="top_menu_form" method="post" action="/ccwfm/views/env/schedule/OperatingScheduleSolutionView.xhtml?cid=48" enctype="application/x-www-form-urlencoded">
+<input type="hidden" name="top_menu_form" value="top_menu_form" />
+
+			
+			<ul id="top_menu">
+
+	<li class="flex">
+
+		<div class="ui-search-ew-desktop m-show-on-desktop ml-3">
+		<i class="icon-search m-show-on-desktop"></i><span id="top_menu_form-j_idt51" class="ui-autocomplete"><input id="top_menu_form-j_idt51_input" name="top_menu_form-j_idt51_input" type="text" class="ui-autocomplete-input ui-inputfield ui-widget ui-state-default ui-corner-all" autocomplete="off" placeholder="Искать везде..." /><input id="top_menu_form-j_idt51_hinput" name="top_menu_form-j_idt51_hinput" type="hidden" autocomplete="off" /><div id="top_menu_form-j_idt51_panel" class="ui-autocomplete-panel ui-widget-content ui-corner-all ui-helper-hidden ui-shadow"></div></span><script id="top_menu_form-j_idt51_s" type="text/javascript">$(function(){PrimeFaces.cw("AutoComplete","widget_top_menu_form_j_idt51",{id:"top_menu_form-j_idt51",minLength:3,delay:600,forceSelection:true,behaviors:{itemSelect:function(ext,event) {PrimeFaces.ab({s:"top_menu_form-j_idt51",e:"itemSelect",p:"top_menu_form-j_idt51",ps:true},ext);},query:function(ext,event) {PrimeFaces.ab({s:"top_menu_form-j_idt51",e:"query",p:"top_menu_form-j_idt51",ps:true,onst:function(cfg){Argus.System.ViewStateFix.disable();;},onco:function(xhr,status,args){Argus.System.ViewStateFix.enable();;}},ext);}}});});</script>
+		</div>
+	</li>
+
+        <li><a id="top_menu_form-open_tasks_count" href="#" class="ui-commandlink ui-widget topmenu-item ripplelink with-badge" aria-label="Задачи" onclick="PrimeFaces.ab({s:&quot;top_menu_form-open_tasks_count&quot;,ps:true});return false;" style="overflow: visible !important;" title="Задачи" type="button">
+
+                <i class="fa fa-inbox">
+                        <span class="m-cart-text m-white" style="top: 5px">1</span>
+                </i></a>
+        </li>
+
+	<li><a id="top_menu_form-unread_notfications_count" href="#" class="ui-commandlink ui-widget topmenu-item ripplelink with-badge" aria-label="Мои оповещения" onclick="PrimeFaces.ab({s:&quot;top_menu_form-unread_notfications_count&quot;,ps:true});return false;" title="Мои оповещения" type="button">
+			<i class="icon-notifications_none">
+					<span class="m-cart-text m-white">2</span>
+				
+				
+			</i></a>
+		<ul class="notification-list">
+			<li class="notification-header">Непрочитанные оповещения (2)
+			</li><a href="/ccwfm/views/env/tmp/task/ReportTaskListView.xhtml">
+					<li class="notification notification-new"><span style="font-weight:bold">24.07.2025 19:06</span> - Отчет Отчет по ролям с подразделением от 24.07.2025 19:06 успешно построен
+
+					</li></a><a href="/ccwfm/views/env/tmp/task/ReportTaskListView.xhtml">
+					<li class="notification notification-new"><span style="font-weight:bold">24.07.2025 19:06</span> - Отчет Общий отчет по рабочему времени от 24.07.2025 19:06 успешно построен
+
+					</li></a>
+		</ul>
+
+	</li>
+	
+	<li>
+		<a class="ripplelink" title="Мой профиль"><i class="icon-person"></i><span class="m-show-on-mobile">Мой профиль</span></a>
+		<ul>
+			<li><a id="top_menu_form-profile_link" href="#" class="ui-commandlink ui-widget ripplelink" onclick="PrimeFaces.ab({s:&quot;top_menu_form-profile_link&quot;,ps:true});return false;">
+					<i class="icon-assignment_ind"></i><span>Мой профиль</span></a>
+			</li>
+		</ul>
+	</li>
+	
+	<li>
+		<a class="ripplelink" title="О системе"><i class="icon-help_outline"></i><span class="m-show-on-mobile">О системе</span></a>
+		<ul>
+			<li><a id="top_menu_form-j_idt76" href="#" class="ui-commandlink ui-widget ripplelink" onclick="PrimeFaces.ajax.Request.handle({       formId: 'default_form',       source: 'top_menu_form-j_idt76',       process: 'top_menu_form-j_idt76'});;PrimeFaces.ab({s:&quot;top_menu_form-j_idt76&quot;,ps:true});return false;">
+					<i class="fa fa-exclamation-triangle"></i><span>Отчёт об ошибке</span></a>
+			</li>
+			<li><a id="top_menu_form-j_idt79" href="#" class="ui-commandlink ui-widget ripplelink" onclick="PrimeFaces.ab({s:&quot;top_menu_form-j_idt79&quot;,ps:true});return false;">
+					<i class="icon-assignment"></i><span>О системе</span></a>
+			</li>
+			<li><a id="top_menu_form-j_idt82" href="#" class="ui-commandlink ui-widget ripplelink" onclick="PrimeFaces.addSubmitParam('top_menu_form',{'top_menu_form-j_idt82':'top_menu_form-j_idt82'}).submit('top_menu_form');return false;PrimeFaces.onPost();">
+					<i class="icon-download"></i><span>Скачать РП</span></a>
+			</li>
+		</ul>
+	</li>
+
+				
+				<li>
+					<a class="ripplelink" title="Язык"><img id="top_menu_form-j_idt86" src="/ccwfm/javax.faces.resource/inf/images/nls/flag_ru_RU.png.xhtml?argus_v=1749652358876" alt="" />
+					</a>
+					<ul>
+							<li><a id="top_menu_form-j_idt88-0-j_idt90" href="#" class="ui-commandlink ui-widget ripplelink" onclick="PrimeFaces.ab({s:&quot;top_menu_form-j_idt88-0-j_idt90&quot;,e:&quot;click&quot;,p:&quot;top_menu_form-j_idt88-0-j_idt90&quot;,ps:true,onco:function(xhr,status,args){window.location.reload();}});;PrimeFaces.ab({s:&quot;top_menu_form-j_idt88-0-j_idt90&quot;,ps:true});return false;"><img id="top_menu_form-j_idt88-0-j_idt91" src="/ccwfm/javax.faces.resource/inf/images/nls/flag_ru_RU.png.xhtml?argus_v=1749652358876" alt="" class="m-fleft" /><span style="margin-left: 5px;">Русский</span></a>
+							</li>
+							<li><a id="top_menu_form-j_idt88-1-j_idt90" href="#" class="ui-commandlink ui-widget ripplelink" onclick="PrimeFaces.ab({s:&quot;top_menu_form-j_idt88-1-j_idt90&quot;,e:&quot;click&quot;,p:&quot;top_menu_form-j_idt88-1-j_idt90&quot;,ps:true,onco:function(xhr,status,args){window.location.reload();}});;PrimeFaces.ab({s:&quot;top_menu_form-j_idt88-1-j_idt90&quot;,ps:true});return false;"><img id="top_menu_form-j_idt88-1-j_idt91" src="/ccwfm/javax.faces.resource/inf/images/nls/flag_en_UK.png.xhtml?argus_v=1749652358876" alt="" class="m-fleft" /><span style="margin-left: 5px;">English</span></a>
+							</li>				
+					</ul>
+				</li>				
+				
+				
+				<li><a id="top_menu_form-logout" href="#" class="ui-commandlink ui-widget ripplelink" aria-label="Выход из системы" onclick="PrimeFaces.ab({s:&quot;top_menu_form-logout&quot;,p:&quot;top_menu_form-logout&quot;,a:true,ps:true});return false;" title="Выход из системы">
+						<i class="icon-power"></i> <span class="m-show-on-mobile">Выход из системы</span></a>
+				</li>
+			</ul><input type="hidden" name="javax.faces.ViewState" value="-3052629644683954897:-859343460572683809" autocomplete="off" />
+</form>
+	</div>
+	
+				
+				<div id="wrapper">
+					
+					<div id="wrapper_indent">
+
+	
+
+	
+	<div id="layout_menu_cover" class="m-animated05">
+<form id="mmf" name="mmf" method="post" action="/ccwfm/views/env/schedule/OperatingScheduleSolutionView.xhtml?cid=48" enctype="application/x-www-form-urlencoded">
+<input type="hidden" name="mmf" value="mmf" />
+<ul id="mmf-main_menu_bar" class="layout-menu m-shadow-effect modena-menu"><li id="mmf-j_idt100" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/personnel/PersonalAreaIncomingView.xhtml"><i class="icon-null"></i><i class="fa fa-street-view"></i>Мой кабинет</a></li><li id="mmf-j_idt101" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/personnel/request/UserRequestView.xhtml"><i class="icon-null"></i><i class="fa fa fa-exchange"></i>Заявки</a></li><li id="mmf-personnel_submenu" role="menuitem"><a href="#" class="menulink ripplelink"><i class="icon-null"></i><i class="fa fa-users"></i> Персонал<span class="ui-icon ui-icon-triangle-1-e menu-toggle-icon fs16"></span></a><ul role="menu"><li id="mmf-j_idt102" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/personnel/WorkerListView.xhtml"><i class="icon-null"></i><i class="fa fa-user"></i>Сотрудники</a></li><li id="mmf-j_idt103" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/personnel/GroupListView.xhtml"><i class="icon-null"></i><i class="fa fa-users"></i>Группы</a></li><li id="mmf-j_idt104" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/personnel/ServiceListView.xhtml"><i class="icon-null"></i><i class="fa fa-phone-square"></i>Службы</a></li><li id="mmf-j_idt105" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/personnel/SegmentsListView.xhtml"><i class="icon-null"></i><i class="fa fa-sitemap"></i>Структура групп</a></li><li id="mmf-j_idt106" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/personnel/DepartmentsView.xhtml"><i class="icon-null"></i><i class="fa fa-slideshare"></i>Подразделения</a></li><li id="mmf-j_idt107" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/personnel/synchronization/PersonnelSynchronizationView.xhtml"><i class="icon-null"></i><i class="fa fa-gears"></i>Синхронизация персонала</a></li><li id="mmf-j_idt108" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/personnel/introduce/directory/WorkerIntroduceConfigView.xhtml"><i class="icon-null"></i><i class="fa fa-bell"></i>Настройка ознакомлений</a></li><li id="mmf-j_idt109" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/personnel/introduce/page/WorkerIntroduceView.xhtml"><i class="icon-null"></i><i class="fa fa fa-pencil"></i>Ознакомления</a></li><li id="mmf-j_idt110" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/personnel/OperatorsHistoricalDataView.xhtml"><i class="icon-null"></i><i class="fa fa-cloud-download"></i>Сбор данных по операторам</a></li><li id="mmf-j_idt111" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/personnel/DataTransferByOperatorsView.xhtml"><i class="icon-null"></i><i class="fa fa-cloud-upload"></i>Передача данных по операторам</a></li><li id="mmf-j_idt112" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/personnel/BusinessRulesView.xhtml"><i class="icon-null"></i><i class="fa fa-list-ol"></i>Бизнес-правила</a></li><li id="mmf-j_idt113" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/personnel/NormHoursView.xhtml"><i class="icon-null"></i><i class="fa fa-bold"></i>Выработка</a></li></ul></li><li id="mmf-directories_submenu" role="menuitem"><a href="#" class="menulink ripplelink"><i class="icon-null"></i><i class="fa fa-folder-open"></i> Справочники<span class="ui-icon ui-icon-triangle-1-e menu-toggle-icon fs16"></span></a><ul role="menu"><li id="mmf-j_idt115" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/workrule/WorkRuleListView.xhtml"><i class="icon-null"></i><i class="fa fa-stack-overflow"></i>Правила работы</a></li><li id="mmf-j_idt116" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/wish/WishAccessListView.xhtml"><i class="icon-null"></i><i class="fa fa-star"></i>Предпочтения</a></li><li id="mmf-j_idt117" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/schedule/EventTemplateListView.xhtml"><i class="icon-null"></i><i class="fa fa-rocket"></i>Мероприятия</a></li><li id="mmf-j_idt118" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/schedule/ProductionCalendarView.xhtml"><i class="icon-null"></i><i class="fa fa-calendar"></i>Производственный календарь</a></li><li id="mmf-j_idt119" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/security/RoleListView.xhtml"><i class="icon-null"></i><i class="fa fa-user-secret"></i>Роли</a></li><li id="mmf-j_idt120" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/personnel/PositionListView.xhtml"><i class="icon-null"></i><i class="fa fa-level-up"></i>Должности</a></li><li id="mmf-j_idt121" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/personnel/OperatorStateConfigView.xhtml"><i class="icon-null"></i><i class="fa fa-copyright"></i>Конфигурация эффективности рабочего времени</a></li><li id="mmf-j_idt122" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/forecast/ForecastSpecialEventListView.xhtml"><i class="icon-null"></i><i class="fa fa-bomb"></i>Особые события</a></li><li id="mmf-j_idt123" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/personnel/WorkNormView.xhtml"><i class="icon-null"></i><i class="fa fa-book"></i>Трудовые нормативы</a></li><li id="mmf-j_idt124" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/personnel/RequestRuleView.xhtml"><i class="icon-null"></i><i class="fa fa-retweet"></i>Настройка правил обмена</a></li><li id="mmf-j_idt125" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/personnel/PayrollReportView.xhtml"><i class="icon-null"></i><i class="fa fa-book"></i>Отчёт по заработной плате</a></li><li id="mmf-j_idt126" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/personnel/ShiftBreaksConfigView.xhtml"><i class="icon-null"></i><i class="fa fa-cutlery"></i>Обеды/перерывы</a></li><li id="mmf-j_idt127" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/personnel/vocation/VacationSchemesView.xhtml"><i class="icon-null"></i><i class="fa fa-yelp"></i>Схемы отпусков</a></li><li id="mmf-j_idt128" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/integration/IntegrationSystemView.xhtml"><i class="icon-null"></i><i class="fa fa-spinner"></i>Интеграционные системы</a></li><li id="mmf-j_idt129" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/absenteism/AbsentReasonView.xhtml"><i class="icon-null"></i><i class="fa fa-user-times"></i>Причины отсутствия</a></li><li id="mmf-j_idt130" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/time/TimeZoneView.xhtml"><i class="icon-null"></i><i class="fa fa-globe"></i>Часовые пояса</a></li><li id="mmf-j_idt131" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/notification/NotificationSchemeView.xhtml"><i class="icon-null"></i><i class="icon-notifications_none"></i>Схемы уведомлений</a></li><li id="mmf-j_idt132" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/personnel/ChannelTypeView.xhtml"><i class="icon-null"></i><i class="fa fa-road"></i>Тип канала</a></li><li id="mmf-j_idt133" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/activity/ActivityListView.xhtml"><i class="icon-null"></i><i class="fa fa-hourglass-half"></i>Деятельности</a></li></ul></li><li id="mmf-forecast_submenu" role="menuitem"><a href="#" class="menulink ripplelink"><i class="icon-null"></i><i class="fa fa-line-chart"></i> Прогнозирование<span class="ui-icon ui-icon-triangle-1-e menu-toggle-icon fs16"></span></a><ul role="menu"><li id="mmf-j_idt134" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/forecast/ForecastUpdateSettingsView.xhtml"><i class="icon-null"></i><i class="fa fa-gears"></i>Настройки обновления</a></li><li id="mmf-j_idt135" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/forecast/ForecastListView.xhtml"><i class="icon-null"></i><i class="fa fa-line-chart"></i>Просмотр нагрузки</a></li><li id="mmf-j_idt136" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/forecast/HistoricalDataListView.xhtml"><i class="icon-null"></i><i class="fa fa-map"></i>Спрогнозировать нагрузку</a></li><li id="mmf-j_idt137" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/forecast/import/ImportForecastView.xhtml"><i class="icon-null"></i><i class="fa fa-download"></i>Импорт прогнозов</a></li><li id="mmf-j_idt138" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/forecast/ForecastAccuracyView.xhtml"><i class="icon-null"></i><i class="fa fa-usb"></i>Анализ точности прогноза</a></li><li id="mmf-j_idt139" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/assignforecast/MassiveAssignForecastsView.xhtml"><i class="icon-null"></i><i class="fa fa-gears"></i>Массовое назначение прогнозов</a></li><li id="mmf-j_idt140" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/forecast/specialdate/SpecialDateAnalysisView.xhtml"><i class="icon-null"></i><i class="fa fa-bar-chart"></i>Анализ специальных дат</a></li></ul></li><li id="mmf-planning_submenu" role="menuitem"><a href="#" class="menulink ripplelink"><i class="icon-null"></i><i class="fa fa-pencil-square-o"></i> Планирование<span class="ui-icon ui-icon-triangle-1-e menu-toggle-icon fs16"></span></a><ul role="menu"><li id="mmf-j_idt141" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/planning/ActualSchedulePlanView.xhtml"><i class="icon-null"></i><i class="fa fa-newspaper-o"></i>Актуальное расписание</a></li><li id="mmf-j_idt142" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/adjustment/WorkScheduleAdjustmentView.xhtml"><i class="icon-null"></i><i class="fa fa-pencil-square-o"></i>Корректировка графиков работ</a></li><li id="mmf-j_idt143" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/planning/SchedulePlanningSettingsView.xhtml"><i class="icon-null"></i><i class="fa fa-tasks"></i>Мультискильное планирование</a></li><li id="mmf-j_idt144" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/planning/SchedulePlanningView.xhtml"><i class="icon-null"></i><i class="fa fa-pencil-square-o"></i>Создание расписаний</a></li><li id="mmf-j_idt145" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/planning/UserPlanningConfigsView.xhtml"><i class="icon-null"></i><i class="fa fa-pencil-square-o"></i>Критерии планирования</a></li><li id="mmf-j_idt146" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/schedule/OperatingScheduleSolutionView.xhtml"><i class="icon-null"></i><i class="fa fa-medium"></i>Планирование графиков работ</a></li><li id="mmf-j_idt147" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/vacancy/VacancyPlanningView.xhtml"><i class="icon-null"></i><i class="fa fa-user-plus"></i>Планирование вакансий</a></li></ul></li><li id="mmf-monitoring_submenu" role="menuitem"><a href="#" class="menulink ripplelink"><i class="icon-null"></i><i class="fa fa-area-chart"></i> Мониторинг<span class="ui-icon ui-icon-triangle-1-e menu-toggle-icon fs16"></span></a><ul role="menu"><li id="mmf-j_idt148" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/monitoring/GroupsManagementView.xhtml"><i class="icon-null"></i><i class="fa fa-refresh"></i>Управление группами</a></li><li id="mmf-j_idt149" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/monitoring/MonitoringDashboardView.xhtml"><i class="icon-null"></i><i class="fa fa-bar-chart"></i>Оперативный контроль</a></li><li id="mmf-j_idt151" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/monitoring/OperatorStatusesView.xhtml"><i class="icon-null"></i><i class="fa fa-user-circle-o"></i>Статусы операторов</a></li><li id="mmf-j_idt152" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/monitoring/UpdateSettingsView.xhtml"><i class="icon-null"></i><i class="fa fa-cogs"></i>Настройка обновлений и оповещений</a></li><li id="mmf-j_idt153" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/monitoring/ThresholdSettingView.xhtml"><i class="icon-null"></i><i class="fa fa-sort-amount-desc"></i>Настройка пороговых значений</a></li></ul></li><li id="mmf-j_idt154" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/exchange/ExchangeView.xhtml"><i class="icon-null"></i><i class="fa fa-university"></i>Биржа</a></li><li id="mmf-reports_submenu" role="menuitem"><a href="#" class="menulink ripplelink"><i class="icon-null"></i><i class="fa fa-files-o"></i> Отчёты<span class="ui-icon ui-icon-triangle-1-e menu-toggle-icon fs16"></span></a><ul role="menu"><li id="mmf-j_idt155" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/tmp/ReportTypeEditorView.xhtml"><i class="icon-null"></i><i class="fa fa-file-text-o"></i>Редактор отчётов</a></li><li id="mmf-j_idt156" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/tmp/task/ReportTaskListView.xhtml"><i class="icon-null"></i><i class="fa fa-file-text-o"></i>Задачи на построение отчётов</a></li><li id="mmf-j_idt157" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/report/WorkerScheduleAdherenceReportView.xhtml"><i class="icon-null"></i><i class="fa fa-sliders"></i>Соблюдение расписания</a></li><li id="mmf-j_idt158" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/report/T13FormReportView.xhtml"><i class="icon-null"></i><i class="icon-local_atm"></i>Расчёт заработной платы</a></li><li id="mmf-j_idt159" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/report/ForecastAndPlanReportView.xhtml"><i class="icon-null"></i><i class="icon-local_library"></i>Отчёт по прогнозу и плану</a></li><li id="mmf-j_idt160" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/tmp/ReportTypeMapView.xhtml"><i class="icon-null"></i><i class="fa fa-sitemap"></i>Список отчётов</a></li><li id="mmf-j_idt161" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/report/OperatorLateReportView.xhtml"><i class="icon-null"></i><i class="fa fa-files-o"></i>Отчёт по опозданиям операторов</a></li><li id="mmf-j_idt162" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/report/AhtReportView.xhtml"><i class="icon-null"></i><i class="fa fa-files-o"></i>Отчёт по AHT</a></li><li id="mmf-j_idt163" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/report/ReadyReportView.xhtml"><i class="icon-null"></i><i class="fa fa-files-o"></i>Отчёт о %Ready</a></li><li id="mmf-j_idt164" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/report/WorkerWishReportView.xhtml"><i class="icon-null"></i><i class="fa fa-files-o"></i>Отчёт по предпочтениям</a></li><li id="mmf-j_idt165" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/report/WorkerScheduleReportView.xhtml"><i class="icon-null"></i><i class="fa fa-files-o"></i>График работы сотрудников</a></li><li id="mmf-j_idt166" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/report/AbsenteeismNewReportView.xhtml"><i class="icon-null"></i><i class="fa fa-files-o"></i>Отчёт по %absenteeism новый</a></li><li id="mmf-j_idt167" role="menuitem"><a class="menulink ripplelink" href="/ccwfm/views/env/report/ResultsOfVacancyPlanningReportView.xhtml"><i class="icon-null"></i><i class="fa fa-files-o"></i>Отчёт по итогу планирования вакансий</a></li></ul></li></ul><script type="text/javascript">Modena.restoreMenuState();</script><input type="hidden" name="javax.faces.ViewState" value="-3052629644683954897:-859343460572683809" autocomplete="off" />
+</form>
+	</div>
+
+	
+	<script>
+		Argus.System.Fn.makeFormStateless('#mmf', '/ccwfm/views/inf/page/MenuStatelessActionView.xhtml');
+	</script>
+	
+						
+						<div id="layout_portlets_cover">
+							<div class="m-container100 m-fnone m-mar-auto">
+							<div class="m-container-indent">
+
+	<div class="m-container100">
+		<div class="m-container-indent">
+<form id="page_path_form" name="page_path_form" method="post" action="/ccwfm/views/env/schedule/OperatingScheduleSolutionView.xhtml?cid=48" enctype="application/x-www-form-urlencoded">
+<input type="hidden" name="page_path_form" value="page_path_form" />
+<div id="page_path_form-j_idt171" class="ui-breadcrumb ui-module ui-widget ui-widget-header ui-helper-clearfix ui-corner-all m-shadow-effect m-wid-100" role="menu"><ul><li role="menuitem"><a tabindex="-1" class="ui-menuitem-link ui-corner-all" href="/ccwfm/views/env/home/HomeView.xhtml"><span class="ui-menuitem-text">Домашняя страница</span></a></li><li class="ui-breadcrumb-chevron ui-icon ui-icon-triangle-1-e"></li><li role="menuitem"><a tabindex="-1" class="ui-menuitem-link ui-corner-all" href="#" onclick="PrimeFaces.ab({s:&quot;page_path_form-j_idt173&quot;,ps:true,f:&quot;page_path_form&quot;});return false;"><span class="ui-menuitem-text">Планирование</span></a></li><li class="ui-breadcrumb-chevron ui-icon ui-icon-triangle-1-e"></li><li role="menuitem"><a tabindex="-1" class="ui-menuitem-link ui-corner-all" href="#" onclick="PrimeFaces.ab({s:&quot;page_path_form-j_idt174&quot;,ps:true,f:&quot;page_path_form&quot;});return false;"><span class="ui-menuitem-text">Планирование графиков работ</span></a></li></ul></div><input type="hidden" name="javax.faces.ViewState" value="-3052629644683954897:-859343460572683809" autocomplete="off" />
+</form>
+		</div>
+	</div><div id="content_body" class="ui-outputpanel ui-widget">
+
+	<style>
+		.ui-treetable .ui-icon {
+			margin-right: 0 !important;
+			width: 0 !important;
+		}
+
+		.template_table {
+			overflow-x: auto;
+			overflow-y: auto;
+			max-height: 400px;
+		}
+
+		.template_table_column_template_name {
+			word-break: break-word;
+			white-space: normal !important;
+			width: 50%;
+		}
+
+		.template_table_column_template_period {
+			width: 40%;
+		}
+
+		.template_table_column_actions {
+			width: 10%;
+			white-space: nowrap;
+		}
+	</style>
+
+    
+    <div class="m-container20 m-responsive100">
+        <div class="m-container-indent"><div id="templates_panel" class="ui-panel ui-widget ui-widget-content ui-corner-all m-shadow-effect" data-widget="widget_templates_panel"><script>if (localStorage.getItem('#templates_panel-collapsed') === 'true') $('#templates_panel').addClass('ui-hidden-container');</script><div id="templates_panel_header" class="ui-panel-titlebar ui-widget-header ui-helper-clearfix ui-corner-all"><span class="ui-panel-title">
+                    <i class="fa fa-tasks"></i>Шаблоны</span><a id="templates_panel_toggler" href="#" class="ui-panel-titlebar-icon ui-corner-all ui-state-default"><span class="ui-icon ui-icon-minusthick"></span></a></div><div id="templates_panel_content" class="ui-panel-content ui-widget-content">
+<form id="temp" name="temp" method="post" action="/ccwfm/views/env/schedule/OperatingScheduleSolutionView.xhtml?cid=48" enctype="application/x-www-form-urlencoded">
+<input type="hidden" name="temp" value="temp" />
+<div id="temp-templates" class="ui-treetable ui-widget ui-treetable-scrollable ui-headless template_table"><div class="ui-widget-header ui-treetable-scrollable-header"><div class="ui-treetable-scrollable-header-box"><table role="grid"><thead id="temp-templates_head"><tr role="row"><th id="temp-templates-j_idt179" class="ui-state-default ui-resizable-column template_table_column_template_name" role="columnheader"><span class="ui-column-title">Шаблон</span></th><th id="temp-templates-j_idt181" class="ui-state-default ui-resizable-column template_table_column_template_period" role="columnheader"><span class="ui-column-title">Период</span></th><th id="temp-templates-j_idt187" class="ui-state-default ui-resizable-column template_table_column_actions" role="columnheader"><span class="ui-column-title"><a id="temp-templates-add" href="#" class="ui-commandlink ui-widget" onclick="PrimeFaces.ab({s:&quot;temp-templates-add&quot;,u:&quot;add_form&quot;,ps:true,onsu:function(data,status,xhr){PF('addDialog').show();;}});return false;">
+                                    <span class="fa fa-plus fs20" style="color: #03a9f4;"></span></a></span></th></tr></thead></table></div></div><div class="ui-treetable-scrollable-body"><table role="grid"><tbody id="temp-templates_data" class="ui-treetable-data ui-widget-content"><tr id="temp-templates_node_0" class="ui-widget-content ui-treetable-selectable-node default" role="row" aria-expanded="false" data-rk="0" data-prk="root" aria-selected="false"><td role="gridcell" class="template_table_column_template_name"><span class="ui-treetable-toggler ui-icon ui-icon-triangle-1-e ui-c" style="visibility:hidden"></span>график по проекту 1</td><td role="gridcell" class="template_table_column_template_period">
+                            <div>
+                            </div>
+                            <div>
+                            </div></td><td role="gridcell" class="template_table_column_actions"></td></tr><tr id="temp-templates_node_1" class="ui-widget-content ui-treetable-selectable-node default" role="row" aria-expanded="false" data-rk="1" data-prk="root" aria-selected="false"><td role="gridcell" class="template_table_column_template_name"><span class="ui-treetable-toggler ui-icon ui-icon-triangle-1-e ui-c" style="visibility:hidden"></span>Мультискильный кейс</td><td role="gridcell" class="template_table_column_template_period">
+                            <div>
+                            </div>
+                            <div>
+                            </div></td><td role="gridcell" class="template_table_column_actions"></td></tr><tr id="temp-templates_node_2" class="ui-widget-content ui-treetable-selectable-node default" role="row" aria-expanded="false" data-rk="2" data-prk="root" aria-selected="false"><td role="gridcell" class="template_table_column_template_name"><span class="ui-treetable-toggler ui-icon ui-icon-triangle-1-e ui-c" style="visibility:hidden"></span>Обучение</td><td role="gridcell" class="template_table_column_template_period">
+                            <div>
+                            </div>
+                            <div>
+                            </div></td><td role="gridcell" class="template_table_column_actions"></td></tr><tr id="temp-templates_node_3" class="ui-widget-content ui-treetable-selectable-node default" role="row" aria-expanded="false" data-rk="3" data-prk="root" aria-selected="false"><td role="gridcell" class="template_table_column_template_name"><span class="ui-treetable-toggler ui-icon ui-icon-triangle-1-e ui-c" style="visibility:hidden"></span>ТП - Неравномерная нагрузка</td><td role="gridcell" class="template_table_column_template_period">
+                            <div>
+                            </div>
+                            <div>
+                            </div></td><td role="gridcell" class="template_table_column_actions"></td></tr><tr id="temp-templates_node_4" class="ui-widget-content ui-treetable-selectable-node default" role="row" aria-expanded="false" data-rk="4" data-prk="root" aria-selected="false"><td role="gridcell" class="template_table_column_template_name"><span class="ui-treetable-toggler ui-icon ui-icon-triangle-1-e ui-c" style="visibility:hidden"></span>ФС - Равномерная нагрузка</td><td role="gridcell" class="template_table_column_template_period">
+                            <div>
+                            </div>
+                            <div>
+                            </div></td><td role="gridcell" class="template_table_column_actions"></td></tr><tr id="temp-templates_node_5" class="ui-widget-content ui-treetable-selectable-node default" role="row" aria-expanded="false" data-rk="5" data-prk="root" aria-selected="false"><td role="gridcell" class="template_table_column_template_name"><span class="ui-treetable-toggler ui-icon ui-icon-triangle-1-e ui-c" style="visibility:hidden"></span>Чаты</td><td role="gridcell" class="template_table_column_template_period">
+                            <div>
+                            </div>
+                            <div>
+                            </div></td><td role="gridcell" class="template_table_column_actions"></td></tr></tbody></table></div><div class="ui-widget-header ui-treetable-scrollable-footer"><div class="ui-treetable-scrollable-footer-box"><table role="grid"><tfoot></tfoot></table></div></div><input id="temp-templates_selection" name="temp-templates_selection" type="hidden" /><input id="temp-templates_scrollState" name="temp-templates_scrollState" type="hidden" value="0,0" /></div><script id="temp-templates_s" type="text/javascript">$(function(){PrimeFaces.cw("TreeTable","widget_temp_templates",{id:"temp-templates",selectionMode:"single",scrollable:true,behaviors:{select:function(ext,event) {PrimeFaces.ab({s:"temp-templates",e:"select",p:"temp-templates",ps:true},ext);}}});});</script><input type="hidden" name="javax.faces.ViewState" value="-3052629644683954897:-859343460572683809" autocomplete="off" />
+</form></div><input type="hidden" id="templates_panel_collapsed" name="templates_panel_collapsed" value="false" /></div><script id="templates_panel_s" type="text/javascript">PrimeFaces.cw("StatefulPanel","widget_templates_panel",{id:"templates_panel",toggleable:true,toggleSpeed:500,collapsed:false,toggleOrientation:"vertical"});</script>
+        </div>
+    </div><div id="add_dialog" class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-shadow ui-hidden-container dialog-width-large"><div class="ui-dialog-titlebar ui-widget-header ui-helper-clearfix ui-corner-top"><span id="add_dialog_title" class="ui-dialog-title">Старт процесса согласования:</span><a href="#" class="ui-dialog-titlebar-icon ui-dialog-titlebar-close ui-corner-all" aria-label="Close"><span class="ui-icon ui-icon-closethick"></span></a></div><div class="ui-dialog-content ui-widget-content">
+<form id="add_form" name="add_form" method="post" action="/ccwfm/views/env/schedule/OperatingScheduleSolutionView.xhtml?cid=48" enctype="application/x-www-form-urlencoded">
+<input type="hidden" name="add_form" value="add_form" />
+<table>
+<tbody>
+<tr>
+<td><label id="add_form-j_idt193" class="ui-outputlabel ui-widget">Период</label></td>
+<td><span id="add_form-whenl" class="ui-calendar width-100-percents"><input id="add_form-whenl_input" name="add_form-whenl_input" type="text" aria-required="true" class="ui-inputfield ui-widget ui-state-default ui-corner-all" /></span><script id="add_form-whenl_s" type="text/javascript">$(function(){PrimeFaces.cw("Calendar","widget_add_form_whenl",{id:"add_form-whenl",popup:true,locale:"ru",dateFormat:"dd.mm.yy"});});</script></td>
+<td>
+					-
+				</td>
+<td><span id="add_form-from" class="ui-calendar width-100-percents"><input id="add_form-from_input" name="add_form-from_input" type="text" aria-required="true" class="ui-inputfield ui-widget ui-state-default ui-corner-all" /></span><script id="add_form-from_s" type="text/javascript">$(function(){PrimeFaces.cw("Calendar","widget_add_form_from",{id:"add_form-from",popup:true,locale:"ru",dateFormat:"dd.mm.yy"});});</script></td>
+</tr>
+</tbody>
+</table>
+
+            <div class="dialog-footer-buttons"><button id="add_form-ok_button" name="add_form-ok_button" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only" onclick="PrimeFaces.ab({s:&quot;add_form-ok_button&quot;,ps:true});return false;" type="submit"><span class="ui-button-icon-left ui-icon ui-c fa fa-check"></span><span class="ui-button-text ui-c">ui-button</span></button><script id="add_form-ok_button_s" type="text/javascript">PrimeFaces.cw("CommandButton","widget_add_form_ok_button",{id:"add_form-ok_button"});</script><button id="add_form-j_idt199" name="add_form-j_idt199" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only" onclick="PrimeFaces.bcn(this,event,[function(event){PF('addDialog').hide();},function(event){PrimeFaces.ab({s:&quot;add_form-j_idt199&quot;,ps:true});return false;}]);" type="submit"><span class="ui-button-icon-left ui-icon ui-c fa fa-close"></span><span class="ui-button-text ui-c">ui-button</span></button><script id="add_form-j_idt199_s" type="text/javascript">PrimeFaces.cw("CommandButton","widget_add_form_j_idt199",{id:"add_form-j_idt199"});</script>
+            </div><input type="hidden" name="javax.faces.ViewState" value="-3052629644683954897:-859343460572683809" autocomplete="off" />
+</form></div></div><script id="add_dialog_s" type="text/javascript">$(function(){PrimeFaces.cw("Dialog","addDialog",{id:"add_dialog",resizable:false,modal:true,position:"top"});});</script><div id="planning_details">
+
+			<div class="m-container100 m-responsive100">
+				<div class="m-container-indent">
+<form id="events_template_form" name="events_template_form" method="post" action="/ccwfm/views/env/schedule/OperatingScheduleSolutionView.xhtml?cid=48" enctype="application/x-www-form-urlencoded">
+<input type="hidden" name="events_template_form" value="events_template_form" />
+<input type="hidden" name="javax.faces.ViewState" value="-3052629644683954897:-859343460572683809" autocomplete="off" />
+</form>
+				</div>
+			</div></div></div>
+	
+								
+							</div>
+							</div>
+						</div><div id="j_idt775" style="width:32px;height:32px;position:fixed;right:7px;bottom:7px"><div id="j_idt775_start" style="display:none"><img id="j_idt776" src="/ccwfm/javax.faces.resource/modena-layout/images/preloader.gif.xhtml?argus_v=1749652358876" alt="" /></div><div id="j_idt775_complete" style="display:none"></div></div><script id="j_idt775_s" type="text/javascript">$(function(){PrimeFaces.cw("AjaxStatus","widget_j_idt775",{id:"j_idt775"});});</script>
+					</div>
+				</div><div id="create_work_schedule_dialog" class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-shadow ui-hidden-container"><div class="ui-dialog-titlebar ui-widget-header ui-helper-clearfix ui-corner-top"><span id="create_work_schedule_dialog_title" class="ui-dialog-title">Планирование графика работ</span><a href="#" class="ui-dialog-titlebar-icon ui-dialog-titlebar-close ui-corner-all" aria-label="Close"><span class="ui-icon ui-icon-closethick"></span></a></div><div class="ui-dialog-content ui-widget-content"></div></div><script id="create_work_schedule_dialog_s" type="text/javascript">$(function(){PrimeFaces.cw("Dialog","schedulePlanningDialog",{id:"create_work_schedule_dialog",resizable:false,modal:true,width:"750",dynamic:true,position:"top"});});</script><div id="check_data_for_planning" class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-shadow ui-hidden-container"><div class="ui-dialog-titlebar ui-widget-header ui-helper-clearfix ui-corner-top"><span id="check_data_for_planning_title" class="ui-dialog-title">Проверка настроек</span><a href="#" class="ui-dialog-titlebar-icon ui-dialog-titlebar-close ui-corner-all" aria-label="Close"><span class="ui-icon ui-icon-closethick"></span></a></div><div class="ui-dialog-content ui-widget-content"></div></div><script id="check_data_for_planning_s" type="text/javascript">$(function(){PrimeFaces.cw("Dialog","checkDataForPlanningDialog",{id:"check_data_for_planning",resizable:false,modal:true,width:"750",dynamic:true,position:"top"});});</script><div id="save_dialog" class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-shadow ui-hidden-container"><div class="ui-dialog-titlebar ui-widget-header ui-helper-clearfix ui-corner-top"><span id="save_dialog_title" class="ui-dialog-title">Сохранение графика работ</span><a href="#" class="ui-dialog-titlebar-icon ui-dialog-titlebar-close ui-corner-all" aria-label="Close"><span class="ui-icon ui-icon-closethick"></span></a></div><div class="ui-dialog-content ui-widget-content"></div></div><script id="save_dialog_s" type="text/javascript">$(function(){PrimeFaces.cw("Dialog","saveDialog",{id:"save_dialog",resizable:false,modal:true,width:"500",dynamic:true,position:"top"});});</script><div id="copy_dialog" class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-shadow ui-hidden-container"><div class="ui-dialog-titlebar ui-widget-header ui-helper-clearfix ui-corner-top"><span id="copy_dialog_title" class="ui-dialog-title">Копирование графика работ</span><a href="#" class="ui-dialog-titlebar-icon ui-dialog-titlebar-close ui-corner-all" aria-label="Close"><span class="ui-icon ui-icon-closethick"></span></a></div><div class="ui-dialog-content ui-widget-content"></div></div><script id="copy_dialog_s" type="text/javascript">$(function(){PrimeFaces.cw("Dialog","copyDialog",{id:"copy_dialog",resizable:false,modal:true,width:"500",dynamic:true,position:"top"});});</script><div id="send_progress_dialog" class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-shadow ui-hidden-container"><div class="ui-dialog-titlebar ui-widget-header ui-helper-clearfix ui-corner-top"><span id="send_progress_dialog_title" class="ui-dialog-title">Отправка графиков</span></div><div class="ui-dialog-content ui-widget-content">
+<form id="send_progress_form" name="send_progress_form" method="post" action="/ccwfm/views/env/schedule/OperatingScheduleSolutionView.xhtml?cid=48" enctype="application/x-www-form-urlencoded">
+<input type="hidden" name="send_progress_form" value="send_progress_form" />
+
+				<div class="ui-grid ui-grid-sparse"><script id="send_progress_form-j_idt851" type="text/javascript">updateSendProgress = function() {PrimeFaces.ab({s:"send_progress_form-j_idt851",f:"send_progress_form",u:"send_progress_form",ps:true,pa:arguments[0]});}</script>
+					<div class="ui-grid-row"><label id="send_progress_form-j_idt853" class="ui-outputlabel ui-widget">Передано успешно 0</label>
+					</div>
+					<div class="ui-grid-row"><label id="send_progress_form-j_idt855" class="ui-outputlabel ui-widget">Передано неуспешно 0</label>
+					</div>
+					<div class="ui-grid-row"><label id="send_progress_form-j_idt857" class="ui-outputlabel ui-widget">Прогресс 0%</label>
+					</div>
+				</div><input type="hidden" name="javax.faces.ViewState" value="-3052629644683954897:-859343460572683809" autocomplete="off" />
+</form></div></div><script id="send_progress_dialog_s" type="text/javascript">$(function(){PrimeFaces.cw("Dialog","sendProgressDialog",{id:"send_progress_dialog",resizable:false,modal:true,position:"top"});});</script><div id="apply_dialog" class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-shadow ui-hidden-container"><div class="ui-dialog-titlebar ui-widget-header ui-helper-clearfix ui-corner-top"><span id="apply_dialog_title" class="ui-dialog-title">Изменение графика работы</span><a href="#" class="ui-dialog-titlebar-icon ui-dialog-titlebar-close ui-corner-all" aria-label="Close"><span class="ui-icon ui-icon-closethick"></span></a></div><div class="ui-dialog-content ui-widget-content">
+<form id="schedule_interval_applying_form" name="schedule_interval_applying_form" method="post" action="/ccwfm/views/env/schedule/OperatingScheduleSolutionView.xhtml?cid=48" enctype="application/x-www-form-urlencoded">
+<input type="hidden" name="schedule_interval_applying_form" value="schedule_interval_applying_form" />
+На даты null существует актуальный график работ. Хотите перезаписать?
+
+				<div class="dialog-footer-buttons"><button id="schedule_interval_applying_form-j_idt861" name="schedule_interval_applying_form-j_idt861" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only" onclick="PrimeFaces.bcn(this,event,[function(event){PF('confirmApplySolutionButton').disable()},function(event){PrimeFaces.ab({s:&quot;schedule_interval_applying_form-j_idt861&quot;,u:&quot;options_form work_schedule_planning_tabview-solution&quot;,ps:true,onco:function(xhr,status,args){PF('confirmApplySolutionButton').enable(); PF('applySolutionDialog').hide(); safeUpdate();;}});return false;}]);" type="submit"><span class="ui-button-icon-left ui-icon ui-c fa fa-check"></span><span class="ui-button-text ui-c">ui-button</span></button><script id="schedule_interval_applying_form-j_idt861_s" type="text/javascript">PrimeFaces.cw("CommandButton","confirmApplySolutionButton",{id:"schedule_interval_applying_form-j_idt861"});</script><button id="schedule_interval_applying_form-j_idt862" name="schedule_interval_applying_form-j_idt862" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only" onclick="PrimeFaces.bcn(this,event,[function(event){PF('applySolutionDialog').hide()},function(event){PrimeFaces.ab({s:&quot;schedule_interval_applying_form-j_idt862&quot;,ps:true});return false;}]);" type="submit"><span class="ui-button-icon-left ui-icon ui-c fa fa-close"></span><span class="ui-button-text ui-c">ui-button</span></button><script id="schedule_interval_applying_form-j_idt862_s" type="text/javascript">PrimeFaces.cw("CommandButton","widget_schedule_interval_applying_form_j_idt862",{id:"schedule_interval_applying_form-j_idt862"});</script>
+				</div><input type="hidden" name="javax.faces.ViewState" value="-3052629644683954897:-859343460572683809" autocomplete="off" />
+</form></div></div><script id="apply_dialog_s" type="text/javascript">$(function(){PrimeFaces.cw("Dialog","applySolutionDialog",{id:"apply_dialog",resizable:false,modal:true,width:"500",position:"top"});});</script><div id="shift_adding_dialog" class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-shadow ui-hidden-container"><div class="ui-dialog-titlebar ui-widget-header ui-helper-clearfix ui-corner-top"><span id="shift_adding_dialog_title" class="ui-dialog-title">Добавление смен</span><a href="#" class="ui-dialog-titlebar-icon ui-dialog-titlebar-close ui-corner-all" aria-label="Close"><span class="ui-icon ui-icon-closethick"></span></a></div><div class="ui-dialog-content ui-widget-content">
+<form id="shift_adding_dialog_form" name="shift_adding_dialog_form" method="post" action="/ccwfm/views/env/schedule/OperatingScheduleSolutionView.xhtml?cid=48" enctype="application/x-www-form-urlencoded">
+<input type="hidden" name="shift_adding_dialog_form" value="shift_adding_dialog_form" />
+<div id="shift_adding_dialog_form-shift_adding_dialog_table" class="ui-datatable ui-widget"><div class="ui-datatable-tablewrapper"><table role="grid"><thead id="shift_adding_dialog_form-shift_adding_dialog_table_head"><tr><th id="shift_adding_dialog_form-shift_adding_dialog_table-j_idt866" class="ui-state-default m-tex-al-center" role="columnheader" aria-label="Тип" scope="col" style="width: 200px;" rowspan="2"><span class="ui-column-title" title="Тип">Тип</span></th><th id="shift_adding_dialog_form-shift_adding_dialog_table-j_idt867" class="ui-state-default m-tex-al-center" role="columnheader" aria-label="Время" scope="col" rowspan="2"><span class="ui-column-title" title="Время">Время</span></th><th id="shift_adding_dialog_form-shift_adding_dialog_table-j_idt868" class="ui-state-default m-tex-al-center" role="columnheader" aria-label="Сверхурочные часы" scope="col" colspan="2"><span class="ui-column-title" title="Сверхурочные часы">Сверхурочные часы</span></th><th id="shift_adding_dialog_form-shift_adding_dialog_table-j_idt869" class="ui-state-default" role="columnheader" scope="col" style="width: 15px;" rowspan="2"><span class="ui-column-title"><a id="shift_adding_dialog_form-shift_adding_dialog_table-add_schedule_interval" href="#" class="ui-commandlink ui-widget" aria-label="Добавить смену" onclick="PrimeFaces.ab({s:&quot;shift_adding_dialog_form-shift_adding_dialog_table-add_schedule_interval&quot;,u:&quot;shift_adding_dialog_form&quot;,ps:true});return false;" title="Добавить смену">
+									<span class="fa fa-plus fs20"></span></a></span></th></tr><tr><th id="shift_adding_dialog_form-shift_adding_dialog_table-j_idt872" class="ui-state-default m-tex-al-center" role="columnheader" aria-label="Перед сменой" scope="col"><span class="ui-column-title" title="Перед сменой">Перед сменой</span></th><th id="shift_adding_dialog_form-shift_adding_dialog_table-j_idt873" class="ui-state-default m-tex-al-center" role="columnheader" aria-label="После смены" scope="col"><span class="ui-column-title" title="После смены">После смены</span></th></tr></thead><tbody id="shift_adding_dialog_form-shift_adding_dialog_table_data" class="ui-datatable-data ui-widget-content"><tr class="ui-widget-content ui-datatable-empty-message"><td colspan="5">No records found.</td></tr></tbody></table></div></div><script id="shift_adding_dialog_form-shift_adding_dialog_table_s" type="text/javascript">$(function(){PrimeFaces.cw("DataTable","widget_shift_adding_dialog_form_shift_adding_dialog_table",{id:"shift_adding_dialog_form-shift_adding_dialog_table",groupColumnIndexes:[]});});</script><div id="shift_adding_dialog_form-shiftTimezoneWarning" class="ui-outputpanel ui-widget"><table style="border-spacing: 15px 5px; border: 1px solid #3e94cd; border-radius: 3px; margin-bottom: 10px;">
+<tbody>
+<tr>
+<td>
+				<i class="fa fa-info-circle" style="color:#3e94cd"></i></td>
+<td><label id="shift_adding_dialog_form-j_idt894" class="ui-outputlabel ui-widget"> Обратите внимание, смены для оператора(-ов) создаются в выбранной тайм-зоне (Екатеринбург), если у оператора(-ов) другая тайм-зона, то время смены для оператора(-ов) может отличаться от выбранного.</label></td>
+</tr>
+</tbody>
+</table>
+</div><button id="shift_adding_dialog_form-j_idt895" name="shift_adding_dialog_form-j_idt895" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick="PrimeFaces.bcn(this,event,[function(event){PF('checkShiftButton').disable()},function(event){PrimeFaces.ab({s:&quot;shift_adding_dialog_form-j_idt895&quot;,ps:true,onco:function(xhr,status,args){PF('checkShiftButton').enable();}});return false;}]);" type="submit"><span class="ui-button-text ui-c">Проверка нарушений</span></button><script id="shift_adding_dialog_form-j_idt895_s" type="text/javascript">PrimeFaces.cw("CommandButton","checkShiftButton",{id:"shift_adding_dialog_form-j_idt895"});</script>
+
+			<div class="dialog-footer-buttons"><button id="shift_adding_dialog_form-j_idt897" name="shift_adding_dialog_form-j_idt897" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only" onclick="PrimeFaces.bcn(this,event,[function(event){PF('saveShiftButton').disable()},function(event){PrimeFaces.ab({s:&quot;shift_adding_dialog_form-j_idt897&quot;,u:&quot;options_form work_schedule_planning_tabview-solution work_schedule_planing_form&quot;,ps:true,onco:function(xhr,status,args){PF('saveShiftButton').enable(); PF('shiftAddingDialog').hide(); safeUpdate();;}});return false;}]);" type="submit"><span class="ui-button-icon-left ui-icon ui-c fa fa-check"></span><span class="ui-button-text ui-c">ui-button</span></button><script id="shift_adding_dialog_form-j_idt897_s" type="text/javascript">PrimeFaces.cw("CommandButton","saveShiftButton",{id:"shift_adding_dialog_form-j_idt897"});</script><button id="shift_adding_dialog_form-j_idt898" name="shift_adding_dialog_form-j_idt898" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only" onclick="PrimeFaces.bcn(this,event,[function(event){PF('shiftAddingDialog').hide()},function(event){PrimeFaces.ab({s:&quot;shift_adding_dialog_form-j_idt898&quot;,ps:true});return false;}]);" type="submit"><span class="ui-button-icon-left ui-icon ui-c fa fa-close"></span><span class="ui-button-text ui-c">ui-button</span></button><script id="shift_adding_dialog_form-j_idt898_s" type="text/javascript">PrimeFaces.cw("CommandButton","widget_shift_adding_dialog_form_j_idt898",{id:"shift_adding_dialog_form-j_idt898"});</script>
+			</div><input type="hidden" name="javax.faces.ViewState" value="-3052629644683954897:-859343460572683809" autocomplete="off" />
+</form></div></div><script id="shift_adding_dialog_s" type="text/javascript">$(function(){PrimeFaces.cw("Dialog","shiftAddingDialog",{id:"shift_adding_dialog",resizable:false,modal:true,width:"700",position:"top"});});</script><div id="shift_editing_dialog" class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-shadow ui-hidden-container"><div class="ui-dialog-titlebar ui-widget-header ui-helper-clearfix ui-corner-top"><span id="shift_editing_dialog_title" class="ui-dialog-title">Корректировка смены</span><a href="#" class="ui-dialog-titlebar-icon ui-dialog-titlebar-close ui-corner-all" aria-label="Close"><span class="ui-icon ui-icon-closethick"></span></a></div><div class="ui-dialog-content ui-widget-content">
+<form id="shift_editing_dialog_form" name="shift_editing_dialog_form" method="post" action="/ccwfm/views/env/schedule/OperatingScheduleSolutionView.xhtml?cid=48" enctype="application/x-www-form-urlencoded">
+<input type="hidden" name="shift_editing_dialog_form" value="shift_editing_dialog_form" />
+<div id="shift_editing_dialog_form-shift_editing_dialog_table" class="ui-datatable ui-widget"><div class="ui-datatable-tablewrapper"><table role="grid"><thead id="shift_editing_dialog_form-shift_editing_dialog_table_head"><tr><th id="shift_editing_dialog_form-shift_editing_dialog_table-j_idt902" class="ui-state-default m-tex-al-center" role="columnheader" aria-label="Тип" scope="col" style="width: 200px;" rowspan="2"><span class="ui-column-title" title="Тип">Тип</span></th><th id="shift_editing_dialog_form-shift_editing_dialog_table-j_idt903" class="ui-state-default m-tex-al-center" role="columnheader" aria-label="Время" scope="col" rowspan="2"><span class="ui-column-title" title="Время">Время</span></th><th id="shift_editing_dialog_form-shift_editing_dialog_table-j_idt904" class="ui-state-default m-tex-al-center" role="columnheader" aria-label="Сверхурочные часы" scope="col" colspan="2"><span class="ui-column-title" title="Сверхурочные часы">Сверхурочные часы</span></th><th id="shift_editing_dialog_form-shift_editing_dialog_table-j_idt905" class="ui-state-default" role="columnheader" scope="col" style="width: 15px;" rowspan="2"><span class="ui-column-title"><a id="shift_editing_dialog_form-shift_editing_dialog_table-add_schedule_interval" href="#" class="ui-commandlink ui-widget" onclick="PrimeFaces.ab({s:&quot;shift_editing_dialog_form-shift_editing_dialog_table-add_schedule_interval&quot;,u:&quot;shift_editing_dialog_form&quot;,ps:true});return false;">
+									<span class="fa fa-plus fs20"></span></a><div id="shift_editing_dialog_form-shift_editing_dialog_table-j_idt908" class="ui-tooltip ui-widget width-300 ui-tooltip-right"><div class="ui-tooltip-arrow"></div><div class="ui-tooltip-text ui-shadow ui-corner-all"></div></div><script id="shift_editing_dialog_form-shift_editing_dialog_table-j_idt908_s" type="text/javascript">$(function(){PrimeFaces.cw("Tooltip","widget_shift_editing_dialog_form_shift_editing_dialog_table_j_idt908",{id:"shift_editing_dialog_form-shift_editing_dialog_table-j_idt908",showEffect:"fade",hideEffect:"fade",target:"shift_editing_dialog_form-shift_editing_dialog_table-info_tip"});});</script></span></th></tr><tr><th id="shift_editing_dialog_form-shift_editing_dialog_table-j_idt910" class="ui-state-default m-tex-al-center" role="columnheader" aria-label="Перед сменой" scope="col"><span class="ui-column-title" title="Перед сменой">Перед сменой</span></th><th id="shift_editing_dialog_form-shift_editing_dialog_table-j_idt911" class="ui-state-default m-tex-al-center" role="columnheader" aria-label="После смены" scope="col"><span class="ui-column-title" title="После смены">После смены</span></th></tr></thead><tbody id="shift_editing_dialog_form-shift_editing_dialog_table_data" class="ui-datatable-data ui-widget-content"><tr class="ui-widget-content ui-datatable-empty-message"><td colspan="5">No records found.</td></tr></tbody></table></div></div><script id="shift_editing_dialog_form-shift_editing_dialog_table_s" type="text/javascript">$(function(){PrimeFaces.cw("DataTable","widget_shift_editing_dialog_form_shift_editing_dialog_table",{id:"shift_editing_dialog_form-shift_editing_dialog_table",groupColumnIndexes:[]});});</script><div id="shift_editing_dialog_form-shiftTimezoneWarning" class="ui-outputpanel ui-widget"><table style="border-spacing: 15px 5px; border: 1px solid #3e94cd; border-radius: 3px; margin-bottom: 10px;">
+<tbody>
+<tr>
+<td>
+				<i class="fa fa-info-circle" style="color:#3e94cd"></i></td>
+<td><label id="shift_editing_dialog_form-j_idt932" class="ui-outputlabel ui-widget"> Обратите внимание, смены для оператора(-ов) создаются в выбранной тайм-зоне (Екатеринбург), если у оператора(-ов) другая тайм-зона, то время смены для оператора(-ов) может отличаться от выбранного.</label></td>
+</tr>
+</tbody>
+</table>
+</div><button id="shift_editing_dialog_form-j_idt933" name="shift_editing_dialog_form-j_idt933" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick="PrimeFaces.bcn(this,event,[function(event){PF('checkEditShiftButton').disable()},function(event){PrimeFaces.ab({s:&quot;shift_editing_dialog_form-j_idt933&quot;,ps:true,onco:function(xhr,status,args){PF('checkEditShiftButton').enable();}});return false;}]);" type="submit"><span class="ui-button-text ui-c">Проверка нарушений</span></button><script id="shift_editing_dialog_form-j_idt933_s" type="text/javascript">PrimeFaces.cw("CommandButton","checkEditShiftButton",{id:"shift_editing_dialog_form-j_idt933"});</script>
+			<div class="dialog-footer-buttons"><button id="shift_editing_dialog_form-j_idt935" name="shift_editing_dialog_form-j_idt935" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only" onclick="PrimeFaces.bcn(this,event,[function(event){PF('saveEditShiftButton').disable()},function(event){PrimeFaces.ab({s:&quot;shift_editing_dialog_form-j_idt935&quot;,u:&quot;options_form work_schedule_planning_tabview-solution work_schedule_planing_form&quot;,ps:true,onco:function(xhr,status,args){PF('saveEditShiftButton').enable(); PF('shiftEditingDialog').hide(); safeUpdate();;}});return false;}]);" type="submit"><span class="ui-button-icon-left ui-icon ui-c fa fa-check"></span><span class="ui-button-text ui-c">ui-button</span></button><script id="shift_editing_dialog_form-j_idt935_s" type="text/javascript">PrimeFaces.cw("CommandButton","saveEditShiftButton",{id:"shift_editing_dialog_form-j_idt935"});</script><button id="shift_editing_dialog_form-j_idt936" name="shift_editing_dialog_form-j_idt936" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only" onclick="PrimeFaces.bcn(this,event,[function(event){PF('shiftEditingDialog').hide()},function(event){PrimeFaces.ab({s:&quot;shift_editing_dialog_form-j_idt936&quot;,ps:true});return false;}]);" type="submit"><span class="ui-button-icon-left ui-icon ui-c fa fa-close"></span><span class="ui-button-text ui-c">ui-button</span></button><script id="shift_editing_dialog_form-j_idt936_s" type="text/javascript">PrimeFaces.cw("CommandButton","widget_shift_editing_dialog_form_j_idt936",{id:"shift_editing_dialog_form-j_idt936"});</script>
+			</div><input type="hidden" name="javax.faces.ViewState" value="-3052629644683954897:-859343460572683809" autocomplete="off" />
+</form></div></div><script id="shift_editing_dialog_s" type="text/javascript">$(function(){PrimeFaces.cw("Dialog","shiftEditingDialog",{id:"shift_editing_dialog",resizable:false,modal:true,width:"700",position:"top"});});</script><div id="shift_deleting_dialog" class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-shadow ui-hidden-container"><div class="ui-dialog-titlebar ui-widget-header ui-helper-clearfix ui-corner-top"><span id="shift_deleting_dialog_title" class="ui-dialog-title">Подтверждение удаления смены</span><a href="#" class="ui-dialog-titlebar-icon ui-dialog-titlebar-close ui-corner-all" aria-label="Close"><span class="ui-icon ui-icon-closethick"></span></a></div><div class="ui-dialog-content ui-widget-content">
+<form id="schedule_interval_delete_form" name="schedule_interval_delete_form" method="post" action="/ccwfm/views/env/schedule/OperatingScheduleSolutionView.xhtml?cid=48" enctype="application/x-www-form-urlencoded">
+<input type="hidden" name="schedule_interval_delete_form" value="schedule_interval_delete_form" />
+
+			<div class="ui-grid">
+				<div class="ui-grid-row">
+					<div class="ui-grid-col-12">Вы действительно хотите удалить следующие смены?
+					</div>
+				</div>
+				<div class="ui-grid-row">
+					<div class="ui-grid-col-12"><table id="schedule_interval_delete_form-j_idt941" role="presentation" class="ui-selectmanycheckbox ui-widget"></table><script id="schedule_interval_delete_form-j_idt941_s" type="text/javascript">$(function(){PrimeFaces.cw("SelectManyCheckbox","widget_schedule_interval_delete_form_j_idt941",{id:"schedule_interval_delete_form-j_idt941"});});</script>
+					</div>
+				</div>
+			</div><div id="schedule_interval_delete_form-j_idt944" class="ui-panel ui-widget ui-widget-content ui-corner-all dialog-footer-buttons" data-widget="widget_schedule_interval_delete_form_j_idt944"><div id="schedule_interval_delete_form-j_idt944_content" class="ui-panel-content ui-widget-content"><button id="schedule_interval_delete_form-j_idt945" name="schedule_interval_delete_form-j_idt945" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only" onclick="PrimeFaces.bcn(this,event,[function(event){PF('deleteShiftButton').disable()},function(event){PrimeFaces.ab({s:&quot;schedule_interval_delete_form-j_idt945&quot;,u:&quot;options_form work_schedule_planning_tabview-solution work_schedule_planing_form&quot;,ps:true,onco:function(xhr,status,args){PF('deleteShiftButton').enable(); PF('shiftDeletingDialog').hide(); safeUpdate();;}});return false;}]);" type="submit"><span class="ui-button-icon-left ui-icon ui-c fa fa-check"></span><span class="ui-button-text ui-c">ui-button</span></button><script id="schedule_interval_delete_form-j_idt945_s" type="text/javascript">PrimeFaces.cw("CommandButton","deleteShiftButton",{id:"schedule_interval_delete_form-j_idt945"});</script><button id="schedule_interval_delete_form-j_idt946" name="schedule_interval_delete_form-j_idt946" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only" onclick="PrimeFaces.bcn(this,event,[function(event){PF('shiftDeletingDialog').hide()},function(event){PrimeFaces.ab({s:&quot;schedule_interval_delete_form-j_idt946&quot;,ps:true});return false;}]);" type="submit"><span class="ui-button-icon-left ui-icon ui-c fa fa-close"></span><span class="ui-button-text ui-c">ui-button</span></button><script id="schedule_interval_delete_form-j_idt946_s" type="text/javascript">PrimeFaces.cw("CommandButton","widget_schedule_interval_delete_form_j_idt946",{id:"schedule_interval_delete_form-j_idt946"});</script></div></div><script id="schedule_interval_delete_form-j_idt944_s" type="text/javascript">PrimeFaces.cw("Panel","widget_schedule_interval_delete_form_j_idt944",{id:"schedule_interval_delete_form-j_idt944"});</script><input type="hidden" name="javax.faces.ViewState" value="-3052629644683954897:-859343460572683809" autocomplete="off" />
+</form></div></div><script id="shift_deleting_dialog_s" type="text/javascript">$(function(){PrimeFaces.cw("Dialog","shiftDeletingDialog",{id:"shift_deleting_dialog",resizable:false,modal:true,width:"600",position:"top"});});</script><div id="select_workers_dialog" class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-shadow ui-hidden-container"><div class="ui-dialog-titlebar ui-widget-header ui-helper-clearfix ui-corner-top"><span id="select_workers_dialog_title" class="ui-dialog-title">Изменение графика работы</span><a href="#" class="ui-dialog-titlebar-icon ui-dialog-titlebar-close ui-corner-all" aria-label="Close"><span class="ui-icon ui-icon-closethick"></span></a></div><div class="ui-dialog-content ui-widget-content"></div></div><script id="select_workers_dialog_s" type="text/javascript">$(function(){PrimeFaces.cw("Dialog","selectWorkersDialog",{id:"select_workers_dialog",resizable:false,modal:true,width:"1500",dynamic:true,position:"top"});});</script><div id="j_idt998" class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-shadow ui-hidden-container"><div class="ui-dialog-titlebar ui-widget-header ui-helper-clearfix ui-corner-top"><span id="j_idt998_title" class="ui-dialog-title">Выполняется построение отчета</span></div><div class="ui-dialog-content ui-widget-content">
+<form id="j_idt999" name="j_idt999" method="post" action="/ccwfm/views/env/schedule/OperatingScheduleSolutionView.xhtml?cid=48" enctype="application/x-www-form-urlencoded">
+<input type="hidden" name="j_idt999" value="j_idt999" />
+
+			<div class="ui-grid ui-grid-sparse"><script id="j_idt999-j_idt1001" type="text/javascript">fractionReportUpdateProgress = function() {PrimeFaces.ab({s:"j_idt999-j_idt1001",f:"j_idt999",u:"j_idt999",ps:true,pa:arguments[0]});}</script>
+
+				<div class="ui-grid-row"><label id="j_idt999-j_idt1004" class="ui-outputlabel ui-widget">Ожидает запуска</label>
+				</div>
+				<div class="container">
+					<div id="bar" class="indeterminate-progress-bar active">
+						<div class="progress-block single-segment"></div>
+					</div>
+				</div>
+			</div>
+			<div class="dialog-footer-buttons"><button id="j_idt999-j_idt1006" name="j_idt999-j_idt1006" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick="PrimeFaces.ab({s:&quot;j_idt999-j_idt1006&quot;,u:&quot;j_idt999&quot;,ps:true});return false;" type="submit"><span class="ui-button-text ui-c">Отмена</span></button><script id="j_idt999-j_idt1006_s" type="text/javascript">PrimeFaces.cw("CommandButton","widget_j_idt999_j_idt1006",{id:"j_idt999-j_idt1006"});</script>
+			</div><input type="hidden" name="javax.faces.ViewState" value="-3052629644683954897:-859343460572683809" autocomplete="off" />
+</form></div></div><script id="j_idt998_s" type="text/javascript">$(function(){PrimeFaces.cw("Dialog","fractionReportProgressDialog",{id:"j_idt998",resizable:false,modal:true,position:"top"});});</script><div id="j_idt1008" class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-shadow ui-hidden-container"><div class="ui-dialog-titlebar ui-widget-header ui-helper-clearfix ui-corner-top"><span id="j_idt1008_title" class="ui-dialog-title">Отчет успешно построен</span></div><div class="ui-dialog-content ui-widget-content">
+<form id="j_idt1009" name="j_idt1009" method="post" action="/ccwfm/views/env/schedule/OperatingScheduleSolutionView.xhtml?cid=48" enctype="application/x-www-form-urlencoded">
+<input type="hidden" name="j_idt1009" value="j_idt1009" />
+
+			<div class="ui-grid ui-grid-sparse">
+				<div class="ui-grid-row"><label id="j_idt1009-j_idt1011" class="ui-outputlabel ui-widget">Загрузить?</label>
+				</div>
+			</div>
+			<div class="dialog-footer-buttons"><button id="j_idt1009-j_idt1013" name="j_idt1009-j_idt1013" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick="PrimeFaces.onPost();" type="submit"><span class="ui-button-text ui-c">Да</span></button><script id="j_idt1009-j_idt1013_s" type="text/javascript">PrimeFaces.cw("CommandButton","widget_j_idt1009_j_idt1013",{id:"j_idt1009-j_idt1013"});</script><button id="j_idt1009-j_idt1014" name="j_idt1009-j_idt1014" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick="PrimeFaces.bcn(this,event,[function(event){PF('sendFractionDialog').hide();},function(event){PrimeFaces.ab({s:&quot;j_idt1009-j_idt1014&quot;,ps:true});return false;}]);" type="submit"><span class="ui-button-text ui-c">Нет</span></button><script id="j_idt1009-j_idt1014_s" type="text/javascript">PrimeFaces.cw("CommandButton","widget_j_idt1009_j_idt1014",{id:"j_idt1009-j_idt1014"});</script>
+			</div><input type="hidden" name="javax.faces.ViewState" value="-3052629644683954897:-859343460572683809" autocomplete="off" />
+</form></div></div><script id="j_idt1008_s" type="text/javascript">$(function(){PrimeFaces.cw("Dialog","sendFractionDialog",{id:"j_idt1008",resizable:false,modal:true,position:"top"});});</script>
+
+		<script>
+            function toggleAccordion() {
+                var active = PF('accordionPanel').cfg.active;
+                if(active == 0 || isNaN(active)) {
+                    PF('accordionPanel').select(1);
+                }
+                PF('schedulePlanningDialog').show();
+            }
+            function openFirstTab() {
+	            var active = PF('accordionPanel').cfg.active;
+	            if(isNaN(active) || active.length === 0 || active !== 0) {
+		            PF('accordionPanel').select(0);
+	            }
+            }
+            // безопасный вызов встроенной во вкладки функции обновления содержимого
+			// см.WFMCC-2888
+			function safeUpdate() {
+            	// вызывает апдейт только если такая функция объявлена
+				if (typeof update === "function") {
+					update();
+				}
+			}
+		</script><script id="j_idt1017_s" type="text/javascript">$(function(){PrimeFaces.cw("ConfirmDialog","widget_j_idt1017",{id:"j_idt1017",showEffect:"fade",hideEffect:"fade",global:true});});</script><div id="j_idt1017" class="ui-confirm-dialog ui-dialog ui-widget ui-widget-content ui-corner-all ui-shadow ui-hidden-container"><div class="ui-dialog-titlebar ui-widget-header ui-helper-clearfix ui-corner-top"><span id="j_idt1017_title" class="ui-dialog-title"></span><a href="#" class="ui-dialog-titlebar-icon ui-dialog-titlebar-close ui-corner-all" aria-label="Close"><span class="ui-icon ui-icon-closethick"></span></a></div><div class="ui-dialog-content ui-widget-content"><span class="ui-icon ui-confirm-dialog-severity"></span><span class="ui-confirm-dialog-message"></span></div><div class="ui-dialog-buttonpane ui-dialog-footer ui-widget-content ui-helper-clearfix">
+<form id="j_idt1018" name="j_idt1018" method="post" action="/ccwfm/views/env/schedule/OperatingScheduleSolutionView.xhtml?cid=48" enctype="application/x-www-form-urlencoded">
+<input type="hidden" name="j_idt1018" value="j_idt1018" />
+<button id="j_idt1018-j_idt1019" name="j_idt1018-j_idt1019" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only ui-confirmdialog-yes" type="button"><span class="ui-button-text ui-c">Да</span></button><script id="j_idt1018-j_idt1019_s" type="text/javascript">PrimeFaces.cw("CommandButton","widget_j_idt1018_j_idt1019",{id:"j_idt1018-j_idt1019"});</script><button id="j_idt1018-j_idt1020" name="j_idt1018-j_idt1020" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only ui-confirmdialog-no" type="button"><span class="ui-button-text ui-c">Нет</span></button><script id="j_idt1018-j_idt1020_s" type="text/javascript">PrimeFaces.cw("CommandButton","widget_j_idt1018_j_idt1020",{id:"j_idt1018-j_idt1020"});</script><input type="hidden" name="javax.faces.ViewState" value="-3052629644683954897:-859343460572683809" autocomplete="off" />
+</form></div></div><div id="global_editor-bar" class="ui-notificationbar ui-widget ui-widget-content sys-comp-global-editor-bar sys-autoblockable">
+<form id="global_editor-form" name="global_editor-form" method="post" action="/ccwfm/views/env/schedule/OperatingScheduleSolutionView.xhtml?cid=48" enctype="application/x-www-form-urlencoded">
+<input type="hidden" name="global_editor-form" value="global_editor-form" />
+<button id="global_editor-form-save" name="global_editor-form-save" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only ui-priority-primary" onclick="PrimeFaces.ab({s:&quot;global_editor-form-save&quot;,p:&quot;@(.sys-comp-editable-section) global_editor-form-save&quot;,u:&quot;content_body create_work_schedule_dialog check_data_for_planning save_dialog copy_dialog send_progress_dialog apply_dialog shift_adding_dialog shift_editing_dialog shift_deleting_dialog select_workers_dialog j_idt998 j_idt1008 global_editor-global_save_confirm_dialog ajax_error_dlg&quot;,ps:true});return false;" type="submit"><span class="ui-button-text ui-c">Сохранить</span></button><script id="global_editor-form-save_s" type="text/javascript">PrimeFaces.cw("CommandButton","widget_global_editor_form_save",{id:"global_editor-form-save"});</script><button id="global_editor-form-cancel" name="global_editor-form-cancel" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick="PrimeFaces.ab({s:&quot;global_editor-form-cancel&quot;,p:&quot;global_editor-form-cancel&quot;,ps:true});return false;" type="submit"><span class="ui-button-text ui-c">Отменить</span></button><script id="global_editor-form-cancel_s" type="text/javascript">PrimeFaces.cw("CommandButton","widget_global_editor_form_cancel",{id:"global_editor-form-cancel"});</script><input type="hidden" name="javax.faces.ViewState" value="-3052629644683954897:-859343460572683809" autocomplete="off" />
+</form></div><script id="global_editor-bar_s" type="text/javascript">$(function(){PrimeFaces.cw("NotificationBar","sysCompGlobalEditorVar",{id:"global_editor-bar",position:"top",effect:"slide",effectSpeed:"normal"});});</script>
+
+		
+		
+		
+		<div id="global_msg_container"><span id="global_msg_info"></span><script id="global_msg_info_s" type="text/javascript">$(function(){PrimeFaces.cw('Growl','widget_global_msg_info',{id:'global_msg_info',sticky:false,life:6000,escape:true,msgs:[]});});</script><span id="global_msg_info_html"></span><script id="global_msg_info_html_s" type="text/javascript">$(function(){PrimeFaces.cw('Growl','widget_global_msg_info_html',{id:'global_msg_info_html',sticky:false,life:6000,escape:false,msgs:[]});});</script><span id="global_msg_warn"></span><script id="global_msg_warn_s" type="text/javascript">$(function(){PrimeFaces.cw('Growl','widget_global_msg_warn',{id:'global_msg_warn',sticky:true,life:6000,escape:true,msgs:[]});});</script><span id="global_msg_warn_html"></span><script id="global_msg_warn_html_s" type="text/javascript">$(function(){PrimeFaces.cw('Growl','widget_global_msg_warn_html',{id:'global_msg_warn_html',sticky:true,life:6000,escape:false,msgs:[]});});</script><span id="global_msg_error"></span><script id="global_msg_error_s" type="text/javascript">$(function(){PrimeFaces.cw('Growl','widget_global_msg_error',{id:'global_msg_error',sticky:true,life:6000,escape:true,msgs:[]});});</script>
+			
+		</div><div id="ajax_error_dlg" class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-shadow ui-hidden-container dialog-width-small "><div class="ui-dialog-titlebar ui-widget-header ui-helper-clearfix ui-corner-top"><span id="ajax_error_dlg_title" class="ui-dialog-title">Ошибка</span></div><div class="ui-dialog-content ui-widget-content">
+			<p>Время жизни страницы истекло, или произошла ошибка соединения. Попробуйте обновить страницу или вернуться на домашнюю страницу</p>
+			<div class="dialog-footer-buttons">
+<form id="j_idt1028" name="j_idt1028" method="post" action="/ccwfm/views/env/schedule/OperatingScheduleSolutionView.xhtml?cid=48" enctype="application/x-www-form-urlencoded">
+<input type="hidden" name="j_idt1028" value="j_idt1028" />
+<button id="j_idt1028-j_idt1029" name="j_idt1028-j_idt1029" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick="window.location.reload(true);" type="button"><span class="ui-button-text ui-c">Обновить</span></button><script id="j_idt1028-j_idt1029_s" type="text/javascript">PrimeFaces.cw("CommandButton","widget_j_idt1028_j_idt1029",{id:"j_idt1028-j_idt1029"});</script><input type="hidden" name="javax.faces.ViewState" value="-3052629644683954897:-859343460572683809" autocomplete="off" />
+</form>
+			</div></div></div><script id="ajax_error_dlg_s" type="text/javascript">$(function(){PrimeFaces.cw("Dialog","sysAjaxErrorDialogVar",{id:"ajax_error_dlg",draggable:false,resizable:false,modal:true,position:"top"});});</script>
+		
+
+		<script>
+			Argus.System.Page.initBodyEnd();
+		</script><script type="text/javascript">$(function(){Argus.System.History.replaceState(null, '', '?schedulePlanningTemplate=&operatingScheduleSolution=');;});</script></body>

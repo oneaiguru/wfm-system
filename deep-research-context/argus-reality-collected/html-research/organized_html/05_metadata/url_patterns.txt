@@ -1,0 +1,12 @@
+=== URL PATTERNS ===
+"/ccwfm/views/env/adjustment/WorkScheduleAdjustmentView.xhtml?cid=50"
+"/ccwfm/views/env/forecast/ForecastAccuracyView.xhtml?cid=42"
+"/ccwfm/views/env/forecast/ForecastListView.xhtml?cid=34"
+"/ccwfm/views/env/forecast/HistoricalDataListView.xhtml?cid=36"
+"/ccwfm/views/env/forecast/import/ImportForecastView.xhtml?cid=38"
+"/ccwfm/views/env/personnel/GroupListView.xhtml?cid=10"
+"/ccwfm/views/env/personnel/ServiceListView.xhtml?cid=2"
+"/ccwfm/views/env/personnel/WorkerListView.xhtml?cid=19"
+"/ccwfm/views/env/planning/SchedulePlanningView.xhtml?cid=44"
+"/ccwfm/views/env/schedule/OperatingScheduleSolutionView.xhtml?cid=48"
+"/ccwfm/views/env/security/RoleListView.xhtml?cid=30"

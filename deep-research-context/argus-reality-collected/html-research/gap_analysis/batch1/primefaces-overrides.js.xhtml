@@ -1,0 +1,887 @@
+/* jshint strict: implied, browser: true, laxbreak: true, laxcomma: true, sub: true */
+/* globals Argus, log, $, PrimeFaces, PF, checkState */
+/*
+ * XXX [MAINTAIN_PF 6.1] оверрайд кусочка autocomplete.js
+ * В 5.1.9 в bindKeyEvents стало два вызова $this.search - адаптировал доработку с 5.0.7 на первый вызов - желаемое
+ * поведение достигнуто.
+ * В 6.1 нужный обработчик ушел в processKeyEvent, теперь его оверрайдим, а не bindKeyEvents.
+ */
+// учет статуса AJAX в автокомплите, чтобы делать меньше реквестов (TASK-46999)
+PrimeFaces.widget.AutoComplete.prototype.processKeyEvent = function(e) {
+	var $this = this;
+
+	if ($this.suppressInput) {
+		e.preventDefault();
+		return;
+	}
+
+	// for touch event on mobile
+	if (PrimeFaces.env.browser.mobile) {
+		$this.touchToDropdownButton = false;
+		if ($this.itemClick) {
+			$this.itemClick = false;
+			return;
+		}
+	}
+
+	// for click event on IE8
+	if (PrimeFaces.isIE(8) && ($this.itemClick || e.originalEvent.propertyName !== 'value')) {
+		$this.itemClick = false;
+		return;
+	}
+
+	var value = $this.input.val();
+
+	if ($this.cfg.pojo && !$this.cfg.multiple) {
+		$this.hinput.val(value);
+	}
+
+	if (!value.length) {
+		$this.hide();
+	}
+
+	if (value.length >= $this.cfg.minLength) {
+		if ($this.timeout) {
+			$this.deleteTimeout();
+		}
+
+		var delay = $this.cfg.delay;
+		// единственное функциональное изменение в текущем методе - добавление вот этого if-else блока
+		if (Argus.System.Ajax.isActive()) {
+			var callbackName = $this.id + '.search';
+			Argus.System.Ajax.offComplete(callbackName).onComplete(function() {
+				Argus.System.Ajax.offComplete(callbackName);
+				$this.timeout = setTimeout(function() {
+					$this.timeout = null;
+					$this.search(value);
+				}, delay);
+			}, callbackName);
+		} else {
+			$this.timeout = setTimeout(function() {
+				$this.timeout = null;
+				$this.search(value);
+			}, delay);
+		}
+	}
+};
+
+/*
+ * XXX [MAINTAIN_PF 6.1] оверрайд кусочка core.ajax.js
+ */
+// позволяет обнаруживать проблемную псевдонавигацию faces-redirect=false или render="@all"
+(function(orig) {
+	PrimeFaces.ajax.Utils.updateElement = function(id, content, xhr) {
+		if (id === PrimeFaces.VIEW_ROOT) {
+			Argus.System.Ajax._trigger('forward');
+		}
+		orig.call(this, id, content, xhr);
+	};
+})(PrimeFaces.ajax.Utils.updateElement);
+
+/*
+ * XXX [MAINTAIN_PF 6.1] оверрайд кусочка core.ajax.js
+ */
+// позволяет пропустить компенсацию потери ViewState JSF
+(function(orig) {
+	PrimeFaces.ajax.Utils.updateFormStateInput = function(name, value, xhr) {
+		if (Argus.System.ViewStateFix.isEnabled()) {
+			orig.call(this, name, value, xhr);
+		}
+	};
+})(PrimeFaces.ajax.Utils.updateFormStateInput);
+
+/*
+ * XXX [MAINTAIN_PF 6.1] оверрайд кусочка core.env.js
+ */
+// IE8 должен детектиться как IE8, а не 7, в IE8 Compat View (TASK-58669)
+(function(orig) {
+	PrimeFaces.env.isIE = function(version) {
+		// как определять?
+		// navigator.userAgent и navigator.appVersion меняются в зависимости от browser mode, так что не подходят
+		// надежнее и логичнее всего определять по documentMode, т.к. цель не узнать, что на самом деле используется, а
+		// скорее feature detection и как ведет себя браузер, что (в основном, но не полностью) зависит от document mode
+		// рассчитываем, что document mode будет "хорошим" за счет X-UA-COMPATIBLE
+		if (version >= 7 && version <= 11) {
+			// логика проверена для версий IE 8, 9, 10, 11 в разных режимах совместимости, в т.ч. IE11 Enterprise Mode
+			// логика отрабатывает и для 7, чтобы PrimeFaces.isIE(7) правильно давало false в режимах совместимости
+			// PF 5.2.12 определяет MS Edge как Chrome 42
+			return this.browser.msie && document.documentMode === version;
+		} else {
+			return orig.call(this, version);
+		}
+	};
+})(PrimeFaces.env.isIE);
+(function(orig) {
+	PrimeFaces.env.isLtIE = function(version) {
+		return this.browser.msie ? document.documentMode < version : false;
+	};
+})(PrimeFaces.env.isLtIE);
+// test (use when changing isIE/isLtIE)
+/*
+ * $(function() { for (var i = 7; i < 12; ++i) { var ie = PrimeFaces.isIE(i); if (ie) log.warn('isIE' + i + ' = ' + ie);
+ * else log.info('isIE' + i + ' = ' + ie); var isltie = PrimeFaces.env.isLtIE(i); if (isltie) log.warn('isLtIE' + i + ' = ' +
+ * isltie); else log.info('isLtIE' + i + ' = ' + isltie); } log.info('isIE = ' + PrimeFaces.isIE()); });
+ */
+
+/*
+ * XXX [MAINTAIN_PF 6.1] оверрайд кусочка fieldset.js (TASK-51878)
+ */
+// позволяет проставить класс "ui-fieldset-open" элементу "fieldset" при его развороте
+(function(orig) {
+	PrimeFaces.widget.Fieldset.prototype.updateToggleState = function(collapsed) {
+		this.updateOpenClass(collapsed);
+
+		orig.call(this, collapsed);
+	};
+})(PrimeFaces.widget.Fieldset.prototype.updateToggleState);
+
+/*
+ * XXX [MAINTAIN_PF 6.1] оверрайд кусочка fieldset.js (TASK-51878)
+ */
+// позволяет проставить класс "ui-fieldset-open" элементу "fieldset" при загрузке,
+// если элемент развернут
+(function(orig) {
+	PrimeFaces.widget.Fieldset.prototype.init = function(cfg) {
+		orig.call(this, cfg);
+
+		this.updateOpenClass(!this.cfg.collapsed);
+	};
+})(PrimeFaces.widget.Fieldset.prototype.init);
+
+// Добавляем класс к развернутому элементу "fieldset".
+PrimeFaces.widget.Fieldset.prototype.updateOpenClass = function(collapsed) {
+	if (collapsed) {
+		this.jq.addClass('ui-fieldset-open');
+	} else {
+		this.jq.removeClass('ui-fieldset-open');
+	}
+};
+
+// TASK-76738: begin
+// нужен пересчет отступа ПОСЛЕ того как добавляется (cloneHead()) thead в таблицу,
+// потому вызываю функцию, которая специально для этого предназначена
+// XXX [MAINTAIN_PF 6.1] cloneHead tweak
+(function(orig) {
+	PrimeFaces.widget.DataTable.prototype.cloneHead = function() {
+		orig.call(this);
+		this.alignScrollBody();
+	};
+})(PrimeFaces.widget.DataTable.prototype.cloneHead);
+/* TASK-76738: end */
+
+/* ********************************************** */
+/* DataTable scrollable resizing extension: begin */
+/* ********************************************** */
+// datatable умеет подгонять высоту содержимого скроллируемой таблицы, нужно только добавить учет ресайза лэяута и
+// ajax-реквестов (TASK-57435)
+/*
+ * XXX [MAINTAIN_PF 6.1] копия условных вызовов adjust из datatable.js (метод setupScrolling)
+ */
+PrimeFaces.widget.DataTable.prototype.adjustScrollSizeWhereApplicable = function() {
+	var $this = this;
+	if ($this.jq.is(':visible')) {
+		if ($this.percentageScrollHeight)
+			$this.adjustScrollHeight();
+
+		if ($this.percentageScrollWidth)
+			$this.adjustScrollWidth();
+	}
+};
+// отдельный метод, чтобы реюзать для двух оверрайдов: DataTable и FrozenDataTable
+PrimeFaces.widget.DataTable.prototype.bindLayoutResizeAndAjaxChanges = function() {
+	var $this = this;
+	var namespace = 'datatable-scrollable-ext-' + $this.id;
+
+	$(function() {
+		// учет resize
+		// если внутри pe:layout, то надо биндиться на его ресайз
+		// ресайз window PF уже слушает
+		var pane = $this.jq.closest('.ui-layout-pane');
+		if (pane.length) {
+			var resizeNS = 'layoutpaneonresize.' + namespace;
+			pane.off(resizeNS).on(resizeNS, function() {
+				$this.adjustScrollSizeWhereApplicable();
+			});
+		}
+		// пересчет при ajax-реквестах
+		Argus.System.Ajax.offComplete(namespace).onComplete(function() {
+			$this.adjustScrollSizeWhereApplicable();
+		}, namespace);
+	});
+};
+
+// apply to DataTable
+(function(orig) {
+	PrimeFaces.widget.DataTable.prototype.setupScrolling = function() {
+		orig.call(this);
+		this.bindLayoutResizeAndAjaxChanges();
+	};
+})(PrimeFaces.widget.DataTable.prototype.setupScrolling);
+// apply to FrozenDataTable
+(function(orig) {
+	PrimeFaces.widget.FrozenDataTable.prototype.setupScrolling = function() {
+		orig.call(this);
+		this.bindLayoutResizeAndAjaxChanges();
+	};
+})(PrimeFaces.widget.FrozenDataTable.prototype.setupScrolling);
+/* ******************************************** */
+/* DataTable scrollable resizing extension: end */
+/* ******************************************** */
+
+/* ********************************************** */
+/* TreeTable scrollable resizing extension: begin */
+/* ********************************************** */
+// ресайз скроллируемой treetable, аналогично datatable (TASK-64326)
+/*
+ * XXX [MAINTAIN_PF 6.1] копия условных вызовов adjust из treetable.js (метод setupScrolling)
+ */
+PrimeFaces.widget.TreeTable.prototype.adjustScrollSizeWhereApplicable = function() {
+	var $this = this;
+	if ($this.jq.is(':visible')) {
+		if ($this.percentageScrollHeight)
+			$this.adjustScrollHeight();
+
+		if ($this.percentageScrollWidth)
+			$this.adjustScrollWidth();
+	}
+};
+(function(orig) {
+	PrimeFaces.widget.TreeTable.prototype.setupScrolling = function() {
+		orig.call(this);
+
+		// XXX [MAINTAIN_PF 6.1] workaround https://github.com/primefaces/primefaces/issues/828
+		this.percentageScrollHeight = this.cfg.scrollHeight && (this.cfg.scrollHeight.indexOf('%') !== -1);
+		this.percentageScrollWidth = this.cfg.scrollWidth && (this.cfg.scrollWidth.indexOf('%') !== -1);
+
+		var $this = this;
+		var namespace = 'treetable-scrollable-ext-' + $this.id;
+
+		$(function() {
+			// учет resize
+			// если внутри pe:layout, то надо биндиться на его ресайз
+			// ресайз window PF уже слушает
+			var pane = $this.jq.closest('.ui-layout-pane');
+			if (pane.length) {
+				var resizeNS = 'layoutpaneonresize.' + namespace;
+				pane.off(resizeNS).on(resizeNS, function() {
+					$this.adjustScrollSizeWhereApplicable();
+				});
+			}
+			// пересчет при ajax-реквестах
+			Argus.System.Ajax.offComplete(namespace).onComplete(function() {
+				$this.adjustScrollSizeWhereApplicable();
+			}, namespace);
+		});
+	};
+})(PrimeFaces.widget.TreeTable.prototype.setupScrolling);
+
+/* ******************************************** */
+/* TreeTable scrollable resizing extension: end */
+/* ******************************************** */
+
+/* ************************************************* */
+/* DataTable scrollable column auto width fix: begin */
+/* ************************************************* */
+// scrollable-таблицу PF рендерит как отдельные table для header, body, footer. Совпадение размера колонок между table
+// обеспечивается с помощью table-layout: fixed. Но нам нужно auto. Поэтому добиваемся совпадения размеров колонок
+// скриптом (TASK-57401, п. 6).
+PrimeFaces.widget.DataTable.prototype.bindFixColAutoWidthIfNecessary = function() {
+	var $this = this;
+	if ($this.cfg.scrollable && $this.scrollBody.find('> table').css('table-layout') === 'auto') {
+		$(function() {
+			log.debug('Resizing table columns for', $this.jq);
+			$this.fixColAutoWidth();
+			// resize (layout/window) вроде не нужно учитывать
+			// нужен пересчет при ajax-реквестах (например, догрузка live scroll может повлиять на ширину столбцов)
+			var namespace = 'datatable-scrollable-ext-auto-width-' + $this.id;
+			Argus.System.Ajax.offComplete(namespace).onComplete(function() {
+				$this.fixColAutoWidth();
+			}, namespace);
+		});
+	}
+};
+PrimeFaces.widget.DataTable.prototype.fixColAutoWidth = function() {
+	if (this.isEmpty()) {
+		// в пустой таблице в body одна колонка с emptyMessage - нечего выравнивать
+		// хотя, может быть, в таком случае надо выравнивать header и footer?
+		return;
+	}
+
+	var $this = this;
+	var bodyCols = $this.scrollBody.find('> table > tbody > tr:first > td'); // достаточно ячеек первой строки
+
+	var headerCols;
+	var headerMatrix = [];
+	// учет rowspan/colspan
+	{
+		var headerRows = $this.scrollHeader.find('> .ui-datatable-scrollable-header-box > table > thead > tr');
+		// разложим ячейки по матрице
+		for (var y = 0; y < headerRows.length; ++y) {
+			headerMatrix[y] = [];
+		}
+		for (var y = 0; y < headerRows.length; ++y) {
+			var cols = $(headerRows[y]).children('th');
+			var i = 0;
+			for (var x = 0; x < cols.length; ++x) {
+				while (headerMatrix[y][i])
+					++i; // пропустить уже покрытые rowspan/colspan
+				var col = $(cols[x]);
+				var rowspan = parseInt(col.attr('rowspan')) || 1;
+				var colspan = parseInt(col.attr('colspan')) || 1;
+				for (var r = 0; r < rowspan; ++r) {
+					for (var c = 0; c < colspan; ++c) {
+						headerMatrix[y + r][i + c] = col;
+					}
+				}
+			}
+		}
+		// возьмем последнюю строку для определения ширины
+		headerCols = headerMatrix[headerMatrix.length - 1];
+	}
+	// для футера пока нет учета rowspan/colspan
+	var footerCols = $this.footerCols;
+
+	bodyCols.each(function() {
+		// берем соответствующие колонки хедера, тела и футера
+		var bodyCol = $(this);
+		// далее на этом инстансе вызываем add - это нормально, делает новый jQuery Object: https://api.jquery.com/add/
+		var cols = bodyCol;
+		var index = bodyCol.index();
+		if (headerCols.length > 0) {
+			var headerCol = headerCols[index];
+			cols = cols.add(headerCol);
+		}
+		if (footerCols.length > 0) {
+			var footerCol = footerCols.eq(index);
+			cols = cols.add(footerCol);
+		}
+		// рассчитываем ширину колонок только по body, поскольку ожидаем, что для таблицы браузер автоматически раздал
+		// ширины колонкам в зависимости от их контента, и все, что от нас требуется, это подогнать header'ы под эти
+		// ширины
+		// здесь и далее расчет на одинаковые border в ячейках (заголовка, тела, футера); учет паддинга через innerWidth
+		var innerWidth = bodyCol.innerWidth();
+		// почему-то в Chrome и IE фактическая ширина получается на 1px больше width, jQuery#width ошибается на этот
+		// 1 пиксель - в итоге через несколько колонок накапливается существенное смещение. добавляем 1 к width для
+		// обхода проблемы.
+		// http://support.argustelecom.ru:10609/browse/TASK-57401?focusedCommentId=379265&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-379265
+		innerWidth += 1;
+		// FIXME зря здесь хардкод этих значений
+		innerWidth = Math.max(40, bodyCol.innerWidth());
+		innerWidth = Math.min(550, innerWidth);
+		// почему не получается увеличение ширины на 1 пиксель при каждом повторном вызове? непонятно, но хорошо, что
+		// не получается
+		// FIXME минимизировать reflow: надо делать сначала все чтения, потом все записи - т.е. текущий цикл по bodyCols
+		// должен только читать. не исправляю, т.к. грядет TASK-32331.
+		// FIXME а установка innerWidth не совмещает ли read с write? ведь откуда-то берет паддинг, чтобы отнять? кроме
+		// того, пишет css в style - значит сначала читает текущий style, чтобы к нему добавить?
+		cols.innerWidth(innerWidth);
+		// min-width надо, т.к. просто width недостаточно для th в хэдерах почему-то
+		// надо взять рассчитанную ширину, как она прописана в style
+		// т.к. паддинг может быть разным, то ширина берется отдельно для каждой ячейки
+		// читаем все ширины разом, потом сеттим все ширины разом, чтобы минимизировать reflow
+		var newWidths = [];
+		cols.each(function() {
+			newWidths.push(this.style.width);
+		});
+		cols.each(function() {
+			var col = $(this);
+			var newWidth = newWidths.shift();
+
+			if (!col.hasClass('ui-selection-column')) {
+				// Обеспечиваем работу скрипта выравнивания для всех колонок, кроме первой колонки с чекбоксом
+				// (selection column), т.к. у нее ширина меньше минимально допустимой скриптом и уже задана на уровне
+				// listView.
+				// FIXME надо реализовать общую поддержку задания фиксированной ширины снаружи, а не для
+				// "ui-selection-column в ListView"
+				// также выше уже был испоганен innerWidth этой колонки. за счет чего она не разъезжается? неизвестно,
+				// но известно, что в Chrome это колонка получается широкой
+				col.css('min-width', newWidth);
+				col.find('>span.ui-column-title').width(newWidth);
+				// без правки ширины спана слишком длинный титл может раздвинуть колонку
+				// FIXME фикс, мягко говоря, неадекватный - это надо было исправлять в css. или хотя бы проставлять и
+				// max-width колонки тоже. а так любой кастомный хедер рискует сломать этот фикс. опять же, игнорирую
+				// из-за TASK-32331.
+			}
+		});
+	});
+	// мы проставили ширину нижнему ряду заголовков, сделаем то же самое для верхнего ряда (если рядов больше 1)
+	if (headerMatrix.length > 1) {
+		for (var y = headerMatrix.length - 2; y >= 0; y--) {
+			var col = null, totalWidth = 0;
+			for (var x = 0; x < headerMatrix[y].length; x++) {
+				var newCol = headerMatrix[y][x];
+				if (col && newCol != col && totalWidth > 0) {
+					// FIXME почему здесь правится какой-то span, а не ячейка? вероятно, как и выше, нужно действовать
+					// иначе
+					$(col).find('>span.ui-column-title').width(totalWidth);
+					totalWidth = 0;
+				}
+				col = newCol;
+				// возьмем ширину колонки снизу
+				var colBelow = headerMatrix[y + 1][x];
+				if (colBelow != col) {
+					totalWidth += $(headerMatrix[y + 1][x]).find('>span.ui-column-title').innerWidth();
+				}
+			}
+		}
+	}
+};
+// apply to DataTable
+(function(orig) {
+	PrimeFaces.widget.DataTable.prototype.setupScrolling = function() {
+		orig.call(this);
+		this.bindFixColAutoWidthIfNecessary();
+	};
+})(PrimeFaces.widget.DataTable.prototype.setupScrolling);
+// для FrozenDataTable что-то сделано в рамках TASK-66280. какие были проблемы, и как их решили эти изменения - неясно.
+// если разберешься, прокомментируй.
+(function(orig) {
+	PrimeFaces.widget.FrozenDataTable.prototype.setupScrolling = function() {
+		orig.call(this);
+		this.bindFixColAutoWidthIfNecessary();
+
+		var $leftRows = $('.ui-datatable-frozenlayout-left').find('tr');
+		var $rightRows = $('.ui-datatable-frozenlayout-right').find('tr');
+
+		$leftRows.each(function(index) {
+			var $leftRow = $(this);
+			var $rightRow = $rightRows.eq(index);
+
+			if ($rightRow.innerHeight() > $leftRow.innerHeight()) {
+				$leftRow.innerHeight($rightRow.outerHeight());
+			} else {
+				$rightRow.innerHeight($leftRow.outerHeight());
+			}
+		});
+	};
+})(PrimeFaces.widget.FrozenDataTable.prototype.setupScrolling);
+
+/* *********************************************** */
+/* DataTable scrollable column auto width fix: end */
+/* *********************************************** */
+
+/*
+ * XXX [MAINTAIN_PF 6.1] оверрайд кусочка dialog.js (оверрайдит метод initPosition, использует this.cfg.position)
+ */
+// особое top-позиционирование (TASK-63475)
+(function(orig) {
+	PrimeFaces.widget.Dialog.prototype.initPosition = function() {
+		orig.call(this);
+
+		if (/(top)/.test(this.cfg.position)) {
+			this.jq.css({
+				top : 90
+			});
+		}
+	};
+})(PrimeFaces.widget.Dialog.prototype.initPosition);
+
+/*
+ * XXX [MAINTAIN_PF 6.1] оверрайд кусочка dialog.js (использует this.cfg.position)
+ */
+// p:confirmDialog тоже должен быть в top (TASK-63475)
+(function(orig) {
+	PrimeFaces.widget.ConfirmDialog.prototype.init = function(cfg) {
+		orig.call(this, cfg);
+
+		this.cfg.position = 'top';
+	};
+})(PrimeFaces.widget.ConfirmDialog.prototype.init);
+
+/* ******************* */
+/* PF Core AJAX: begin */
+/* ******************* */
+// запрещает некоторые сомнительные фичи PF, ломающие инфраструктуру или угрожающие стабильности сервера
+// не бросаем исключений, а оверрайдим, потому что есть нехорошие дефолты и хардкоды в PF: например, p:outputPanel
+// deferred=true загружает контент с ignoreAutoUpdate=true, global=false, async=true
+// XXX [MAINTAIN_PF 6.1] оверрайд кусочка core.ajax.js (PrimeFaces.ajax.Request.send(cfg))
+(function(orig) {
+	PrimeFaces.ajax.Request.send = function(cfg) {
+		if (cfg.ignoreAutoUpdate) {
+			cfg.ignoreAutoUpdate = false;
+			log.warn('Нельзя использовать ignoreAutoUpdate=true - ломает инфраструктуру');
+			// на autoUpdate рассчитывает панель с #default_form (View.xhtml)
+		}
+		if (typeof (cfg.global) !== 'undefined' && !cfg.global) {
+			cfg.global = true;
+			log.warn('Нельзя использовать global=false - ломает инфраструктуру');
+			// слушать реквесты хочет очень много кто
+		}
+		orig.call(this, cfg);
+	};
+})(PrimeFaces.ajax.Request.send);
+// XXX [MAINTAIN_PF 6.1] оверрайд кусочка core.ajax.js (PrimeFaces.ajax.Request.handle(cfg, ext))
+(function(orig) {
+	PrimeFaces.ajax.Request.handle = function(cfg, ext) {
+		// можно и иногда нужно использовать async в stateless view. выяснять форму и state здесь неудобно, так что пока
+		// учтем здесь единственнный известный случай хорошего async=true - logout, когда в cfg есть явный formId, и
+		// известно, что форма главного меню - stateless.
+		if (cfg.async && cfg.formId !== 'mmf') {
+			cfg.async = false;
+			log.warn('Нельзя использовать async=true с не-stateless view - JSF не поддерживает параллельных '
+					+ 'реквестов, обязывает делать очередь на клиенте');
+		}
+		orig.call(this, cfg, ext);
+	};
+})(PrimeFaces.ajax.Request.handle);
+/* ******************* */
+/* PF Core AJAX: end */
+/* ******************* */
+
+/* ******************************** */
+/* PF Accordion header click: begin */
+/* ******************************** */
+// XXX [MAINTAIN_PF 6.1] таб аккордеона открывается/скрывается при нажатии
+// на любой элемент находящийся внутри его хедера. В TASK-70255 нужна кнопка в хедере аккордеона
+// и не нужно чтобы таб скрывался/раскрывался при ее нажатии.
+(function(orig) {
+	PrimeFaces.widget.AccordionPanel.prototype.bindEvents = function() {
+		var $this = this;
+
+		this.headers.mouseover(function() {
+			var element = $(this);
+			if (!element.hasClass('ui-state-active') && !element.hasClass('ui-state-disabled')) {
+				element.addClass('ui-state-hover');
+			}
+		}).mouseout(function() {
+			var element = $(this);
+			if (!element.hasClass('ui-state-active') && !element.hasClass('ui-state-disabled')) {
+				element.removeClass('ui-state-hover');
+			}
+		}).click(function(e) {
+			var element = $(this);
+
+			if (e.target.parentElement.className.indexOf("ui-button") > -1)
+				return;
+
+			if (!element.hasClass('ui-state-disabled')) {
+				var tabIndex = element.index() / 2;
+
+				if (element.hasClass('ui-state-active')) {
+					$this.unselect(tabIndex);
+				} else {
+					$this.select(tabIndex);
+					$(this).trigger('focus.accordion');
+				}
+			}
+
+			e.preventDefault();
+		});
+
+		this.bindKeyEvents();
+	};
+})(PrimeFaces.widget.AccordionPanel.prototype.bindEvents);
+/* ****************************** */
+/* PF Accordion header click: end */
+/* ****************************** */
+
+/* ********************** */
+/* PF OverlayPanel: begin */
+/* ********************** */
+// XXX [MAINTAIN_PF 6.1] оверрайд кусочка overlaypanel.js, исправляет плодящиеся оверлеи при апдейте overlayPanel с
+// appendToBody="true"
+PrimeFaces.widget.OverlayPanel.prototype.init = function(cfg) {
+	// this._super(cfg);
+	// сломали этот хрупкий велосипедный полиморфизм
+	// хотим вызывать BaseWidget#init, но не исходный OverlayPanel#init
+	PrimeFaces.widget.BaseWidget.prototype.init.call(this, cfg);
+
+	this.content = this.jq.children('div.ui-overlaypanel-content');
+
+	// configuration
+	this.cfg.my = this.cfg.my || 'left top';
+	this.cfg.at = this.cfg.at || 'left bottom';
+	this.cfg.showEvent = this.cfg.showEvent || 'click.ui-overlaypanel';
+	this.cfg.hideEvent = this.cfg.hideEvent || 'click.ui-overlaypanel';
+	this.cfg.dismissable = (this.cfg.dismissable === false) ? false : true;
+
+	if (this.cfg.showCloseIcon) {
+		this.closerIcon = $(
+				'<a href="#" class="ui-overlaypanel-close ui-state-default" href="#"><span class="ui-icon ui-icon-closethick"></span></a>')
+				.appendTo(this.jq);
+	}
+
+	// prevent duplicate elements
+	// вот суть фикса, убрать глупое условие - в this.jq всегда один элемент, т.к. находится только первый
+	// попавшийся
+	// if (this.jq.length > 1) {
+	$(document.body).children(this.jqId).remove();
+	this.jq = $(this.jqId);
+	// }
+
+	// remove related modality if there is one
+	var modal = $(this.jqId + '_modal');
+	if (modal.length > 0) {
+		modal.remove();
+	}
+
+	if (this.cfg.appendToBody) {
+		this.jq.appendTo(document.body);
+	}
+
+	this.bindCommonEvents();
+
+	if (this.cfg.target) {
+		this.target = PrimeFaces.expressions.SearchExpressionFacade.resolveComponentsAsSelector(this.cfg.target);
+		this.bindTargetEvents();
+
+		// dialog support
+		this.setupDialogSupport();
+	}
+};
+// перепозиционирование при ресайзе layout и ajax-реквестах
+(function(orig) {
+	PrimeFaces.widget.OverlayPanel.prototype.bindTargetEvents = function() {
+		orig.call(this);
+		var $this = this;
+		var namespace = 'overlaypanel-ext-' + $this.id;
+		$(function() {
+			// если внутри pe:layout, то надо биндиться на его ресайз
+			var pane = $this.target.closest('.ui-layout-pane');
+			if (pane.length) {
+				var resizeNS = 'layoutpaneonresize.' + namespace;
+				pane.off(resizeNS).on(resizeNS, function() {
+					$this.align();
+				});
+			}
+			// пересчет при ajax-реквестах
+			Argus.System.Ajax.offComplete(namespace).onComplete(function() {
+				$this.align();
+			}, namespace);
+		});
+	};
+})(PrimeFaces.widget.OverlayPanel.prototype.bindTargetEvents);
+/* ******************** */
+/* PF OverlayPanel: end */
+/* ******************** */
+
+/* ***************** */
+/* TASK-86013: begin */
+/* ***************** */
+// XXX [MAINTAIN_PF 5.2.12, 6.1.4] копипаста и фикс https://github.com/primefaces/primefaces/issues/3029
+// Исправляет баг, что фокус всегда ставится на первый радиобаттон из группы, а не на выбранный
+PrimeFaces.focus = function(id, context) {
+	// все инпуты, которым можно сделать focus
+	var selector = ':not(:submit):not(:button):input:visible:enabled[name]';
+
+	// :input - Selects all input, textarea, select and button elements.
+	// :submit - Selects all elements of type submit.
+	// :button - Selects all button elements and elements of type button.
+	// то есть selector это input[type=radio], input[type=text], textarea, select
+	// в любом элементе ввода есть <input name, который стоит впереди других
+
+	setTimeout(function() {
+		var el;
+
+		if (id || context) {
+			el = $(PrimeFaces.escapeClientId(id || context));
+		} else {
+			el = $('body');
+		}
+
+		if (el.is(selector)) {
+			// передан id и el это input[type=radio], input[type=text], textarea, select (select внутри selectOneMenu
+			// всегда после input, поэтому на него focus не падает)
+			el.focus();
+		} else {
+			var s = el.find(selector);// el это контекст, внутри которого ищем первый selector
+			if (s.eq(0).is(':radio')) {
+				// если первый это radio
+				var radios = s.attr('name');
+				// то находим все radio из этой же группы, а из них находим checked и focus его
+				s.filter('[name="' + radios + '"]:checked').focus();
+			} else {
+				// сюда попадаем если передан контекст, внутри которго надо найти первый попавшийся элемент и focus его
+				s.eq(0).focus();
+			}
+		}
+
+	}, 50);
+
+	// remember that a custom focus has been rendered
+	// this avoids to retain the last focus after ajax update
+	PrimeFaces.customFocus = true;
+};
+/* *************** */
+/* TASK-86013: end */
+/* *************** */
+
+/* ***************************************************** */
+/* PF DataTable bonus column manipulation methods: begin */
+/* ***************************************************** */
+//
+// дополнительное API для управления колонками, нужное механизмам ClientState и ContextMenuColumnToggler (этот откачен)
+// checkState отсутствия функций с такими именами, т.к. имена такие, что вполне могут появиться в следующих версиях PF
+//
+checkState(typeof PrimeFaces.widget.DataTable.prototype.getColumnName === 'undefined');
+/**
+ * По переданной колонке вытаскивает имя этой колонки. Для колонки выбора строк (ui-selection-column) или просто колонок
+ * без заголовка возвращает пустую строку.
+ * 
+ * @param col
+ *            th-колонка, имя которой нужно получить
+ * @returns {string} имя колонки
+ */
+PrimeFaces.widget.DataTable.prototype.getColumnName = function(col) {
+	var $headerSpan = $(col).find('.ui-column-title');
+	if ($headerSpan.length > 0) {
+		return $headerSpan[0].innerText.replace(/\xa0/g, '');
+	} else {
+		return null;
+	}
+};
+
+checkState(typeof PrimeFaces.widget.DataTable.prototype.canHideColumn === 'undefined');
+/**
+ * Можно ли спрятать колонку.
+ * 
+ * @param col
+ *            th-колонка, которую нужно проверить
+ * @return {boolean} <code>true</code>, если колонку можно спрятать
+ */
+PrimeFaces.widget.DataTable.prototype.canHideColumn = function(col) {
+	if ($(col).hasClass('ui-selection-column'))
+		return false;
+	if (!this.getColumnName(col))
+		return false;
+	return true;
+};
+
+checkState(typeof PrimeFaces.widget.DataTable.prototype.isColumnVisible === 'undefined');
+/**
+ * Видна ли колонка пользователю.
+ * 
+ * @param col
+ *            th-колонка
+ * @return {boolean} видна ли колонка
+ */
+PrimeFaces.widget.DataTable.prototype.isColumnVisible = function(col) {
+	return !$(col).hasClass('ui-helper-hidden');
+};
+
+checkState(typeof PrimeFaces.widget.DataTable.prototype.dragDropColumn === 'undefined');
+/**
+ * Перемещение колонки.
+ * 
+ * @param dragged
+ *            колонка, которую перемещаем
+ * @param dropped
+ *            колонка, на которую указываем при перемещении
+ * @param location
+ *            {Integer} указывает с какой стороны от dropped колонки нужно установить dragged колонку: слева (не больше
+ *            нуля) или справа (больше нуля)
+ */
+PrimeFaces.widget.DataTable.prototype.dragDropColumn = function(dragged, dropped, location) {
+	// XXX [MAINTAIN_PF 5.2.12] очень сильная завязка на детали реализации drap'n'drop
+	$(dropped).data('ui-droppable').options.drop.call($(dropped), /* event не используется в хэндлере */{}, /* ui */{
+		draggable : $(dragged),
+		helper : {
+			data : function() {
+				return location;
+			}
+		}
+	});
+};
+
+checkState(typeof PrimeFaces.widget.DataTable.prototype.toggleColumnVisibility === 'undefined');
+/**
+ * Изменяет видимость колонки.
+ * 
+ * @param col
+ *            th-колонка
+ */
+PrimeFaces.widget.DataTable.prototype.toggleColumnVisibility = function(col) {
+	if (this.isColumnVisible(col))
+		this.hideColumn(col);
+	else
+		this.showColumn(col);
+};
+
+checkState(typeof PrimeFaces.widget.DataTable.prototype.findHeaders === 'undefined');
+/**
+ * Возвращает th-заголовки таблицы.
+ */
+PrimeFaces.widget.DataTable.prototype.findHeaders = function() {
+	return this.thead.find('> tr > th');
+	// p:columnToggler еще фильтрует, оставляя только toggleable: this.thead.find('> tr > th:not(.ui-static-column)');
+};
+
+checkState(typeof PrimeFaces.widget.DataTable.prototype.findHeadersMap === 'undefined');
+/**
+ * Возвращает "мапу" (объект, конечно; мапы в ES6 только есть) th-заголовков таблицы, где ключ это заголовок столбца. Не
+ * включает заголовки без имен (см. getColumnName).
+ */
+PrimeFaces.widget.DataTable.prototype.findHeadersMap = function() {
+	var headers = this.findHeaders();
+	var headersMap = {};
+	for (var i = 0; i < headers.length; ++i) {
+		var name = this.getColumnName(headers[i]);
+		if (!!name)
+			headersMap[name] = headers[i];
+	}
+	return headersMap;
+};
+/* *************************************************** */
+/* PF DataTable bonus column manipulation methods: end */
+/* *************************************************** */
+
+/* *************************/
+/* PF SelectOneMenu: begin */
+/* *************************/
+// XXX [MAINTAIN_PF 6.1] копипаста и фикс https://github.com/primefaces/primefaces/issues/2366
+// Исправляет баг, что поле ввода SelectOneMenu отрисовывалось, как disabled, если лейбл был пустым.
+PrimeFaces.widget.SelectOneMenu.prototype.setLabel = function (value) {
+	var displayedLabel = this.getLabelToDisplay(value);
+
+	if(this.cfg.editable) {
+		if(value === '&nbsp;')
+			this.label.val('');
+		else
+			this.label.val(displayedLabel);
+	}
+	else {
+		var labelText = this.label.data('placeholder');
+		if (labelText == null || labelText == "") {
+			labelText = '&nbsp;';
+		}
+
+		if (value === '&nbsp;') {
+			if (labelText != '&nbsp;') {
+				this.label.text(labelText);
+			} else {
+				this.label.html(labelText);
+			}
+		}
+		else {
+			this.label.removeClass('ui-state-disabled');
+			this.label.text(displayedLabel);
+		}
+	}
+};
+
+/* ***********************/
+/* PF SelectOneMenu: end */
+/* ***********************/
+
+/* ********************************************/
+/* TreeTable alignScrollBody override: begin  */
+/* ********************************************/
+/*
+ * XXX [MAINTAIN_PF 6.1] практически копипаста функции из treetable.js.
+ * В PF6 не добавляется размерность, а getScrollbarWidth() возвращает строку без размерности,
+ * браузер считает это значение не валидным (так как дефолтная размерность не определена) и таблица разъезжается.
+ */
+(function (orig) {
+	PrimeFaces.widget.TreeTable.prototype.alignScrollBody = function() {
+		if(!this.cfg.scrollWidth) {
+			if(this.hasVerticalOverflow())
+				this.scrollBody.css('padding-right', 0);
+			else
+				this.scrollBody.css('padding-right', this.getScrollbarWidth() + 'px');
+		}
+	}
+})(PrimeFaces.widget.TreeTable.prototype.alignScrollBody);
+
+/* ******************************************/
+/* TreeTable alignScrollBody override: end  */
+/* ******************************************/

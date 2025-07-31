@@ -1,0 +1,240 @@
+/**
+ * Переопределение методов (_render, _checkUI, _uncheckUI) из InputSwitch, для того чтобы визуально менять состояние свитча при отключении.
+ * Необходимо проверять наличие PrimeFaces и InputSwitch (Они не всегда могут быть, как например на странице багрепорта)
+ * PF 6.1
+ * Начало переопределения InputSwitch
+ */
+if (PrimeFaces && PrimeFaces.widget && PrimeFaces.widget.InputSwitch) {
+	// Реализовано добавление класса: ui-inputswitch-disabled
+	PrimeFaces.widget.InputSwitch.prototype._render = function () {
+		var onContainerWidth = this.onContainer.width(),
+			offContainerWidth = this.offContainer.width(),
+			spanPadding = this.offLabel.innerWidth() - this.offLabel.width(),
+			handleMargins = this.handle.outerWidth() - this.handle.innerWidth();
+
+		var containerWidth = (onContainerWidth > offContainerWidth) ? onContainerWidth : offContainerWidth, handleWidth = containerWidth;
+
+		this.handle.css({'width': handleWidth});
+		handleWidth = this.handle.width();
+
+		containerWidth = containerWidth + handleWidth + 6;
+		var labelWidth = containerWidth - handleWidth - spanPadding - handleMargins;
+
+		this.jq.css({'width': containerWidth});
+		this.onLabel.width(labelWidth);
+		this.offLabel.width(labelWidth);
+
+		this.offContainer.css({width: this.jq.width() - 5});
+		this.offset = this.jq.width() - this.handle.outerWidth();
+
+		if (this.input.prop('checked')) {
+			this.handle.css({'left': this.offset});
+			this.onContainer.css({'width': this.offset});
+			this.offLabel.css({'margin-right': -this.offset});
+		} else {
+			this.onContainer.css({'width': 0});
+			this.onLabel.css({'margin-left': -this.offset});
+			this.jq.addClass('ui-inputswitch-disabled');
+		}
+
+		if (!this.input.prop('disabled')) {
+			this._bindEvents();
+		}
+	};
+
+	// Реализовано удаление класса: ui-inputswitch-disabled
+	PrimeFaces.widget.InputSwitch.prototype._checkUI = function () {
+		this.jq.removeClass('ui-inputswitch-disabled');
+		this.onContainer.animate({width: this.offset}, 200);
+		this.onLabel.animate({marginLeft: 0}, 200);
+		this.offLabel.animate({marginRight: -this.offset}, 200);
+		this.handle.animate({left: this.offset}, 200);
+	};
+
+	// Реализовано добавление класса: ui-inputswitch-disabled
+	PrimeFaces.widget.InputSwitch.prototype._uncheckUI = function () {
+		this.jq.addClass('ui-inputswitch-disabled');
+		this.onContainer.animate({width: 0}, 200);
+		this.onLabel.animate({marginLeft: -this.offset}, 200);
+		this.offLabel.animate({marginRight: 0}, 200);
+		this.handle.animate({left: 0}, 200);
+	};
+// Конец переопределения InputSwitch
+}
+
+
+/**
+ * Переопределение методов setupScrolling, loadLiveRows, filter из DataTable
+ * PF 6.1
+ * Начало переопределения DataTable
+ */
+if (PrimeFaces && PrimeFaces.widget && PrimeFaces.widget.DataTable) {
+	// Оригинальный метод setupScrolling
+	const originalSetupScrolling = PrimeFaces.widget.DataTable.prototype.setupScrolling;
+	PrimeFaces.widget.DataTable.prototype.setupScrolling = function () {
+		// Вызов оригинального метода
+		originalSetupScrolling.call(this);
+
+		const $this = this;
+		// Порог загрузки в пропорциях от высоты 0.1 = 10%
+		const liveScrollThreshold = 0.1;
+
+		// Добавлен liveScrollThreshold и изменена логика scrollBody.on('scroll.dataTable')
+		this.scrollBody.off('scroll.dataTable').on('scroll.dataTable', function () {
+			var scrollLeft = $this.scrollBody.scrollLeft();
+			$this.scrollHeaderBox.css('margin-left', -scrollLeft);
+			$this.scrollFooterBox.css('margin-left', -scrollLeft);
+
+			if ($this.cfg.virtualScroll) {
+				var virtualScrollBody = this;
+
+				clearTimeout($this.scrollTimeout);
+				$this.scrollTimeout = setTimeout(function () {
+					var viewportHeight = $this.scrollBody.outerHeight(),
+						tableHeight = $this.bodyTable.outerHeight(),
+						pageHeight = $this.rowHeight * $this.cfg.scrollStep,
+						virtualTableHeight = parseFloat(($this.cfg.scrollLimit * $this.rowHeight) + 'px'),
+						pageCount = (virtualTableHeight / pageHeight) || 1;
+
+					if (virtualScrollBody.scrollTop + viewportHeight > parseFloat($this.bodyTable.css('top')) + tableHeight ||
+						virtualScrollBody.scrollTop < parseFloat($this.bodyTable.css('top'))) {
+						var page = Math.floor((virtualScrollBody.scrollTop * pageCount) / (virtualScrollBody.scrollHeight)) + 1;
+						$this.loadRowsWithVirtualScroll(page);
+						$this.bodyTable.css('top', ((page - 1) * pageHeight) + 'px');
+					}
+				}, 200);
+			} else if ($this.shouldLiveScroll) {
+				// Округление у переменных отсутствует, так как в отличие от оригинального метода нам выгодно если мы получим более точное дробное значение
+				var scrollTop = this.scrollTop;
+				var scrollHeight = this.scrollHeight;
+				var viewportHeight = this.clientHeight;
+
+				var scrollRemaining = scrollHeight - viewportHeight - scrollTop;
+				var loadThreshold = viewportHeight * liveScrollThreshold;
+
+				if (scrollRemaining <= loadThreshold && $this.shouldLoadLiveScroll() && !$this.loadingLiveScroll) {
+					$this.loadLiveRows();
+				}
+			}
+
+			$this.saveScrollState();
+		});
+	};
+
+	// Удалена лишняя переменная liveScrollActive
+	PrimeFaces.widget.DataTable.prototype.loadLiveRows = function () {
+		if (this.loadingLiveScroll || (this.scrollOffset + this.cfg.scrollStep > this.cfg.scrollLimit)) {
+			return;
+		}
+
+		this.loadingLiveScroll = true;
+		this.scrollOffset += this.cfg.scrollStep;
+
+		if (this.scrollOffset === this.cfg.scrollLimit) {
+			this.shouldLiveScroll = false;
+		}
+
+		var $this = this, options = {
+			source: this.id,
+			process: this.id,
+			update: this.id,
+			formId: this.cfg.formId,
+			params: [
+				{ name: this.id + '_scrolling', value: true },
+				{ name: this.id + '_skipChildren', value: true },
+				{ name: this.id + '_scrollOffset', value: this.scrollOffset },
+				{ name: this.id + '_encodeFeature', value: true }
+			],
+
+			onsuccess: function (responseXML, status, xhr) {
+				PrimeFaces.ajax.Response.handle(responseXML, status, xhr, {
+					widget: $this, handle: function (content) {
+						this.updateData(content, false);
+					}
+				});
+
+				return true;
+			},
+
+			oncomplete: function (xhr, status, args) {
+				if (typeof args.totalRecords !== 'undefined') {
+					$this.cfg.scrollLimit = args.totalRecords;
+				}
+
+				$this.loadingLiveScroll = false;
+				$this.allLoadedLiveScroll = ($this.scrollOffset + $this.cfg.scrollStep) >= $this.cfg.scrollLimit;
+			}
+		};
+
+		PrimeFaces.ajax.Request.handle(options);
+	};
+
+	// Удалена лишняя переменная liveScrollActive
+	PrimeFaces.widget.DataTable.prototype.filter = function () {
+		var $this = this, options = {
+			source: this.id,
+			update: this.id,
+			process: this.id,
+			formId: this.cfg.formId,
+			params: [
+				{ name: this.id + '_filtering', value: true },
+				{name: this.id + '_encodeFeature', value: true }
+			],
+
+			onsuccess: function (responseXML, status, xhr) {
+				PrimeFaces.ajax.Response.handle(responseXML, status, xhr, {
+					widget: $this, handle: function (content) {
+						this.updateData(content);
+
+						if (this.cfg.scrollable) {
+							this.alignScrollBody();
+						}
+
+						if (this.isCheckboxSelectionEnabled()) {
+							this.updateHeaderCheckbox();
+						}
+					}
+				});
+
+				return true;
+			},
+
+			oncomplete: function (xhr, status, args) {
+				var paginator = $this.getPaginator();
+				if (args && typeof args.totalRecords !== 'undefined') {
+					$this.cfg.scrollLimit = args.totalRecords;
+
+					if (paginator) {
+						paginator.setTotalRecords(args.totalRecords);
+					}
+				}
+
+				if ($this.cfg.clientCache) {
+					$this.clearCacheMap();
+				}
+
+				if ($this.cfg.virtualScroll) {
+					var row = $this.bodyTable.children('tbody').children('tr.ui-widget-content');
+					if (row) {
+						$this.rowHeight = row.outerHeight();
+						$this.scrollBody.children('div').css({'height': parseFloat(($this.cfg.scrollLimit * $this.rowHeight + 1) + 'px')});
+					}
+				} else if ($this.cfg.liveScroll) {
+					$this.scrollOffset = 0;
+					$this.shouldLiveScroll = true;
+					$this.loadingLiveScroll = false;
+					$this.allLoadedLiveScroll = ($this.cfg.scrollStep >= $this.cfg.scrollLimit);
+				}
+			}
+		};
+
+		if (this.hasBehavior('filter')) {
+			var filterBehavior = this.cfg.behaviors['filter'];
+
+			filterBehavior.call(this, options);
+		} else {
+			PrimeFaces.ajax.AjaxRequest(options);
+		}
+	};
+}
+// Конец переопределения DataTable

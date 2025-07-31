@@ -1,0 +1,1499 @@
+/* jshint strict: implied, browser: true, laxbreak: true, laxcomma: true, sub: true */
+/* globals log, $, PrimeFaces, PF, DOMException */
+// В этом файле определяются самые общие неймспейсы и функции.
+// Неймспейсы и "классы" называются с большой буквы, CamelCase. Все остальное по camelCase.
+var checkState = function(expression, errorMessage) {
+	if (!expression) {
+		// Firebug иногда почему-то не показывает стек ошибки
+		// если добавить log.trace, то покажет и трейс, и стек ошибки :\ но не хочется спамить
+		throw new Error(errorMessage ? errorMessage : 'Illegal state');
+	}
+};
+
+var Argus = {};
+// вложенные неймспейсы не определяются как object literals, т.к. это ломает Content Assist в Eclipse (если есть желание
+// опровергнуть, то учитывать, что содержимое неймспейсов расширяется в других файлах вроде components.js - в этих
+// файлах contest assist должен показывать добавленное и здесь, и там)
+Argus.System = {
+	appDebugMode : null,
+	/**
+	 * Время запуска сервера для версионирования статических JSF-ресурсов, реквесты к которым формируются на клиенте.
+	 * Значение не будет совпадать с аналогичным в VersionedStaticResource.java, но это неважно.
+	 */
+	startupTime : null,
+	/**
+	 * Юзер залогинен и является developer.
+	 */
+	isDeveloper : null,
+	contextPath : null,
+	inited : false,
+	_initialSessionId : null,
+	/**
+	 * Срабатывал ли beforeunload, и ничего больше. Не годится для продуктивного кода, т.к. не означает факт настоящего
+	 * ухода со страницы - уход может быть отменен, повторен позже. Поле добавлено для UI-тестов прямо в продуктивный
+	 * код, чтобы гарантированно рано вешать листенер.
+	 */
+	beforeunloadSpotted : false,
+	/**
+	 * Начинали ли недавно скачивание файла. Воркэраунд проблемы ложного срабатывания beforeunload.
+	 */
+	justBeganDownloading : 0,
+	_currentCid : null,
+
+	_init : function(appDebugMode, startupTime, isDeveloper, contextPath, cid, conversationTimeoutMs, gateId, sessionId) {
+		this.appDebugMode = appDebugMode;
+		this.startupTime = startupTime;
+		this.isDeveloper = isDeveloper;
+		this.contextPath = contextPath;
+		this._currentCid = cid;
+		// Инициализируем ID сессии, в которой открыта страница (TASK-77936).
+		checkState(sessionId);
+		this._initialSessionId = sessionId;
+
+		if (appDebugMode) {
+			log.enableAll();
+		} else {
+			log.disableAll();
+		}
+
+		$(window).off('beforeunload.ArgusSystemInf_init').on('beforeunload.ArgusSystemInf_init', function() {
+			if (!Argus.System.justBeganDownloading)
+				Argus.System.beforeunloadSpotted = true;
+		});
+
+		Argus.System.Polyfill._init();
+		Argus.System.History._fallbackExt(gateId);
+		Argus.System.Ajax._init();
+		Argus.System.BlockUI._init();
+		Argus.System.DisposePageContexts._init();
+		Argus.System.TouchPageContexts._init(conversationTimeoutMs);
+
+		this.inited = true;
+		log.info('Argus.System initialized, appDebugMode =', Argus.System.appDebugMode);
+	},
+	updateCid : function(cid) {
+		this._currentCid = cid;
+	},
+	/**
+	 * Возвращает cid текущего conversation.
+	 * 
+	 * @return cid текущего conversation или null, если транзиентный
+	 */
+	getCid : function() {
+		return this._currentCid;
+	},
+	/**
+	 * Получить id сессии, в которой была открыта страница. Этот id может отличаться от id текущей сессии (например, был
+	 * выполнен логаут и выполнен повторный вход, см TASK-77936). Рассчитываем, что при рендеринге JSF View сессия есть
+	 * всегда.
+	 * 
+	 * @return id сессии
+	 */
+	getInitialSessionId : function() {
+		return this._initialSessionId;
+	},
+	/**
+	 * Возвращает id текущего viewState.
+	 * 
+	 * @throws "ViewStateId
+	 *             not found" если не удалось определить viewStateId
+	 * @return текущий viewStateId
+	 */
+	getViewStateId : function() {
+		var viewStateId = $('#default_form > input[name="javax.faces.ViewState"]').val();
+		if (!viewStateId)
+			throw new Error('ViewStateId not found');
+		return viewStateId;
+	},
+	signalJustBeganDownloading : function() {
+		++Argus.System.justBeganDownloading;
+		setTimeout(function() {
+			--Argus.System.justBeganDownloading;
+		}, 3000);
+	}
+};
+
+Argus.System.Fn = {
+	/**
+	 * Отменить пропагацию conversation для форм.
+	 * 
+	 * @param formSelector
+	 *            строка-селектор, DOM-объект или jQuery-объект
+	 */
+	cancelConversationPropagation : function(formSelector) {
+		$(formSelector).each(function() {
+			var $form = $(this);
+			var action = $form.attr('action');
+			action += action.indexOf('?') > -1 ? '&' : '?';
+			action += 'conversationPropagation=none';
+			$form.attr('action', action);
+			log.debug('Form', this, 'conversation propagation canceled');
+		});
+	},
+	/**
+	 * Сбросить все формы.
+	 */
+	resetAllForms : function() {
+		$('form').each(function() {
+			this.reset();
+		});
+	},
+	/**
+	 * Сбросить визард (переключиться на первый шаг).
+	 * <p>
+	 * У компонента p:wizard есть атрибут step - казалось бы, биндишь на него свойство, меняешь как хочешь, и делаешь
+	 * update. А нет - визард рендерит разметку шага только, когда получает свой специальный реквест. Вот эта функция и
+	 * провоцирует такой реквест, а заодно и step меняет.
+	 * 
+	 * @param wizardVar
+	 *            PF('widgetVar визарда')
+	 */
+	resetWizard : function(wizardVar) {
+		wizardVar.loadStep(wizardVar.cfg.steps[0], true);
+	},
+	/**
+	 * Сделать формы stateless (не пропагатит view и conversation, делает POST'ы в специальный stateless view).
+	 * 
+	 * @param formSelector
+	 *            строка-селектор, DOM-объект или jQuery-объект
+	 * @param action
+	 *            новый action для задания соответствующего stateless view
+	 */
+	makeFormStateless : function(formSelector, action) {
+		var $form = $(formSelector);
+		$form.attr('action', action);
+		$form.children("input[name='" + PrimeFaces.VIEW_STATE + "']").val("stateless");
+		// для IE8 val недостаточно, нужно еще attr (см. TASK-58669)
+		$form.children("input[name='" + PrimeFaces.VIEW_STATE + "']").attr("value", "stateless");
+		log.info('Forms', $form, 'were made stateless');
+		// ajax-реквесты любят обновлять ViewState всех подряд форм - это нужно компенсировать
+		Argus.System.Ajax.onComplete(function() {
+			// надо найти форму заново на случай, если кто-то сделал апдейт главного меню -.- (TASK-65223)
+			var $form = $(formSelector);
+			$form.children("input[name='" + PrimeFaces.VIEW_STATE + "']").val("stateless");
+			$form.children("input[name='" + PrimeFaces.VIEW_STATE + "']").attr("value", "stateless");
+		});
+	},
+	/**
+	 * Проверяет, не обрабатывает ли target нажатие Enter.
+	 * <p>
+	 * Иногда хочется сделать дефолтное поведение по Enter, но не мешать отрабатывать элементам, у которых на этот
+	 * случай есть своё, особенное поведение.
+	 * 
+	 * @param target
+	 * @return признак обработки target'ом нажатия Enter
+	 */
+	isEnterHandler : function(target) {
+		return !$(target).is(':input:not(textarea,:button,:submit,:reset)');
+	},
+	/**
+	 * Вызывает переданную функцию несколько раз: сразу, через setTimeout(, 0), далее с удвающимся таймаутом, начиная с
+	 * 25 и до 3200 мс.<br>
+	 * Используется для воркэрунда в случаях, когда не получается отреагировать на что-то, нет подходящего ивента.
+	 * 
+	 * @param func
+	 *            функция для вызова, должна быть достаточно легкой и готовой к повторным вызовам
+	 */
+	incrementingTimeout : function(func) {
+		func();
+		setTimeout(func, 0);
+		for (var i = 25; i < 4000; i *= 2) {
+			setTimeout(func, i);
+		}
+	},
+	/**
+	 * Находимся ли во фрейме.
+	 * 
+	 * @returns {Boolean}
+	 */
+	isInIframe : function() {
+		// http://stackoverflow.com/a/326076/1341535
+		try {
+			return window.self !== window.top;
+		} catch (e) {
+			log.error('Failed to determine window hierarchy', e);
+			return true;
+		}
+	},
+	/**
+	 * Находимся ли во фрейме Dialog Framework.
+	 * 
+	 * @returns {Boolean}
+	 */
+	isInDialogFramework : function() {
+		return this.isInIframe(); // пока что достаточно
+	},
+	/**
+	 * Делает p:submenu ссылкой.
+	 * 
+	 * Подозревается в том что портит содержащиеся в p:submenu пункты. После клика на таком p:submenu дочерние пункты
+	 * имеют неправильную ссылку.
+	 * 
+	 * @param submenuSelector
+	 *            DOM-объект, jQuery-селектор или jQuery-объект
+	 * @param href
+	 *            ссылка
+	 */
+	makeSubmenuLink : function(submenuSelector, href) {
+		// подмены href недостаточно, нужен свой обработчик click - видимо, меню делает preventDefault
+		// все равно нелишне заменить href, ради возможности открыть в новой вкладке из контекстного меню правого клика
+		$(submenuSelector).click(function() {
+			window.location.href = href;
+		}).children('a').attr('href', href);
+	},
+	/**
+	 * Отключает автокоррекцию и пр.
+	 */
+	disableAutocorrect : function() {
+		var disable = function() {
+			// Safari: autocapitalize, autocorrect
+			// HTML5: spellcheck
+			$('input[type="text"], input[type="password"]').attr('autocapitalize', 'none').attr('autocorrect', 'off')
+					.attr('spellcheck', 'false');
+		};
+		disable();
+		Argus.System.Ajax.onComplete(function() {
+			disable();
+		});
+	},
+	/**
+	 * Возвращает значение параметра URL.
+	 * 
+	 * @param name
+	 *            имя параметра
+	 * @returns значение параметра
+	 */
+	getParameterValue : function(name) {
+		var match = new RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+		return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+	},
+
+	/**
+	 * Возвращает значение (вложенного) свойства объекта.
+	 * 
+	 * @param baseObject
+	 *            объект, от которого искать свойства.
+	 * @param propertyPath
+	 *            строка, "путь" к свойству от baseObject. Строка вида a.b.c или a[0].b, где a = имя свойства baseObject
+	 * @returns значение свойства
+	 */
+	resolveProperty : function(baseObject, propertyPath) {
+		propertyPath = propertyPath.replace(/\[(\w+)\]/g, '.$1'); // convert indexes to properties
+		propertyPath = propertyPath.replace(/^\./, ''); // strip a leading dot
+		var a = propertyPath.split('.');
+		for (var i = 0, n = a.length; i < n; ++i) {
+			var k = a[i];
+			if (k in baseObject) {
+				baseObject = baseObject[k];
+			} else {
+				return;
+			}
+		}
+		return baseObject;
+	},
+
+	/**
+	 * Проверяет, открыт ли в текущем окне какой-нибудь PrimeFaces.widget.Dialog.
+	 */
+	isDialogOpen : function() {
+		for ( var wProp in PrimeFaces.widgets) {
+			var w = PrimeFaces.widgets[wProp];
+			if (w instanceof PrimeFaces.widget.Dialog && w.isVisible())
+				return true;
+		}
+		return false;
+	},
+
+	/**
+	 * Является ли текущий браузер Microsoft Edge.
+	 */
+	isBrowserEdge : function() {
+		return (/ Edge\//.test(navigator.userAgent));
+	},
+
+	/**
+	 * Поиск виджета указанного типа (type м.б. именем виджета или JS-объектом PrimeFaces.widget.*) с указанным id.
+	 */
+	findWidget : function(type, id) {
+		if (typeof type === 'string')
+			type = PrimeFaces.widget[type];
+
+		for ( var wProp in PrimeFaces.widgets) {
+			var w = PrimeFaces.widgets[wProp];
+			if (w instanceof type && w.id === id)
+				return w;
+		}
+		return null;
+	},
+
+	/**
+	 * В помощь дебагу XPath из консоли. Выводит уровнем info, т.к. некоторые браузеры по дефолту прячут уровни ниже.
+	 */
+	xpath : function(xpathExpression, contextNode) {
+		var res = document.evaluate(xpathExpression, contextNode ? contextNode : document, null, XPathResult.ANY_TYPE,
+				null);
+
+		log.info('Result', res);
+		if (res.resultType === XPathResult.UNORDERED_NODE_ITERATOR_TYPE) {
+			var cnt = 0;
+			for (var r = res.iterateNext(); r; r = res.iterateNext()) {
+				log.info('Found', r);
+				++cnt;
+			}
+			log.info('Found', cnt, 'results total');
+		}
+	}
+};
+
+Argus.System.Storage = {
+	/**
+	 * Проверка поддержки storage указанного типа.
+	 * 
+	 * https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API/Using_the_Web_Storage_API#Feature-detecting_localStorage
+	 */
+	isStorageAvailable : function(type) {
+		var storage;
+		try {
+			storage = window[type];
+			var x = '__storage_test__';
+			storage.setItem(x, x);
+			storage.removeItem(x);
+			return true;
+		} catch (e) {
+			return e instanceof DOMException && (
+			// everything except Firefox
+			e.code === 22 ||
+			// Firefox
+			e.code === 1014 ||
+			// test name field too, because code might not be present
+			// everything except Firefox
+			e.name === 'QuotaExceededError' ||
+			// Firefox
+			e.name === 'NS_ERROR_DOM_QUOTA_REACHED') &&
+			// acknowledge QuotaExceededError only if there's something already stored
+			storage.length !== 0;
+		}
+	},
+	/**
+	 * localStorage.
+	 * <p>
+	 * В get/set специально предпочитается defensive подход - тихий фейл вместо исключения. Это потому что разных
+	 * браузеров много, и условия для фейла могут быть сложно воспроизводимыми - легко упустить что-то при тестировании.
+	 * Надо стараться не нарушать работоспособность остального приложения.
+	 */
+	Local : {
+		/**
+		 * Проверка поддержки localStorage.
+		 */
+		isAvailable : function() {
+			return Argus.System.Storage.isStorageAvailable('localStorage');
+		},
+
+		/**
+		 * Достает распарсенное из JSON значение произвольного типа из localStorage.
+		 * 
+		 * @param key
+		 *            ключ
+		 * @param jsonReviver
+		 *            reviver для JSON.parse; опционально
+		 * @returns {*} значение произвольного типа; null при отсутствии или ошибке
+		 */
+		getValue : function(key, jsonReviver) {
+			try {
+				var jsonValue = localStorage.getItem(key);
+				return jsonValue ? JSON.parse(jsonValue, jsonReviver) : null;
+			} catch (e) {
+				log.error('Ошибка получения значения', key, e);
+			}
+		},
+
+		/**
+		 * Устанавливает значение произвольного типа в localStorage в виде JSON.
+		 * 
+		 * @param key
+		 *            ключ
+		 * @param value
+		 *            значение произвольного типа
+		 * @param jsonReplacer
+		 *            replace для JSON.stringify; опционально
+		 * @returns успех операции
+		 */
+		setValue : function(key, value, jsonReplacer) {
+			try {
+				// stringify даже если value и так строка - иначе потом в getValue не отличить
+				localStorage.setItem(key, JSON.stringify(value, jsonReplacer));
+				return true;
+			} catch (e) {
+				log.error('Ошибка сохранения состояния', key, e);
+				return false;
+			}
+		},
+
+		/**
+		 * Достает строковое значение из localStorage как есть.
+		 * 
+		 * @param key
+		 *            ключ
+		 * @returns {string} строковое значение; null при отсутствии или ошибке
+		 */
+		getStringValue : function(key) {
+			try {
+				return localStorage.getItem(key);
+			} catch (e) {
+				log.error('Ошибка получения значения', key, e);
+			}
+		},
+
+		/**
+		 * Устанавливает строковое значение в localStorage как есть.
+		 * 
+		 * @param key
+		 *            ключ
+		 * @param value
+		 *            строковое значение
+		 * @returns успех операции
+		 */
+		setStringValue : function(key, value, jsonReplacer) {
+			try {
+				localStorage.setItem(key, value);
+				return true;
+			} catch (e) {
+				log.error('Ошибка сохранения состояния', key, e);
+				return false;
+			}
+		},
+
+		/**
+		 * Вызовет callback для каждого ключа в localStorage.
+		 * 
+		 * @param callback
+		 *            колбэк
+		 */
+		forEachKey : function(callback) {
+			for (var i = 0; i < localStorage.length; ++i) {
+				callback(localStorage.key(i));
+			}
+		},
+
+		/**
+		 * Удалить ключ из localStorage.
+		 * @param key
+		 * 			ключ
+		 * @returns {boolean} успех операции
+		 */
+		removeKey : function (key) {
+			try {
+				localStorage.removeItem(key);
+				return true;
+			} catch (e) {
+				log.error('Ошибка удаления ключа', key, e);
+				return false;
+			}
+		}
+	}
+};
+
+Argus.System.BrowserAutoSubmitOnEnter = {
+	_disabled : true,
+	enable : function() {
+		this._disabled = false;
+	},
+	/**
+	 * Отключает дефолтное поведение HTML по нажатию Enter в форме:
+	 * <ul>
+	 * <li>если несколько полей в форме и есть сабмит-кнопка, то клик сабмит-кнопки;
+	 * <li>если одно поле в форме, то не-AJAX сабмит.
+	 * </ul>
+	 * Слушает AJAX-реквесты, чтобы учитывать новые формы.
+	 * <p>
+	 * Проверено, что не ломает p:defaultCommand.
+	 * <p>
+	 * TASK-48066 Дефолтное поведение Enter в форме нежелательно
+	 */
+	manage : function() {
+		if (this._disabled) {
+			var doPrevent = function() {
+				$('form').off('keypress.disableAutoSubmitOnEnter').on('keypress.disableAutoSubmitOnEnter',
+						function(event) {
+							if (event.which === $.ui.keyCode.ENTER && !Argus.System.Fn.isEnterHandler(event.target)) {
+								event.preventDefault();
+							}
+						});
+			};
+
+			doPrevent();
+			Argus.System.Ajax.onComplete(function() {
+				doPrevent();
+			});
+		}
+	}
+};
+
+/**
+ * JS-интерфейс для вешания слушателей AJAX-реквестов. PF дает только компонентный интерфейс в виде p:ajaxStatus - он
+ * используется для реализации, чтобы не завязываться на детали реализации PF. Минус в том, что ajaxStatus не дает
+ * аргументов типа xhr и прочих.<br>
+ * Пользователь интерфейса должен следить, чтобы колбэки не навешивались повторно.
+ */
+Argus.System.Ajax = {
+	_callbacks : {
+		start : {
+			name : [],
+			func : []
+		},
+		error : {
+			name : [],
+			func : []
+		},
+		success : {
+			name : [],
+			func : []
+		},
+		complete : {
+			name : [],
+			func : []
+		},
+		forward : {
+			name : [],
+			func : []
+		}
+	},
+	_trigger : function(event) {
+		var callbacks = this._callbacks[event].func.slice();
+		// клон массива, чтобы была возможность вешать колбэки в колбэках с понятными результатами
+		for (var i = 0; i < callbacks.length; ++i) {
+			callbacks[i].call(document);
+		}
+	},
+	_off : function(event, name, offCallback) {
+		var callbackNames = this._callbacks[event].name;
+		var callbackFuncs = this._callbacks[event].func;
+		for (var i = callbackNames.length; i--;) {
+			if (callbackNames[i] === name) {
+				if (offCallback) {
+					offCallback.call(callbackFuncs[i]);
+				}
+				callbackNames.splice(i, 1);
+				callbackFuncs.splice(i, 1);
+			}
+		}
+	},
+	onStart : function(callback, name) {
+		this._callbacks.start.name.push(name);
+		this._callbacks.start.func.push(callback);
+		return this;
+	},
+	onError : function(callback, name) {
+		this._callbacks.error.name.push(name);
+		this._callbacks.error.func.push(callback);
+		return this;
+	},
+	onSuccess : function(callback, name) {
+		this._callbacks.success.name.push(name);
+		this._callbacks.success.func.push(callback);
+		return this;
+	},
+	/**
+	 * Вешает колбэк на завершение реквеста.
+	 * 
+	 * @param callback
+	 *            колбэк (аргумент - document)
+	 * @param name
+	 *            опциональное имя, как неймспейс в jQuery
+	 * @returns Argus.System.Ajax
+	 */
+	onComplete : function(callback, name) {
+		this._callbacks.complete.name.push(name);
+		this._callbacks.complete.func.push(callback);
+		return this;
+	},
+	/**
+	 * Вешает колбэк на псевдонавигацию faces-redirect=false или render="@all".
+	 * 
+	 * @param callback
+	 *            колбэк (аргумент - document)
+	 * @param name
+	 *            опциональное имя, как неймспейс в jQuery
+	 * @returns Argus.System.Ajax
+	 */
+	onForward : function(callback, name) {
+		// триггерится в primefaces-overrides.js
+		this._callbacks.forward.name.push(name);
+		this._callbacks.forward.func.push(callback);
+		return this;
+	},
+	/**
+	 * Удаляет все error-колбэки с данным именем.
+	 * 
+	 * @param name
+	 *            имя удаляемого колбэка
+	 * @param offCallback
+	 *            колбэк удаления, будет вызван для каждого удаляемого колбэка (аргумент - удаляемый колбэк); полезно,
+	 *            если нужно почистить/сбросить что-то еще
+	 * @returns Argus.System.Ajax
+	 */
+	offError : function(name, offCallback) {
+		this._off('error', name, offCallback);
+		return this;
+	},
+	/**
+	 * Удаляет все complete-колбэки с данным именем.
+	 * 
+	 * @param name
+	 *            имя удаляемого колбэка
+	 * @param offCallback
+	 *            колбэк удаления, будет вызван для каждого удаляемого колбэка (аргумент - удаляемый колбэк); полезно,
+	 *            если нужно почистить/сбросить что-то еще
+	 * @returns Argus.System.Ajax
+	 */
+	offComplete : function(name, offCallback) {
+		this._off('complete', name, offCallback);
+		return this;
+	},
+	/**
+	 * Удаляет все forward-колбэки с данным именем.
+	 * 
+	 * @param name
+	 *            имя удаляемого колбэка
+	 * @param offCallback
+	 *            колбэк удаления, будет вызван для каждого удаляемого колбэка (аргумент - удаляемый колбэк); полезно,
+	 *            если нужно почистить/сбросить что-то еще
+	 * @returns Argus.System.Ajax
+	 */
+	offForward : function(name, offCallback) {
+		this._off('forward', name, offCallback);
+		return this;
+	},
+	// может пригодиться: есть PrimeFaces.ajax.Queue - очередь AJAX-реквестов, но в нее попадают только async=true
+	_activeAjaxCount : 0,
+	_inited : false,
+	_init : function() {
+		var $this = this;
+		this.onStart(function() {
+			++$this._activeAjaxCount;
+		}).onComplete(function() {
+			--$this._activeAjaxCount;
+		});
+		this._inited = true;
+	},
+	/**
+	 * Вызывает колбэк в начале AJAX-активности, т.е. не вызывает снова, если в ходе выполнения одного реквеста начался
+	 * другой.
+	 * 
+	 * @param callback
+	 *            колбэк-функция
+	 */
+	onStartActivity : function(callback, name) {
+		if (!this._inited) {
+			// Argus.System.Ajax._init должен навесить обработчики первым, иначе в _activeAjaxCount здесь будут видны
+			// неправильные значения
+			log.error('Binding too early, guaranteed to fail');
+		}
+		var $this = this;
+		this.onStart(function() {
+			if ($this._activeAjaxCount == 1) {
+				callback(document);
+			}
+		}, name);
+		return this;
+	},
+	/**
+	 * Вызывает колбэк в конце AJAX-активности, т.е. когда последний из пересекающихся реквестов завершился.
+	 * 
+	 * @param callback
+	 *            колбэк-функция
+	 */
+	onCompleteActivity : function(callback, name) {
+		if (!this._inited) {
+			// Argus.System.Ajax._init должен навесить обработчики первым, иначе в _activeAjaxCount здесь будут видны
+			// неправильные значения
+			log.error('Binding too early, guaranteed to fail');
+		}
+		var $this = this;
+		this.onComplete(function() {
+			if ($this._activeAjaxCount === 0) {
+				callback(document);
+			}
+		}, name);
+		return this;
+	},
+	/**
+	 * Наличие активных AJAX-реквестов.
+	 * 
+	 * @returns {Boolean} признак наличия активных AJAX-реквестов
+	 */
+	isActive : function() {
+		return this._activeAjaxCount > 0;
+	},
+	/**
+	 * Содержит ли данная коллекция параметров параметр с указанным именем.
+	 */
+	isParamPresent : function(params, paramName) {
+		if (typeof (params) !== 'undefined') {
+			for (var i = 0; i < params.length; ++i) {
+				if (params[i].name === paramName) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+};
+
+/**
+ * Манипуляции историей и адресной строкой.
+ */
+Argus.System.History = {
+	/**
+	 * Навигация назад.
+	 */
+	back : function() {
+		if (typeof (window.history) === 'undefined' || typeof (window.history.back) === 'undefined') {
+			// что это за случай, когда и у кого нет history.back?
+			log.error('Не поддерживается history.back().');
+			return;
+		}
+		window.history.back();
+	},
+	/**
+	 * Вырезает cid из адресной строки. TASK-49654
+	 */
+	deleteCid : function() {
+		var params = window.location.search;
+		var newParams = params.replace(/(\?|&|;)cid=\d*&?/g, '$1');
+		if (newParams !== params) {
+			Argus.System.History.replaceState(null, '', newParams);
+			log.info('Удален cid');
+		}
+	},
+	/**
+	 * Заменяет состояние в строке браузера на указанное в url.
+	 * <p>
+	 * Реализуем работу с историей сами, т.к. других альтернатив не найдено.
+	 * <ul>
+	 * <li>https://github.com/browserstate/history.js полудохлая: висят 191 issues, 23 pull requests; последний релиз
+	 * больше 2 лет назад. Доверия нет.
+	 * <li>https://github.com/devote/HTML5-History-API слишком любительская и примитивная, нет тестов.
+	 * </ul>
+	 * TASK-58510 https://developer.mozilla.org/en-US/docs/Web/API/History_API
+	 * 
+	 * @param state
+	 *            полноценно не поддерживается, надо передавать null
+	 * @param title
+	 *            заголовок окна/вкладки, передача пустой строки значит "не менять"
+	 * @param url
+	 *            поддерживаются только query parameters, строка должна начинаться с '?'; обязано быть url encoded
+	 */
+	replaceState : function(state, title, url) {
+		// правильно сделать свою getState для получения текущего состояния, которую бы вызывали всякие deleteCid - эта
+		// getState бы знала, откуда брать текущее состояние: из location.hash или из location.search
+		// + _fallbackExt должна удалять GATE_ID_PARAM из состояния
+		// (также обычно хочется не getState, а updateStateParam для добавления/обновления/удаления отдельного парам-а)
+		// но вместо правильного подхода пока будем просто вырезать GATE_ID_PARAM прямо здесь; если бы кто-то кроме
+		// getCid интересовался текущим состоянием, то здесь бы еще пришлось вырезать и cid каждый раз
+		// TODO положено начало правильному подходу, но не доведено до конца в этом методе и в deleteCid
+		url = url.replace(/hsfgid=[^&]+(&|;|$)/g, '');
+		checkState(url.startsWith('?'));
+		if (this._isHistoryAPINative()) {
+			if (typeof url === 'undefined' || (url !== null && url.trim() === '')) {
+				// в IE11 (наверное, и 10) и в Edge состояние "/a/b.xhtml" превратится в "/a/undefined" или "/a"
+				// соответственно; в FF и Chrome состояние не изменится - делаем ошибку для консистентности
+				throw new Error('Недопустимое значение url: ' + url);
+			}
+			window.history.replaceState(state, title, url);
+		} else {
+			window.location.replace('#' + url + '&hsf=hsf');
+			// hsf=hsf - пометка, что это наше состояние, а не что-то другое (TASK-75072)
+		}
+	},
+	_isHistoryAPINative : function() {
+		return typeof window.history !== 'undefined' && typeof window.history.replaceState !== 'undefined'
+				&& $.isFunction(window.history.replaceState);
+	},
+	/**
+	 * Возвращает текущее состояние, исключая метасостояние фолбэка gate.
+	 */
+	getState : function() {
+		if (this._isHistoryAPINative()) {
+			return window.location.search;
+		} else {
+			var state = window.location.hash;
+			state = state.substring(1); // отрезать октоторп
+			// вроде GATE_ID_PARAM никогда не попадает в hash? вырезаем для подстраховки
+			state = state.replace(/hsfgid=[^&]+(&|;|$)/g, '');
+			state = state.replace(/&hsf=hsf/g, '');
+			return state;
+		}
+	},
+	/**
+	 * Заменить значение отдельного параметра. Имя и значение должны быть unencoded! Этот метод сам делает
+	 * encodeURIComponent.
+	 * 
+	 * @param name
+	 *            имя параметра
+	 * @param value
+	 *            значение параметра; может быть массивом (получится name=value[0]&name=value[1]&...)
+	 */
+	updateStateParam : function(name, value) {
+		// title не поддерживаем окончательно? убрать его тогда и из replaceState? и первый аргумент replaceState тоже
+		checkState(name);
+		var encName = encodeURIComponent(name);
+
+		var state = this.getState().split(/[?&;$]/);
+		var newState = [];
+		var oldValue = [];
+
+		var insert = function() {
+			if (Array.isArray(value)) {
+				for (var v = 0; v < value.length; ++v) {
+					newState.push(encName + '=' + encodeURIComponent(value[v]));
+				}
+			} else {
+				newState.push(encName + '=' + encodeURIComponent(value));
+			}
+		};
+
+		for (var i = 0; i < state.length; ++i) {
+			var param = state[i];
+			if (!param)
+				continue;
+			var sep = param.indexOf('=');
+			if (param.substring(0, sep) === encName) {
+				// вставляем новое значение здесь, сохраняя общий порядок параметров(для удобства чтения логов и т.п.)
+				if (oldValue.length === 0) // еще не вставляли
+					insert();
+
+				oldValue.push(param.substring(sep + 1));
+			} else {
+				newState.push(param);
+			}
+		}
+		if (oldValue.length === 0) // не вставляли, т.к. не был задан прежде
+			insert();
+		this.replaceState(null, '', '?' + newState.join('&'));
+	},
+	/**
+	 * Кусок фолбэка для/из-за браузеров, не поддерживающих History API.
+	 * <p>
+	 * Основная поддержка и описание в ru.argustelecom.system.inf.navigation.HistoryAPIFallbackGateProvider. Здесь
+	 * удаление куки и обработка случая "попали на page с состоянием во фрагменте, считаем себя gate".
+	 */
+	_fallbackExt : function(outGateId) {
+		// используются константы из ru.argustelecom.system.inf.navigation.HistoryAPIFallbackGateProvider
+		var GATE_ID_PARAM = 'hsfgid';
+		var COOKIE_PREFIX = 'hsfc-';
+
+		var inGateId = Argus.System.Fn.getParameterValue(GATE_ID_PARAM);
+		if (inGateId) {
+			var cookieName = COOKIE_PREFIX + inGateId;
+			if ($.removeCookie(cookieName)) {
+				log.info('Удалена куки gate', cookieName);
+			} else {
+				log.warn('Не удалось удалить куки gate', cookieName);
+			}
+		}
+
+		// XXX КОПИЯ из ru.argustelecom.system.inf.navigation.HistoryAPIFallbackGateProvider
+		// если вносятся изменения здесь, то, вероятно, их стоит продублировать и там
+
+		// основное отличие здесь в том, что ситуация пустого фрагмента нормальна и означает, что делать ничего не надо
+		// если loc.hash == '#?', то гейтить надо, т.к. похоже на адрес от пользователя IE с фрагментом, затирающим cid
+		var loc = window.location;
+		if (loc.hash && loc.hash.endsWith('&hsf=hsf')) {
+			log.info('Обнаружено состояние во фрагменте', loc.hash);
+
+			var gid = outGateId;
+			var query = '?' + GATE_ID_PARAM + '=' + gid;
+			query += '&' + loc.hash.substr(2).replace(/&hsf=hsf$/, '');
+			var url = loc.protocol + '//' + loc.host + loc.pathname + query;
+
+			var expiresDate = new Date();
+			expiresDate.setTime(expiresDate.getTime() + 30000);
+			var expires = '; expires=' + expiresDate.toGMTString();
+			document.cookie = COOKIE_PREFIX + gid + '=1' + expires;
+
+			log.info('Уходим на', url);
+			loc.replace(url);
+		}
+	}
+};
+
+Argus.System.Polyfill = {
+	_init : function() {
+		if (typeof String.prototype.startsWith !== 'function') {
+			String.prototype.startsWith = function(prefix) {
+				return this.substr(0, prefix.length) === prefix;
+			};
+		}
+		if (typeof String.prototype.contains !== 'function') {
+			String.prototype.contains = function(str, startIndex) {
+				return this.indexOf(str, startIndex) !== -1;
+			};
+		}
+		if (typeof String.prototype.endsWith !== 'function') {
+			String.prototype.endsWith = function(suffix) {
+				return this.indexOf(suffix, this.length - suffix.length) !== -1;
+			};
+		}
+		if (typeof String.prototype.trim !== 'function') {
+			String.prototype.trim = function(str) {
+				return $.trim(str);
+			};
+		}
+		if (typeof RegExp.escape !== 'function') {
+			RegExp.escape = function(str) {
+				return str.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+			};
+		}
+		if (typeof Array.isArray !== 'function') {
+			Array.isArray = function(arg) {
+				return Object.prototype.toString.call(arg) === '[object Array]';
+			};
+		}
+		if (typeof Array.prototype.includes !== 'function') {
+			Object.defineProperty(Array.prototype, 'includes', {
+				value : function(searchElement, fromIndex) {
+					if (this === null || this === undefined) {
+						throw new TypeError('"this" is null or not defined');
+					}
+					var o = Object(this);
+					var len = o.length >>> 0;
+					if (len === 0) {
+						return false;
+					}
+					var n = fromIndex | 0;
+					var k = Math.max(n >= 0 ? n : len - Math.abs(n), 0);
+					function sameValueZero(x, y) {
+						return x === y || (typeof x === 'number' && typeof y === 'number' && isNaN(x) && isNaN(y));
+					}
+					while (k < len) {
+						if (sameValueZero(o[k], searchElement)) {
+							return true;
+						}
+						k++;
+					}
+					return false;
+				}
+			});
+		}
+	}
+};
+
+Argus.System.DisposePageContexts = {
+	_submit : false,
+	_conversationIncomingPropagation : null,
+	_clickedLink : null,
+	_redirectedTo : null,
+	// ex == explicitly asked to
+	_exKeepConversation : false,
+	_baseURL : null,
+	_init : function() {
+		var $this = this;
+		$this._baseURL = Argus.System.contextPath + '/dispose';
+		// 0. снять старые обработчики (остаются при псевдонавигации вроде render="@all").
+		Argus.System.Ajax.onForward(function() {
+			$(document).off('.dispose');
+			$(window).off('.dispose');
+			Argus.System.Ajax.offForward('dispose');
+		}, 'dispose');
+		// 1. слежение за некоторыми признаками пропагации conversation.
+		// 1.1. обычный сабмит формы означает, что диспоз не нужен вообще.
+		$(function() {
+			$(document).on('submit.dispose', function(e) {
+				$this._submit = true;
+			});
+		});
+		// 1.2. запомнить, был ли передан conversation текущей странице, пока cid не был удален из адреса.
+		$this._conversationIncomingPropagation = $this._detectConversationPropagation(window.location.href);
+		// 1.3. клик обычной ссылки.
+		$(function() {
+			// delegated event handler, чтобы не перенавешивать на каждом AJAX POST
+			$(document).on('click.dispose', 'a', function(e) {
+				if (e.currentTarget && $(e.currentTarget).attr('href') !== '#') {
+					$this._clickedLink = $(e.currentTarget).attr('href');
+				}
+			});
+		});
+		// 1.4. faces-redirect=true в JSF/PF AJAX POST.
+		// XXX [MAINTAIN_PF 6.1] зависит от реализации PrimeFaces.ajax.ResponseProcessor.doRedirect (core.ajax.js)
+		PrimeFaces.ajax.ResponseProcessor.doRedirect = (function(orig) {
+			return function(node) {
+				$this._redirectedTo = node.getAttribute('url');
+				orig(node);
+			};
+		})(PrimeFaces.ajax.ResponseProcessor.doRedirect);
+		// 2. обнаружение пропагации conversation и диспоз-реквест в unload.
+		$(window).on('unload.dispose', function(e) {
+			// 2.1. нужен ли dispose вообще.
+			if ($this._submit) {
+				$this._submit = false; // сбросить флаг
+				log.info('Not disposing view & conversation - non-ajax submit');
+				return;
+			}
+			if (Argus.System.getViewStateId() === "stateless") {
+				// не бывает же conversation на stateless view?
+				log.info('Not disposing view & conversation - view is stateless');
+				return;
+			}
+			// 2.2. нужен ли еще conversation, или можно диспозить.
+			var isConversationNeeded = false;
+			// jshint ignore:start
+			if ($this._exKeepConversation) {
+				isConversationNeeded = true;
+				log.info('Not disposing conversation - explicitly requested');
+			} else if (Argus.System.getCid() === null) {
+				isConversationNeeded = true;
+				log.info('Not disposing conversation - it`s transient');
+			} else if (Argus.System.Fn.isInDialogFramework()) {
+				// если была пропагация в диалог, то надо не диспозить, чтобы родительское окно не сломалось после
+				// закрытия диалога - т.е. нужность conversation определяется наличием пропагации на входе, а не на
+				// выходе
+				if (isConversationNeeded = $this._conversationIncomingPropagation) {
+					log.info('Not disposing conversation - dialog framework was used with propagation');
+				} else {
+					log.info('Disposing conversation - dialog framework was used without propagation');
+				}
+			} else if ($this._redirectedTo) {
+				if (isConversationNeeded = $this._detectConversationPropagation($this._redirectedTo)) {
+					log.info('Not disposing conversation - redirected with propagation');
+				} else {
+					log.info('Disposing conversation - redirected without propagation');
+				}
+			} else if ($this._clickedLink) {
+				if (isConversationNeeded = $this._detectConversationPropagation($this._clickedLink)) {
+					log.info('Not disposing conversation - clicked link with propagation');
+				} else {
+					log.info('Disposing conversation - clicked link without propagation');
+				}
+			} else {
+				log.info('Disposing conversation - navigation method does not support propagation detection');
+			}
+			// jshint ignore:end
+			$this._dispose(!isConversationNeeded);
+		});
+	},
+	// _dispose еще вызывается тестами
+	_dispose : function(disposeConversation) {
+		// пусть параметры POST'а будут в урле, чтобы их было видно в access-log
+		// с двоеточием в значении viewStateId не должно быть проблем:
+		// http://stackoverflow.com/questions/2053132/is-a-colon-safe-for-friendly-url-use
+		var url = this._baseURL + '?viewStateId=' + Argus.System.getViewStateId();
+		url += '&sid=' + Argus.System.getInitialSessionId();
+		if (disposeConversation) {
+			url += '&cid=' + Argus.System.getCid();
+		}
+		// нужен синхронный реквест, что браузер подождал, иначе уйдет, не отправив реквест
+		// принято решение делать диспоз, значит, нужно заблокировать UI на случай долгого открытия следующей
+		// страницы, т.к. текущая уже считается неюзабельной (TASK-54363, п. 3)
+		Argus.System.BlockUI.block();
+		// при автосохранении секции редактирования получаем 2 реквеста, которые могут придти и пересечься любым
+		// образом. ждать завершения асинхронных реквестов в unload сложно, так что просто не делаем диспоз, если
+		// есть реквесты. (TASK-54499)
+		// про форсирование ожидания (способы: создание img и no-op loop) упоминается в
+		// https://developer.mozilla.org/en-US/docs/Web/API/Navigator/sendBeacon
+		if (Argus.System.Ajax.isActive()) {
+			log.info('Canceled disposing contexts - there are active AJAX requests');
+		} else {
+			// пытаемся сделать асинхронный dispose (TASK-57961)
+			if (navigator.sendBeacon) {
+				if (navigator.sendBeacon(url + '&method=beacon', null)) {
+					return;
+				}
+			}
+			// не получилось сделать асинхронный dispose, придется делать синхронный
+			$.ajax({
+				type : 'POST',
+				url : url + '&method=syncpost',
+				async : false,
+				timeout : 5000, /* нехорошо долго блокировать браузер синхронным реквестом */
+			});
+		}
+	},
+	_detectConversationPropagation : function(url) {
+		// правильность значения cid не проверяется
+		return /(\?|&)cid=\d/.test(url);
+	},
+	/**
+	 * Признаки определения пропагации conversation сбрасываются через 1 секунду, чтобы какие-то неучтенные случаи не
+	 * давали неправильных и сложно воспроизводимых результатов.<br>
+	 * Upd: передумал - признаки достаточно надежны, такой сброс скорее сам будет давать сложно воспроизводимые ошибки.
+	 */
+	// _resetAfterTimeout : function() {
+	// var $this = this;
+	// setTimeout(function() {
+	// log.debug('Reseting conversation propagation flags');
+	// $this._clickedLink = null;
+	// $this._redirectedTo = null;
+	// $this._exKeepConversation = false;
+	// }, 1000);
+	// },
+	keepConversation : function() {
+		this._exKeepConversation = true;
+	}
+};
+
+/**
+ * Поддержка жизни контекстов страницы на сервере (TASK-56379).
+ * <p>
+ * Отличия от Аргус 2: максимальное время жизни поддерживается от последней активности пользователя, а не от открытия
+ * страницы; активность сбрасывает отсчет до следующего тача.
+ */
+Argus.System.TouchPageContexts = {
+	// страница должна выживать 2 часа
+	PAGE_MAX_LIFETIME_MS : 2 * 60 * 60 * 1000,
+	_baseURL : null,
+	_touchCount : 0,
+	_touchCountMax : 0,
+	_touchPeriodMs : null,
+	_hTimer : null, // null после _init означает, что тач на этой странице работу завершил
+	_init : function(conversationTimeoutMs) {
+		if (!conversationTimeoutMs)
+			throw new Error('Conversation timeout is unknown');
+		this._baseURL = Argus.System.contextPath + '/touch';
+		// периодичность тача = половина conversation timeout
+		this._touchPeriodMs = conversationTimeoutMs / 2;
+		this._touchCountMax = Math.floor((this.PAGE_MAX_LIFETIME_MS - conversationTimeoutMs) / this._touchPeriodMs);
+		// при переходе на ErrorView силами FullAjaxExceptionHandler здесь навесится второй таймер, и тачи будут
+		// происходить в два раза чаще
+		this._schedule();
+	},
+	_touch : function() {
+		var $this = Argus.System.TouchPageContexts; // т.к. в setTimeout this == window
+		if (Argus.System.Ajax.isActive()) {
+			log.debug('Not touching contexts - there are active AJAX requests');
+		} else if ($this._touchCount < $this._touchCountMax) {
+			++$this._touchCount;
+			log.debug("Touch #" + $this._touchCount);
+			var url = $this._baseURL;
+			if (Argus.System.getCid() === null) {
+				log.debug('Not touching conversation - it`s transient');
+			} else {
+				url += '?cid=' + Argus.System.getCid();
+			}
+			$.ajax({
+				type : 'POST',
+				url : url,
+				success : function() {
+					$this._schedule();
+				},
+				error : function() {
+					$this._hTimer = null;
+				}
+			});
+		}
+	},
+	_schedule : function() {
+		var $this = Argus.System.TouchPageContexts; // т.к. вызывается из разных контекстов this
+		$this._hTimer = setTimeout($this._touch, $this._touchPeriodMs);
+	},
+	/**
+	 * Сброс, чтобы отсчет был от последней активности.
+	 */
+	reset : function() {
+		if (this._hTimer !== null) {
+			clearTimeout(this._hTimer);
+			this._touchCount = 0;
+			this._schedule();
+		}
+	},
+
+	enable : function() {
+		if (this._hTimer !== null) {
+			this._schedule();
+			this.reset();
+		}
+	},
+
+	disable : function() {
+		if (this._hTimer !== null) {
+			clearTimeout(this._hTimer);
+			this._hTimer = null;
+		}
+	}
+};
+
+/**
+ * PF примитивно воркэраундит баг https://java.net/jira/browse/JAVASERVERFACES_SPEC_PUBLIC-790, переписывая ViewState во
+ * всех формах страницы. Иногда это приводит к нежелательным последствиям.
+ * <p>
+ * Здесь дается возможность отключить воркэраунд. Реализация отключения в primefaces-overrides.js.
+ */
+Argus.System.ViewStateFix = {
+	_enabled : true,
+	disable : function() {
+		this._enabled = false;
+	},
+	enable : function() {
+		this._enabled = true;
+	},
+	isEnabled : function() {
+		return this._enabled;
+	}
+};
+
+Argus.System.BlockUI = {
+	_init : function() {
+		var $this = this;
+		// здесь нельзя использовать onStartActivity/onCompleteActivity из-за _isRequestBlockable: если активность
+		// начнет неблокирующий реквест, а во время его выполнения начнется блокирующий, то блокировка должна появиться
+		// pe:blockUI (jQuery BlockUI) имеет счетчик внутри, готов к пересекающимся block/unblock
+		Argus.System.Ajax.onStart(function() {
+			if ($this._isRequestBlockable())
+				$this.block();
+		});
+		// блокировка должна сниматься в oncomplete, чтобы PF и виджеты в onsuccess успели применить апдейты.
+		Argus.System.Ajax.onComplete(function() {
+			if ($this._isRequestBlockable())
+				$this.unblock();
+		});
+	},
+	block : function() {
+		PF('blockUIVar').block();
+	},
+	unblock : function() {
+		PF('blockUIVar').unblock();
+	},
+	/**
+	 * Включена ли блокировка UI. Функция не обещает, что анимация завершения блокировки успела закончиться.
+	 */
+	isBlocking : function() {
+		// не будем изобретать свой счетчик, достанем лучше счетчик pe:blockUI (см. его block/unblock)
+		// есть надежда, что так будет лучше учет случаев типа "update заменил content_body вместе с блокировкой"
+		var target = PF('blockUIVar').target;
+		var targetEl = PrimeFaces.expressions.SearchExpressionFacade.resolveComponentsAsSelector(target);
+		if (targetEl.length > 0) {
+			var blocksCount = targetEl.data("blockUI.blocksCount");
+			if (typeof blocksCount !== 'undefined')
+				return blocksCount > 0;
+		}
+		return false;
+	},
+	/**
+	 * Особым параметром реквесты могут попросить не блочить UI.
+	 */
+	_isRequestBlockable : function() {
+		// пока нет нормального способа определить реквест
+		var requests = PrimeFaces.ajax.Queue.requests;
+		if (!requests[0]) {
+			log.warn('Неизвестный реквест. Скорее всего, PF async=true.');
+			return true;
+		}
+		if (Argus.System.Ajax.isParamPresent(requests[0].params, 'sys-unblockable')) {
+			log.debug('Unblockable request, source', requests[0].source);
+			return false;
+		} else {
+			return true;
+		}
+	},
+	monitorDownload : function() {
+		PrimeFaces.monitorDownload(function() {
+			Argus.System.BlockUI.block();
+
+			Argus.System.signalJustBeganDownloading();
+		}, function() {
+			Argus.System.BlockUI.unblock();
+
+			// дополнение к воркэраунду про куки, начатому в FileDownloadActionListener
+			// если этого не делать, то по настоящему адресу /argus/views/system/home/HomeView.xhtml (не welcome page)
+			// монитор будет корректно сниматься только первый раз
+			// надо чистить куки после логики PF
+			setTimeout(function() {
+				$.removeCookie('primefaces.download', {
+					path : '/argus/'
+				});
+				$.removeCookie('primefaces.download', {
+					path : '/argus/views/system/home/'
+				}); // это, чтобы удалить с path=/argus/views/system/home/
+			}, 1);
+		});
+	}
+};
+
+/**
+ * Сюда вынесены некоторые вещи из View.xhtml для оптимизации размера страниц.
+ */
+Argus.System.Page = {
+	inited : false,
+	initHeadEnd : function(appDebugMode, startupTime, isDeveloper, contextPath, cid, conversationTimeoutMs, gateId,
+			sessionId) {
+		Argus.System._init(appDebugMode, startupTime, isDeveloper, contextPath, cid, conversationTimeoutMs, gateId,
+				sessionId);
+		Argus.System.History.deleteCid();
+
+		Argus.System.Page._initLayoutOptions();
+		Argus.System.Page._initBlockUICosmetics();
+	},
+	initBodyEnd : function() {
+		Argus.System.Page._initClientErrorHandling();
+		// growl, похоже, генерирует разметку в document.ready, поэтому наш обработчик должен быть добавлен позже
+		Argus.System.Page._initGrowlCosmetics();
+		Argus.System.Page._initMisc();
+		// условность ClientState это для webui-mobile, где clientState пока нет
+		if (Argus.System.ClientState) {
+			Argus.System.ClientState.init();
+		}
+		$(function() {
+			// jQuery обещает выполнять обработчики ready в порядке добавления, так что этот будет последним, как и надо
+			Argus.System.Page.inited = true;
+		});
+	},
+	_initClientErrorHandling : function() {
+		// Показ диалога AJAX-ошибки.
+		Argus.System.Ajax.onError(function() {
+			log.error('AJAX error');
+			PF('sysAjaxErrorDialogVar').show();
+			Argus.System.BlockUI.unblock();
+		}, 'clientAjaxErrorHandler');
+		// Если пока висит POST-реквест попытаться уйти со страницы, то POST завершится с error. Часто можно
+		// заметить мельком появляющийся sysAjaxErrorDialogVar. Здесь через beforeunload частично решается эта
+		// проблема снятием обработчика ошибок. Но beforeunload ненадежен. Подумать про дополнение подходом
+		// таймаута:
+		// http://stackoverflow.com/questions/699941/handle-ajax-error-when-a-user-clicks-refresh/18170879#18170879
+		// Также есть вариант спрашивать "Точно хотите покинуть страницу? Есть незавершенные операции"...
+		// TODO [42922] иногда снимается рано, т.к. в IE beforeunload может вызываться без покидания страницы, еще
+		// и несколько раз (см. TASK-57076). может быть, в других браузерах тоже: проверить non-AJAX POST.
+		// Нужен именно beforeunload, т.к. unload срабатывает после onError (проверено в FF35).
+		$(window).on('beforeunload', function() {
+			if (!Argus.System.justBeganDownloading) {
+				log.info('Disabling clientAjaxErrorHandler on beforeunload');
+				Argus.System.Ajax.offError('clientAjaxErrorHandler');
+			}
+		});
+		// 1. Надо убрать визуальную блокировку модальных диалогов, остающуюся при исключении в
+		// contentLoad-реквесте (TASK-45824, п. 12; http:// code.google.com/p/primefaces/issues/detail?id=7212).
+		// 2. Убрать блокировку событий ввода, остающуюся при исключении в любой момент, когда есть открытый
+		// модальный диалог (TASK-49945, TASK-60834).
+		Argus.System.Ajax.onForward(function() {
+			for ( var wProp in PrimeFaces.widgets) {
+				var w = PrimeFaces.widgets[wProp];
+				if (w instanceof PrimeFaces.widget.Dialog && w.isVisible()) {
+					log.info('Disabling modality', w);
+					w.disableModality();
+				}
+			}
+		});
+	},
+	_initLayoutOptions : function() {
+		if (!$.layout)
+			return; // LoginView, например
+
+		$.layout.defaults.showErrorMessages = false; // TASK-63025
+
+		$.layout.defaults.panes.slidable = false; // плохо работает (TASK-65927)
+
+		// локализация тултипов:
+		// - если указывать атрибутами в pe:layout, то действует только на непосредственных детей-layoutPane - не на
+		// всех потомков);
+		// - если указывать через Java-модель LayoutOptions, то она перекрывает опции, указанные атрибутами на
+		// layoutPane, и вообще все ломает;
+		// поэтому идем через дефолты jQuery UI Layout
+		$.layout.defaults.panes.tips.Open = 'Показать';
+		$.layout.defaults.panes.tips.Close = 'Спрятать';
+		$.layout.defaults.panes.tips.Resize = ''; // и так понятно - win7, например, тоже не показывает подсказок
+	},
+	_initBlockUICosmetics : function() {
+		// $.blockUI.defaults.fadeIn получается таймаутом до выполнения настоящего фэйда.
+		$.blockUI.defaults.fadeIn = 2000;
+		$.blockUI.defaults.fadeOut = 200;
+		// Колбэк onBlock срабатывает для каждого блокируемого элемента по отдельности, лишние fadeTo могут вызывать
+		// задержку разблокировки. Самый простой воркэраунд - чистить очередь анимации, последний fadeTo отработает.
+		$.blockUI.defaults.onBlock = function() {
+			$('.blockUI.blockOverlay, .blockUI.blockMsg').stop(true, false).fadeTo(400, 0.8);
+		};
+	},
+	_initGrowlCosmetics : function() {
+		// Контейнеры сообщений growl'ов аппендятся к body, перенацепим их к нашему контейнеру.
+		// Заодно расположим их в обратном порядке, чтобы худшие шли первыми (порядок самих компонентов важен,
+		// чтобы catch-all global_msg_error не отбирал сообщения у других и не дублировал).
+		// Несколько вызовов appendTo вместо одного на общем селекторе, т.к. jQuery сортирует в DOM-порядке.
+		$(function() {
+			$('#global_msg_container').children('span').each(function() {
+				$('#' + this.id + '_container').appendTo('#global_msg_container');
+			});
+		});
+	},
+	_initMisc : function() {
+		// ФУНКЦИИ, влияющие на какое-то общее поведение на странице
+
+		// Если ввести что-то в input и не засабмитить, то по F5 Firefox отображает введенное (autofill).
+		// Это можно отключить через autocomplete=off на формах и/или инпутах, селектах и т.п., но не получится
+		// красиво оверрайдить com.sun.faces.renderkit.html_basic.FormRenderer из-за монолитного метода encodeBegin.
+		// Так что autocomplete=off нормально можно добиться только оверрайдом компонента, а это означает введение
+		// своего тега arg:form.
+		// Добавленный скриптом autocomplete=off не отключает сохранение значений по F5, несмотря на ответы на
+		// StackOverflow, утверждающие обратное.
+		// Поэтому при отображении страницы просто делаем резет всех форм. Наверное, в ajaxically добавляемых
+		// элементах проблемы F5 не будет. В любом случае нельзя резетить все формы на каждом AJAX-посте - потеряется
+		// драгоценный пользовательский ввод.
+		// Пока непонятно, надо ли делать autocomplete=off собственно ради отключения автокомплита. Если надо, и он
+		// будет сделан не скриптовый, а серверный, то можно будет удалить сброс форм.
+		//		     
+		// После сброса форм необходимо отобразить все p:watermark, т.к. в не HTML5 браузерах watermark - это просто
+		// временное значение компонента, которое будет сброшено в form.reset() (TASK-55709).
+		// Скрипты watermark находятся в отдельном файле watermark.js, а не в общем components.js, поэтому если на
+		// странице не используется p:watermark, то при вызове showWatermarks происходит ошибка "$.watermark is
+		// undefined" (в частности на LoginView). Решение: проверять существование виджета Watermark (кажется менее
+		// завязанным на реализацию, чем проверка существования собственно $.watermark).
+		$(function() {
+			Argus.System.Fn.resetAllForms();
+			if (typeof PrimeFaces.widget.Watermark !== 'undefined')
+				PrimeFaces.showWatermarks();
+		});
+
+		// TASK-48066 Дефолтное поведение Enter в форме нежелательно
+		$(function() {
+			Argus.System.BrowserAutoSubmitOnEnter.manage();
+		});
+	},
+	update : function(cid) {
+		Argus.System.updateCid(cid);
+		Argus.System.TouchPageContexts.reset();
+	}
+};
+
+Argus.System.LoginMobile = {
+	/**
+	 * Логин: переносит значения из видимых полей в настоящие, делает сабмит.
+	 */
+	login : function() {
+		var username = $('#login_page-login_form_vis_username_input').val();
+		var password = $('#login_page-login_form_vis_password_input').val();
+
+		$('#login_page-login_form_sub-username_input').val(username);
+		$('#login_page-login_form_sub-password_input').val(password);
+		$('#login_page-login_form_sub-submit').click();
+		$('#login_page-login_form_sub-username_input').val('');
+		$('#login_page-login_form_sub-password_input').val('');
+	},
+	/**
+	 * Смена пароля: переносит значения из видимых полей в настоящие, делает сабмит.
+	 */
+	changePassword : function() {
+		var password = $('#login_page-change_password_form_vis_password_input').val();
+		var passwordConfirmation = $('#login_page-change_password_form_vis_password_confirmation_input').val();
+
+		$('#login_page-change_password_form_sub-password_input').val(password);
+		$('#login_page-change_password_form_sub-password_confirmation_input').val(passwordConfirmation);
+		$('#login_page-change_password_form_sub-submit').click();
+		$('#login_page-change_password_form_sub-password_input').val('');
+		$('#login_page-change_password_form_sub-password_confirmation_input').val('');
+	},
+	bindEnter : function() {
+		var doBind = function() {
+			$('#login_page-login_form input').off('keypress.provideSubmitOnEnter').on('keypress.provideSubmitOnEnter',
+					function(e) {
+						if (e.which === 13) {
+							$('#login_page-login_form_vis_submit').click();
+						}
+					});
+			$('#login_page-change_password_form input').off('keypress.provideSubmitOnEnter').on(
+					'keypress.provideSubmitOnEnter', function(e) {
+						if (e.which === 13) {
+							$('#login_page-change_password_form_vis_submit').click();
+						}
+					});
+		};
+		doBind();
+		Argus.System.Ajax.onComplete(doBind);
+	}
+};

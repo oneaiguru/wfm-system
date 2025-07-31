@@ -1,0 +1,54 @@
+.ui-selectonemenu {
+	border-bottom: none;
+	display: flex;
+	padding-right: 0;
+}
+
+.ui-selectonemenu > .ui-inputfield {
+	flex-basis: 100%;
+}
+
+.ui-selectonemenu > .ui-state-default { /* trigger */
+	flex-shrink: 0;
+	position: static;
+	height: auto;
+}
+
+.ui-selectonemenu > .ui-inputfield,
+.ui-selectonemenu > .ui-state-default {
+	border-bottom: solid 1px #B0BEC5;
+}
+
+.ui-selectonemenu label.ui-selectonemenu-label {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.ui-selectonemenu.ui-state-hover,
+.ui-selectonemenu.ui-state-focus {
+	border-bottom: none;
+}
+
+.ui-selectonemenu.ui-state-hover > .ui-inputfield,
+.ui-selectonemenu > .ui-state-hover {
+	border-bottom-color: #03a9f4;
+}
+
+
+/***********************************************************************************************************************
+	выпадающая панель
+***********************************************************************************************************************/
+
+.ui-selectonemenu-panel > .ui-selectonemenu-items-wrapper {
+	overflow-y: scroll;
+}
+
+.ui-selectonemenu-panel > .ui-selectonemenu-items-wrapper > .ui-selectonemenu-items > .ui-selectonemenu-item {
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+
+.ui-selectonemenu-panel > .ui-selectonemenu-items-wrapper > .ui-selectonemenu-items > .ui-selectonemenu-item.ui-state-hover {
+	background-color: #eaeaea;
+}
