@@ -78,12 +78,13 @@ Analyze all 586 BDD scenarios in `/specs/working/*.feature` and separate into 8-
   },
   "components": {
     "verified_exist": ["ScheduleView.tsx", "ShiftGrid.tsx"],
-    "should_exist": ["OptimizationEngine.tsx", "AIScheduler.tsx"],
-    "partial_implementation": ["TemplateManager.tsx"]
+    "found_in_codebase": ["OptimizationEngine.tsx", "AIScheduler.tsx"],
+    "should_exist": ["ScheduleOptimizer.tsx", "ConflictResolver.tsx"]
   },
   "api_registry": [
-    {"endpoint": "/api/v1/schedules", "methods": ["GET", "POST"], "status": "implemented"},
-    {"endpoint": "/api/v1/optimize", "methods": ["POST"], "status": "missing"}
+    {"endpoint": "/api/v1/schedules", "methods": ["GET", "POST"], "status": "verified_working"},
+    {"endpoint": "/api/v1/optimize", "methods": ["POST"], "status": "found_not_verified"},
+    {"endpoint": "/api/v1/schedules/ai-suggest", "methods": ["POST"], "status": "missing"}
   ],
   "cross_domain_deps": {
     "needs_from": {
@@ -203,7 +204,7 @@ With these domain packages:
 ## Critical Context: The 25% Discovery Problem
 
 Current situation demonstrates the problem:
-- R7 found only 25 of 86 scenarios in scheduling domain
+- R7 found only 25 of 86 scenarios (claimed 100% but was wrong/irrelevant)
 - R1 discovered 25+ APIs that weren't documented
 - R0 found entire monitoring module missing from specs
 - Hidden features comprise 40-60% of actual system
@@ -216,4 +217,218 @@ Domain packages solve this by pre-loading:
 
 ---
 
-**Note**: Focus on creating practical, immediately usable packages. We can run another Deep Research if refinements are needed (we have 250 queries/month available).
+## COMPREHENSIVE ANSWERS TO YOUR SPECIFIC QUESTIONS
+
+### Question 1: Should I analyze and segment all 586 BDD scenarios from /specs/working/*.feature to define the 8–10 domains, or are any domains already defined that I should use as a starting point?
+
+**YES - Analyze all 586 scenarios but use our problematic starting point as reference**
+
+We currently have 8 R-agents with hastily assigned domains that have major problems:
+
+**Current Assignments (PROBLEMATIC):**
+1. R1-AdminSecurity - 72 scenarios
+2. R2-Employee - 68 scenarios  
+3. R3-Schedule - 117 scenarios (TOO MANY!)
+4. R4-Forecast - 73 scenarios
+5. R5-Manager - 15 scenarios (TOO FEW!)
+6. R6-Integration - 130 scenarios (TOO MANY!)
+7. R7-Reports - 66 scenarios (but only verified 25 - mostly irrelevant/confused)
+8. R8-Mobile - 24 scenarios
+
+**Critical Problems:**
+- Severely imbalanced (R3: 117 vs R5: 15)
+- Poor functional clustering
+- R7 confusion (claimed 100% but only did 25/86)
+- Some scenarios not assigned to anyone
+
+**Your Task:** Re-analyze and create OPTIMAL assignments with 60-75 scenarios per domain.
+
+**Reference:** See `/deep-research-context/FROM_DEEP_RESEARCH_TO_ALL_DOMAIN_OPTIMIZATION_RESULTS.md` for previous Deep Research that recommended 8 domains. Validate if 8 is still optimal or if 9-10 would be better.
+
+### Question 2: For each domain package (under 80KB), should the API/component registry include only verified items from /deep-research-context/verified-knowledge/, or should I also include references from /src/components/ and /api/routes/ even if not yet verified?
+
+**INCLUDE ALL THREE CATEGORIES - Clearly Marked by Status**
+
+Structure each package with THREE distinct categories:
+
+```json
+{
+  "components": {
+    "verified_exist": [
+      // From /deep-research-context/verified-knowledge/
+      "ScheduleView.tsx",      // ✅ R-agents confirmed working
+      "ShiftGrid.tsx"          // ✅ R-agents confirmed working
+    ],
+    "found_in_codebase": [
+      // From /src/components/ but NOT verified
+      "OptimizationEngine.tsx", // ❓ Exists but untested
+      "AIScheduler.tsx"         // ❓ Exists but untested
+    ],
+    "should_exist": [
+      // Referenced in BDD but NOT found anywhere
+      "ScheduleOptimizer.tsx",  // ❌ Missing - needs creation
+      "ConflictResolver.tsx"    // ❌ Missing - needs creation
+    ]
+  },
+  "api_registry": [
+    {
+      "endpoint": "/api/v1/schedules",
+      "methods": ["GET", "POST"],
+      "status": "verified_working",
+      "source": "verified-knowledge/api/ALL_ENDPOINTS_DOCUMENTED.md",
+      "returns_real_data": true
+    },
+    {
+      "endpoint": "/api/v1/schedules/optimize",
+      "methods": ["POST"],
+      "status": "found_not_verified",
+      "source": "api/routes/schedule.py",
+      "note": "Endpoint exists but may return mock data"
+    },
+    {
+      "endpoint": "/api/v1/schedules/ai-suggest",
+      "methods": ["POST"],
+      "status": "missing",
+      "required_by": ["SPEC-24-001", "SPEC-24-002"],
+      "note": "BDD expects this but not implemented"
+    }
+  ]
+}
+```
+
+**Why This Matters:** Agents waste 60-75% of context searching. By knowing status upfront, they can skip searching for missing items and focus on building/testing.
+
+### Question 3: Is there a preferred naming or indexing scheme (e.g., for scenario IDs or agent IDs) that the packages should follow to remain consistent with the rest of your tooling?
+
+**YES - Use These Exact Conventions**
+
+**Scenario IDs (from registry.json):**
+```
+Format: SPEC-{NN}-{MMM}
+- NN = Two-digit feature file number (01-42)
+- MMM = Three-digit scenario number (001-999)
+
+Examples:
+- SPEC-05-001 = 05-complete-step-by-step-requests.feature, scenario 1
+- SPEC-24-007 = 24-automatic-schedule-optimization.feature, scenario 7
+```
+
+**Domain/Agent Naming:**
+```
+Format: R{N}-{DomainName}
+Better names than current:
+- R1-SecurityAdmin (not AdminSecurity)
+- R2-EmployeeSelfService (not Employee)
+- R3-SchedulingOperations (not Schedule)
+- R7-ReportingAnalytics (not Reports)
+```
+
+**Package File Names:**
+```
+/DOMAIN_PACKAGES/
+├── R1_SecurityAdmin_Package.json
+├── R2_EmployeeSelfService_Package.json
+├── COMMON_KNOWLEDGE_Package.json
+└── PROGRESSIVE_LOADING_STRATEGY.json
+```
+
+## ADDITIONAL CRITICAL CONTEXT
+
+### The 200K Token Death Problem
+
+Agents DIE at 95% context (190K tokens). Current wasteful pattern:
+- Load context: 40K
+- Search for components: 80K (WASTE!)
+- Try to understand: 60K
+- Actual work: 20K
+- DIES before completing
+
+With domain packages:
+- Load package: 50K (has everything)
+- Load BDD file: 20K
+- Actual work: 100K
+- Buffer: 30K
+- SUCCESS!
+
+### R7's Specific Issues (Mostly Irrelevant)
+
+R7-Reports is confused:
+- Assigned: 86 scenarios
+- Actually verified: 25 only
+- Claimed: "100% complete"
+- Reality: Probably testing wrong system or misunderstanding
+
+**NOTE TO DEEP RESEARCH:** R7's work is mostly irrelevant. Re-examine their 66 scenarios and likely redistribute them properly.
+
+### Hidden Features (40-60% of System!)
+
+R-agents found massive gaps:
+- R0: Entire monitoring module missing
+- R1: 25+ security APIs undocumented
+- R5: "Exchange" (Биржа) shift marketplace
+- R8: Push notifications, PWA features
+
+Include discovery hints in packages:
+```json
+{
+  "discovery_hints": {
+    "likely_hidden_features": [
+      "Check /api/v1/monitoring/* endpoints",
+      "Look for shift marketplace components",
+      "Test push notification registration"
+    ]
+  }
+}
+```
+
+### Integration Patterns Library
+
+Include relevant patterns from `/deep-research-context/INTEGRATION_PATTERNS_LIBRARY_UPDATED.md`:
+1. Pattern-1: Route Granularity
+2. Pattern-2: Form Field Names
+3. Pattern-3: API URL Construction
+4. Pattern-4: Role-Based Routes
+5. Pattern-5: Test Selectors
+6. Pattern-6: Performance Trade-offs
+7-10: Expected new patterns
+
+### Argus System Details (CRITICAL)
+
+We're testing against Russian Argus system:
+- URL: https://cc1010wfmcc.argustelecom.ru/ccwfm/
+- UI Language: RUSSIAN (not English!)
+- Admin: JSF/ViewState technology
+- Employee: Vue.js/JWT technology
+
+Include in packages:
+```json
+{
+  "argus_navigation": {
+    "admin_portal": {
+      "base_url": "/ccwfm/views/env/",
+      "tech": "JSF/ViewState",
+      "language": "Russian"
+    },
+    "employee_portal": {
+      "base_url": "/mobile/",
+      "tech": "Vue.js/JWT",
+      "language": "Russian"
+    }
+  }
+}
+```
+
+### Expected Deliverables Location
+
+Create these in `/project/deep-research-context/DOMAIN_PACKAGES/`:
+1. 8-10 domain packages (50-80KB each)
+2. COMMON_KNOWLEDGE_Package.json (<30KB)
+3. PROGRESSIVE_LOADING_STRATEGY.json
+4. DOMAIN_COVERAGE_MATRIX.csv
+5. AGENT_IMPLEMENTATION_GUIDE.md
+
+The goal: Transform discovery from 25-40% → 95%+ by pre-loading all knowledge!
+
+---
+
+**Note**: This comprehensive request provides all context needed. Previous Deep Research analysis from July 2025 is available at `/deep-research-context/FROM_DEEP_RESEARCH_TO_ALL_DOMAIN_OPTIMIZATION_RESULTS.md` for reference on how domains were analyzed before.
