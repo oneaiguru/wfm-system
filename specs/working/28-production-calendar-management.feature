@@ -1,3 +1,15 @@
+ # REALITY: 2025-07-27 - Comprehensive Russian compliance and ZUP integration system for production calendar
+ # Database includes: russian_compliance_requirements (labor law), zup_time_types, zup_actual_work_time
+ # Legal framework: Real Russian Labor Code data - "Статья 91" (working time), "Статья 92" (40-hour week)
+ # ZUP integration: Upload sessions, sync flags, overtime tracking, vacation balance management
+ # Time management: time_type_code, time_type_name_ru for Russian time classification
+ # Infrastructure ready for working days, holidays, pre-holidays calendar management
+ # R4-INTEGRATION-REALITY: SPEC-111 Production Calendar Integration
+ # Status: ⚠️ PARTIALLY VERIFIED - ZUP integration exists
+ # Evidence: ZUP time types and actual work time sync found
+ # Reality: Integration with 1C ZUP for time management
+ # Architecture: ZUP upload sessions and sync flags
+ # @partially-verified - 1C ZUP calendar integration
  @production_calendar @calendar_management @critical
  Feature: Production Calendar Management
    As a system administrator
@@ -10,6 +22,12 @@
  
    @xml_import @russian_calendar
    Scenario: Russian Federation calendar XML import
+     # R4-INTEGRATION-REALITY: SPEC-027 Production Calendar Testing
+     # Status: ✅ INDIRECTLY VERIFIED - "Производственный календарь" in menu
+     # Context: Production calendar confirmed in admin portal Справочники section
+     # Evidence: Menu navigation shows "Производственный календарь" option
+     # Navigation: Справочники → Производственный календарь path available
+     # @verified-menu-visible - Production calendar management exists
      Given I have a Russian Federation calendar XML file
      When I import the calendar file
      Then the system should process the XML structure:

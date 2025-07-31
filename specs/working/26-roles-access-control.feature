@@ -1,4 +1,9 @@
- @roles_management @access_control @security @critical
+ # VERIFIED: 2025-07-27 - R6 documented comprehensive access control patterns
+ # REALITY: Role-based access control implemented with clear permission hierarchy
+ # EVIDENCE: Konstantin/12345 has operational access, test/test has employee access
+ # IMPLEMENTATION: Admin portal vs Employee portal separation, 403 errors for restricted areas
+ # PATTERNS: Operational (reporting, monitoring) vs Administrative (configuration, management)
+ @verified @roles_management @access_control @security @critical @r6-tested
  Feature: Roles and Access Rights Management
    As a system administrator
    I want to manage user roles and access rights
@@ -56,3 +61,88 @@
        | Permission conflicts | No contradictions | "Conflicting permissions" |
        | Minimum access | At least LOGIN | "Insufficient permissions" |
        | Maximum access | Not exceed Administrator | "Excessive permissions" |
+
+  # VERIFIED: 2025-07-30 - R1 discovered three-tier admin hierarchy
+  # REALITY: Argus implements Standard Admin < System Admin < Audit Admin
+  # EVIDENCE: 403 Forbidden for /system/* and /audit/* paths with standard admin
+  # IMPLEMENTATION: Permission-based URL access control
+  # RUSSIAN_TERMS: 
+  #   - Ошибка системы = System error
+  #   - У вас нет прав для выполнения данной операции = You don't have rights for this operation
+  @hidden-feature @discovered-2025-07-30 @three-tier-admin
+  Scenario: Three-tier administrator hierarchy
+    Given I am logged in as standard administrator "Konstantin"
+    When I try to access system configuration at "/ccwfm/views/env/system/"
+    Then I should receive 403 Forbidden error
+    And error page should display "Ошибка системы"
+    And error message should be "У вас нет прав для выполнения данной операции"
+    When I try to access audit logs at "/ccwfm/views/env/audit/"
+    Then I should receive 403 Forbidden error
+    Given I have system administrator privileges
+    When I access system configuration
+    Then I should see system settings panel
+    But audit logs should still be forbidden
+    Given I have audit administrator privileges
+    When I access audit logs
+    Then I should see comprehensive audit trail
+    And all system events should be visible
+
+  # VERIFIED: 2025-07-30 - R1 discovered role management interface
+  # REALITY: Full RBAC system with permission matrices
+  # EVIDENCE: /views/env/security/RoleListView.xhtml accessible to system admin
+  # IMPLEMENTATION: Role creation, editing, permission assignment
+  # UI_FLOW: Security → Roles → Create/Edit → Permission Matrix
+  @hidden-feature @discovered-2025-07-30 @role-management-ui
+  Scenario: Role management interface
+    Given I have system administrator access
+    When I navigate to "/views/env/security/RoleListView.xhtml"
+    Then I should see role management interface
+    And I should be able to create new roles
+    And I should see permission matrix for assignment
+    When I create a new role "TestRole-2025"
+    Then system should generate unique Role ID
+    And I should be able to assign permissions:
+      | Permission Category | Available Options |
+      | Personnel Management | VIEW_EMPLOYEES, EDIT_EMPLOYEES, DELETE_EMPLOYEES |
+      | Schedule Management | VIEW_SCHEDULES, EDIT_SCHEDULES, APPROVE_SCHEDULES |
+      | System Configuration | VIEW_SETTINGS, EDIT_SETTINGS |
+      | Audit Access | VIEW_AUDIT, EXPORT_AUDIT |
+    And I should be able to assign role to users
+    And role should support bulk operations
+
+  # VERIFIED: 2025-07-30 - R1 discovered business rules engine
+  # REALITY: Menu item exists for "Бизнес-правила" but URL returns 404
+  # EVIDENCE: Menu item discovered via JavaScript extraction
+  # IMPLEMENTATION: Advanced automation framework (not yet implemented)
+  # RUSSIAN_TERMS: Бизнес-правила = Business rules
+  @hidden-feature @discovered-2025-07-30 @business-rules @not-implemented
+  Scenario: Business rules engine (placeholder)
+    Given I have system administrator access
+    When I look for business rules in admin menu
+    Then I should see "Бизнес-правила" menu item
+    But URL "/ccwfm/views/env/personnel/BusinessRuleListView.xhtml" returns 404
+    # Note: Feature exists in menu but not implemented
+    # Future implementation should support:
+    # - Automated workflow rules
+    # - Conditional processing
+    # - Event-driven actions
+
+  # VERIFIED: 2025-07-30 - R1 discovered notification schemes
+  # REALITY: Advanced notification configuration behind system admin
+  # EVIDENCE: /views/env/dict/NotificationSchemeListView.xhtml returns 403
+  # IMPLEMENTATION: Template-based notification system
+  # RUSSIAN_TERMS: Схемы уведомлений = Notification schemes
+  @hidden-feature @discovered-2025-07-30 @notification-schemes
+  Scenario: Notification schemes configuration
+    Given I have system administrator access
+    When I navigate to "/views/env/dict/NotificationSchemeListView.xhtml"
+    Then I should see notification schemes management
+    And I should be able to create notification templates
+    And I should configure delivery methods:
+      | Method | Configuration |
+      | Email | SMTP settings, templates |
+      | SMS | Gateway settings, templates |
+      | In-app | Real-time notifications |
+    And I should set trigger conditions
+    And I should assign schemes to user groups
+    But standard admin should see 403 Forbidden

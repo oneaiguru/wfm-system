@@ -668,6 +668,7 @@ const MobileRequestForm: React.FC<MobileRequestFormProps> = ({
         
         <button
           type="button"
+          data-testid="create-request"
           className="mobile-form__button mobile-form__button--primary"
           onClick={submitRequest}
           disabled={submitting}

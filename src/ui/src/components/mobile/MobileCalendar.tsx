@@ -329,6 +329,7 @@ export const MobileCalendar: React.FC = () => {
       days.push(
         <div
           key={dateStr}
+          data-testid="schedule-date"
           className={`min-h-[60px] p-1 border-b border-r border-gray-200 ${
             isCurrentMonth ? 'bg-white' : 'bg-gray-50'
           } ${isToday ? 'bg-blue-50' : ''}`}
@@ -360,7 +361,7 @@ export const MobileCalendar: React.FC = () => {
     }
 
     return (
-      <div className="grid grid-cols-7 border-l border-t border-gray-200">
+      <div data-testid="schedule-data" className="grid grid-cols-7 border-l border-t border-gray-200">
         {/* Week day headers */}
         {mobileCalendarTranslations.weekDays.map(day => (
           <div key={day} className="p-2 bg-gray-100 border-b border-r border-gray-200 text-xs font-medium text-center">
@@ -369,7 +370,9 @@ export const MobileCalendar: React.FC = () => {
         ))}
         
         {/* Calendar days */}
-        {days}
+        <div data-testid="schedule-grid" className="contents">
+          {days}
+        </div>
       </div>
     );
   };

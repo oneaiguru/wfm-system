@@ -48,6 +48,7 @@ const MobileOfflineIndicator: React.FC<MobileOfflineIndicatorProps> = ({
   const [offlineModeEnabled, setOfflineModeEnabled] = useState(false);
   const [autoSyncEnabled, setAutoSyncEnabled] = useState(true);
   const [syncInProgress, setSyncInProgress] = useState(false);
+  const [syncComplete, setSyncComplete] = useState(false);
   
   const indicatorRef = useRef<HTMLDivElement>(null);
   const syncIntervalRef = useRef<NodeJS.Timeout>();
@@ -212,6 +213,10 @@ const MobileOfflineIndicator: React.FC<MobileOfflineIndicatorProps> = ({
       // Refresh offline data
       await loadOfflineData();
       
+      // Show sync complete notification
+      setSyncComplete(true);
+      setTimeout(() => setSyncComplete(false), 3000);
+      
       if (onSyncRequest) {
         onSyncRequest();
       }
@@ -375,6 +380,7 @@ const MobileOfflineIndicator: React.FC<MobileOfflineIndicatorProps> = ({
   return (
     <div 
       ref={indicatorRef}
+      data-testid="offline-indicator"
       className={`offline-indicator offline-indicator--${position} ${
         isExpanded ? 'offline-indicator--expanded' : ''
       }`}
@@ -410,7 +416,7 @@ const MobileOfflineIndicator: React.FC<MobileOfflineIndicatorProps> = ({
             </button>
           </div>
           
-          <div className="offline-indicator__status-section">
+          <div data-testid="sync-status" className="offline-indicator__status-section">
             <div className="offline-indicator__status-row">
               <span>Статус:</span>
               <span className={`offline-indicator__status-text offline-indicator__status-text--${syncStatus.status}`}>
@@ -513,6 +519,12 @@ const MobileOfflineIndicator: React.FC<MobileOfflineIndicatorProps> = ({
               </button>
             )}
           </div>
+          
+          {syncComplete && (
+            <div data-testid="sync-complete" className="offline-indicator__sync-complete">
+              ✅ Request synced successfully
+            </div>
+          )}
         </div>
       )}
     </div>

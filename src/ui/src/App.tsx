@@ -17,6 +17,7 @@ import PendingRequestsList from './components/requests/PendingRequestsList';
 import ManagerDashboard from './components/manager/ManagerDashboard';
 import NotificationCenter from './components/NotificationCenter';
 import TeamScheduleView from './components/manager/TeamScheduleView';
+import ApprovalQueue from './components/manager/ApprovalQueue';
 import ShiftSwapModal from './components/modals/ShiftSwapModal';
 import Spec39ReportingDashboard from './components/reports/Spec39ReportingDashboard';
 import TimeAttendanceSystem from './components/time-attendance/TimeAttendanceSystem';
@@ -26,6 +27,8 @@ import ShiftTradingManagement from './components/shift-trading/ShiftTradingManag
 // Import mobile components
 import MobileLogin from './components/mobile/MobileLogin';
 import MobileCalendar from './components/mobile/MobileCalendar';
+import MobileRequestForm from './components/mobile/MobileRequestForm';
+import MobileDashboard from './components/mobile/MobileDashboard';
 
 // Loading component
 const Loading = () => <div style={{ padding: '20px', textAlign: 'center' }}>Loading...</div>;
@@ -109,6 +112,7 @@ function App() {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/schedule" element={<ScheduleView />} />
               <Route path="/requests" element={<RequestForm />} />
+              <Route path="/requests/new" element={<RequestForm />} />
               <Route path="/requests/history" element={
                 <div className="min-h-screen bg-gray-50">
                   <div className="max-w-7xl mx-auto py-6 px-4">
@@ -132,7 +136,8 @@ function App() {
               <Route path="/integration-tester" element={<IntegrationTester />} />
               <Route path="/team-calendar" element={<TeamScheduleView managerId={7} />} />
               <Route path="/manager-dashboard" element={<ManagerDashboard managerId={7} />} />
-              <Route path="/manager/dashboard" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/manager/dashboard" element={<ManagerDashboard managerId={7} />} />
+              <Route path="/manager/approvals" element={<ApprovalQueue />} />
               
               {/* Demo showcase routes */}
               <Route path="/demo" element={<DemoShowcase />} />
@@ -169,6 +174,8 @@ function App() {
                 }
               }} />} />
               <Route path="/mobile/schedule" element={<MobileCalendar />} />
+              <Route path="/mobile/dashboard" element={<MobileDashboard />} />
+              <Route path="/mobile/requests/new" element={<MobileRequestForm />} />
               
               {/* Vacation test route */}
               <Route path="/vacation-test" element={

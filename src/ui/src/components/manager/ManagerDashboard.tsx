@@ -233,12 +233,28 @@ const ManagerDashboard: React.FC<ManagerDashboardProps> = ({ managerId }) => {
         throw new Error('Dashboard data or metrics not available');
       }
       
+      // Fetch real pending approvals count
+      let realPendingCount = dashboardData.metrics.pendingRequests || 0;
+      try {
+        const approvalResponse = await fetch('/api/v1/manager/approvals', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token') || localStorage.getItem('authToken')}`
+          }
+        });
+        if (approvalResponse.ok) {
+          const approvalData = await approvalResponse.json();
+          realPendingCount = approvalData.pending_approvals?.length || 0;
+        }
+      } catch (error) {
+        console.warn('[MANAGER DASHBOARD] Could not fetch real approvals:', error);
+      }
+      
       // Extract team overview from real data with null checks
       const teamOverview: TeamOverview = {
         total_members: dashboardData.metrics.teamSize || 0,
         active_today: dashboardData.metrics.activeEmployees || 0,
         on_vacation: dashboardData.metrics.onVacation || 0,
-        pending_requests: dashboardData.metrics.pendingRequests || 0
+        pending_requests: realPendingCount
       };
       setTeamOverview(teamOverview);
 
@@ -517,7 +533,7 @@ const ManagerDashboard: React.FC<ManagerDashboardProps> = ({ managerId }) => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Team Overview Cards */}
         {teamOverview ? (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div data-testid="team-metrics" className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             <div className="bg-white rounded-lg shadow p-6">
               <div className="flex items-center">
                 <div className="bg-blue-100 rounded-lg p-3">
@@ -554,17 +570,17 @@ const ManagerDashboard: React.FC<ManagerDashboardProps> = ({ managerId }) => {
               </div>
             </div>
             
-            <div className="bg-white rounded-lg shadow p-6">
+            <Link to="/manager/approvals" data-testid="pending-requests" className="bg-white rounded-lg shadow p-6 block hover:shadow-lg transition-shadow">
               <div className="flex items-center">
                 <div className="bg-red-100 rounded-lg p-3">
                   <AlertTriangle className="h-6 w-6 text-red-600" />
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Pending Requests</p>
-                  <p className="text-2xl font-bold text-red-600">{teamOverview.pending_requests || 0}</p>
+                  <p data-testid="pending-count" className="text-2xl font-bold text-red-600">{teamOverview.pending_requests || 0}</p>
                 </div>
               </div>
-            </div>
+            </Link>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
@@ -675,9 +691,9 @@ const ManagerDashboard: React.FC<ManagerDashboardProps> = ({ managerId }) => {
           {/* Recent Activity */}
           <div>
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Recent Team Activity</h2>
-            <div className="bg-white rounded-lg shadow">
+            <div data-testid="schedule-overview" className="bg-white rounded-lg shadow">
               <div className="p-6">
-                <div className="space-y-4">
+                <div data-testid="team-member-list" className="space-y-4">
                   {recentActivity && recentActivity.length > 0 ? (
                     recentActivity.map((activity, index) => (
                       <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">

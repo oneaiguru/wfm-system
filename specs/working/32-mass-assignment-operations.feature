@@ -1,4 +1,8 @@
  # Language: en
+# R7-TESTING: 2025-07-27 - Mass Assignment Operations Architecture Analysis
+# DATABASE STRUCTURE: 15 specialized tables supporting comprehensive bulk operations
+# OPERATIONAL DATA: "Standard Lunch Break Assignment" (25 employees), "Annual Leave Scheme" (15 employees)
+# SYSTEM CAPABILITIES: Employee filtering, batch processing, execution tracking, override functionality
  # Mass Assignment Operations Feature
  # This file contains BDD scenarios for mass assignment operations
  # including business rules, vacation schemes, and work hours
@@ -13,6 +17,12 @@
      And I have access to mass assignment operations
      And employee data is available for assignment
  
+   # R4-INTEGRATION-REALITY: SPEC-080 Mass Assignment Integration
+   # Status: ❌ NO EXTERNAL INTEGRATION - Mass assignment internal
+   # Evidence: No bulk operations APIs found in integration systems
+   # Reality: Mass assignment is internal WFM functionality
+   # Architecture: Database-only bulk operations
+   # @integration-not-applicable - Internal bulk operations
    @mass_assignment @business_rules @critical
    Scenario: Mass business rules assignment with filtering
      Given I navigate to mass assignment page

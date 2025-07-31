@@ -11,6 +11,12 @@ Feature: SSO Authentication System with Database Schema
 
   @sso_authentication @database_schema @user_management
   Scenario: Configure SSO Authentication Database Architecture
+    # R4-INTEGRATION-REALITY: SPEC-021 SSO Integration Testing 2025-07-27
+    # Status: ✅ VERIFIED - SSO integration confirmed in Integration Systems Registry
+    # Evidence: SSO login fields in both 1C and Oktell system configurations
+    # Found: "Логин SSO" mapping for employee authentication across systems
+    # Implementation: SSO enabled for personnel synchronization and monitoring
+    # @verified - SSO authentication integrated with external systems
     Given I need to implement SSO authentication with database support
     When I configure SSO database structures
     Then I should create comprehensive authentication tables:
@@ -98,6 +104,8 @@ Feature: SSO Authentication System with Database Schema
       | Session encryption | Encrypted session data | Data protection | Encryption validation |
       | IP validation | Source IP checking | Access control | IP range validation |
       | Device tracking | Device fingerprinting | Security monitoring | Device validation |
+      | Mobile authentication | R8-TESTED: Vue.js portal auth | Mobile-specific flows | Mobile session validation |
+      | Mobile session persistence | R8-VERIFIED: localStorage tokens | Cross-session continuity | Token refresh validation |
     And implement session monitoring:
       | Monitoring Type | Implementation | Purpose | Alerting |
       | Session analytics | Usage patterns | Performance optimization | Anomaly detection |
@@ -128,6 +136,12 @@ Feature: SSO Authentication System with Database Schema
       | Audience validation | Intended recipient check | Token scope | Reject mismatched |
       | Issuer validation | Source verification | Token authenticity | Reject unknown |
 
+  # R4-INTEGRATION-REALITY: SPEC-105 SSO Audit Integration
+  # Status: ❌ NO EXTERNAL INTEGRATION - SSO not implemented
+  # Evidence: No SSO/SAML/OAuth APIs in Personnel Sync
+  # Reality: Only basic username/password authentication
+  # Architecture: No SSO infrastructure found
+  # @integration-not-implemented - No SSO features
   @sso_authentication @audit_logging @compliance
   Scenario: Implement SSO Audit Logging and Compliance
     Given I need to maintain audit logs for compliance

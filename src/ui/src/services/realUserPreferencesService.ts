@@ -67,6 +67,47 @@ export interface ApiResponse<T> {
   error?: string;
 }
 
+export interface EmployeeProfile {
+  id: string;
+  personalInfo: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    birthDate: string;
+    address: string;
+    emergencyContact: {
+      name: string;
+      relationship: string;
+      phone: string;
+    };
+  };
+  workInfo: {
+    position: string;
+    department: string;
+    team: string;
+    startDate: string;
+    employeeId: string;
+    skills: string[];
+    certifications: string[];
+  };
+  preferences: {
+    notifications: {
+      email: boolean;
+      sms: boolean;
+      pushNotifications: boolean;
+    };
+    schedule: {
+      preferredShifts: string[];
+      availableDays: string[];
+      timeOff: {
+        preferredMonths: string[];
+        maxConsecutiveDays: number;
+      };
+    };
+  };
+}
+
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001/api/v1';
 
 class RealUserPreferencesService {
@@ -125,6 +166,17 @@ class RealUserPreferencesService {
       console.error('[REAL API] Health check failed:', error);
       return false;
     }
+  }
+
+  /**
+   * Get current user's profile (includes personal, work, and preference data)
+   */
+  async getUserProfile(): Promise<ApiResponse<EmployeeProfile>> {
+    console.log('[REAL API] Fetching user profile');
+    
+    return this.makeRequest<EmployeeProfile>('/profile/me', {
+      method: 'GET'
+    });
   }
 
   /**
@@ -261,6 +313,63 @@ class RealUserPreferencesService {
     return this.makeRequest<{ sent: boolean; message: string }>('/settings/user/test-notification', {
       method: 'POST',
       body: JSON.stringify({ type: notificationType })
+    });
+  }
+
+  /**
+   * Get available skills for profile selection
+   */
+  async getAvailableSkills(): Promise<ApiResponse<string[]>> {
+    console.log('[REAL API] Fetching available skills');
+    
+    return this.makeRequest<string[]>('/profile/skills', {
+      method: 'GET'
+    });
+  }
+
+  /**
+   * Get available certifications for profile selection
+   */
+  async getAvailableCertifications(): Promise<ApiResponse<string[]>> {
+    console.log('[REAL API] Fetching available certifications');
+    
+    return this.makeRequest<string[]>('/profile/certifications', {
+      method: 'GET'
+    });
+  }
+
+  /**
+   * Validate user settings before saving
+   */
+  async validateUserSettings(profile: Partial<EmployeeProfile>): Promise<ApiResponse<PreferencesValidationResult>> {
+    console.log('[REAL API] Validating user settings:', profile);
+    
+    return this.makeRequest<PreferencesValidationResult>('/profile/validate', {
+      method: 'POST',
+      body: JSON.stringify(profile)
+    });
+  }
+
+  /**
+   * Update user profile
+   */
+  async updateUserProfile(profile: EmployeeProfile): Promise<ApiResponse<EmployeeProfile>> {
+    console.log('[REAL API] Updating user profile:', profile);
+    
+    return this.makeRequest<EmployeeProfile>('/profile/me', {
+      method: 'PUT',
+      body: JSON.stringify(profile)
+    });
+  }
+
+  /**
+   * Reset preferences to default values
+   */
+  async resetToDefaults(): Promise<ApiResponse<any>> {
+    console.log('[REAL API] Resetting to defaults');
+    
+    return this.makeRequest<any>('/profile/reset-preferences', {
+      method: 'POST'
     });
   }
 

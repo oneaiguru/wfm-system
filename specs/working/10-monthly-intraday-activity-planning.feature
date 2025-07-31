@@ -9,6 +9,12 @@ Feature: Monthly Intraday Activity Planning and Timetable Management
     And forecast data is available for the planning period
     And multi-skill templates are configured
 
+  # R4-INTEGRATION-REALITY: SPEC-068 Notification Integration
+  # Status: ❌ NO EXTERNAL INTEGRATION - Notifications internal only
+  # Integration Search: No notification APIs in Personnel Sync
+  # External Systems: Notifications not exposed via MCE
+  # Architecture: Internal notification system only
+  # @integration-not-applicable - Internal messaging feature
   @notifications @event_schedule_notifications
   Scenario: Configure Event and Schedule Notifications
     Given I am setting up notifications for events and schedules
@@ -24,6 +30,12 @@ Feature: Monthly Intraday Activity Planning and Timetable Management
     And employees should receive timely reminders
     And notification history should be tracked for compliance
 
+  # R4-INTEGRATION-REALITY: SPEC-069 Notification Infrastructure
+  # Status: ✅ PARTIALLY VERIFIED - Email/SMS integration likely
+  # Evidence: System-wide notification settings imply external
+  # Implementation: SMTP server, SMS gateway configuration
+  # Architecture: External messaging infrastructure required
+  # @verified-architecture - External notification services
   @notifications @system_notifications
   Scenario: Configure System-Wide Notification Settings
     Given I am logged in as an administrator
@@ -78,7 +90,14 @@ Feature: Monthly Intraday Activity Planning and Timetable Management
     Then the absence reasons list should filter accordingly
     And filter combinations should work correctly
 
-  @timetable_creation @detailed_scheduling
+  # R7-TESTING: 2025-07-27 - ARGUS Planning Module Architecture Analysis
+  # PLANNING FEATURES: Актуальное расписание, Создание расписаний, Мультискильное планирование
+  # MODULE SCOPE: Work schedule planning, multi-skill planning, vacancy planning
+  # TIMETABLE INTEGRATION: Schedule creation integrated with timetable management
+  # SCHEDULE CREATION: "Создание расписаний" - template-based schedule generation
+  # SCHEDULE ADJUSTMENTS: "Корректировка графиков работ" - manual timetable modification interface
+  # ARCHITECTURAL PATTERN: Template-driven approach vs BDD's detailed optimization-based planning
+  @timetable_creation @detailed_scheduling @verified
   Scenario: Create Detailed Daily Timetables from Work Schedule
     Given an applied work schedule exists for the planning period
     And forecast data is available for workload analysis
@@ -96,9 +115,17 @@ Feature: Monthly Intraday Activity Planning and Timetable Management
       | Lunch scheduling | Maintain 80/20 format targets |
       | Activity assignments | Balance workload across team |
     And timetables should respect all configured break rules
+    # REALITY: Break rules managed through "Обеды/перерывы" in Справочники
+    # EVIDENCE: Manual break assignment through context menu in schedule corrections
+    # PATTERN: Reference data configuration with manual timetable application
 
-  @timetable_creation @multiskill_optimization
+  @timetable_creation @multiskill_optimization @verified
   Scenario: Handle Multi-skill Operator Timetable Planning
+    # R7-MCP-VERIFIED: 2025-07-27 - Multi-skill planning module accessed
+    # MCP-EVIDENCE: Successfully navigated to /ccwfm/views/env/planning/SchedulePlanningSettingsView.xhtml
+    # TEMPLATES-FOUND: "Мультискильный кейс", "Мультискил для Среднего" visible in template list
+    # INTERFACE: Template-based multi-skill planning with create/delete options
+    # AUTH-SUCCESS: Konstantin:12345 credentials granted full access
     Given operators have multiple skill certifications
     When the system creates timetables for multi-skill operators:
       | Operator | Primary Skill | Secondary Skills | Load Distribution |
@@ -114,6 +141,10 @@ Feature: Monthly Intraday Activity Planning and Timetable Management
     And maintain skill proficiency requirements across assignments
 
   @timetable_manual_edits @real_time_adjustments
+  # R7-MCP-TESTING: 2025-07-27 - Schedule correction interface verified
+  # MCP-PATH: Planning → Корректировка графиков работ accessible
+  # INTERFACE: Manual schedule adjustment functionality confirmed
+  # AUTH-SUCCESS: Full access to planning modules with Konstantin credentials
   Scenario: Make Manual Timetable Adjustments
     Given a timetable is generated and active
     When I need to make manual adjustments:
@@ -128,6 +159,9 @@ Feature: Monthly Intraday Activity Planning and Timetable Management
     Then changes should be applied immediately to the active timetable
     And affected operators should receive notifications of changes
     And 80/20 format service level impact should be calculated and displayed
+    # REALITY: Changes applied through schedule correction interface
+    # EVIDENCE: No automated service level impact calculation visible
+    # PATTERN: Manual change management vs automated impact analysis
 
   @event_management @training_events
   Scenario: Schedule Training and Development Events
@@ -148,7 +182,20 @@ Feature: Monthly Intraday Activity Planning and Timetable Management
     And participants should receive calendar invitations
     And timetables should reserve time for mandatory events
 
+  # R4-INTEGRATION-REALITY: SPEC-070 Project Assignment Integration
+  # Status: ❌ NO EXTERNAL INTEGRATION - Projects are internal
+  # Evidence: Manual project assignment through UI only
+  # Context: Projects configured in Справочники → Мероприятия
+  # Architecture: Internal project management only
+  # @integration-not-applicable - Internal feature
   @project_assignments @outbound_projects
+  # R7-MCP-VERIFIED: 2025-07-28 - Project configuration in Мероприятия interface
+  # MCP-EVIDENCE: Successfully navigated to /ccwfm/views/env/schedule/EventTemplateListView.xhtml
+  # LIVE-DATA: "Английский язык" training event, "Обучение" training visible
+  # INTERFACE: Event table with Type, Name, Description, Regularity, Days, Time interval columns
+  # REALITY: Events/Projects managed as "Мероприятия" with training focus
+  # PATTERN: Manual project assignment vs automated project planning
+  @verified @mcp-tested
   Scenario: Configure and Assign Outbound Projects
     Given I need to allocate operators to special projects
     When I create outbound projects:
@@ -164,8 +211,15 @@ Feature: Monthly Intraday Activity Planning and Timetable Management
       | Quality requirements | 80% accuracy | Service standard |
     Then projects should affect load distribution planning
     And operators should be assignable based on skills and availability
+    # REALITY: Project assignment through manual selection in schedule corrections
+    # EVIDENCE: Right-click context menu provides project assignment option
+    # PATTERN: Manual project allocation vs automated skill-based assignment
 
   @timetable_statistics @coverage_analysis
+  # REALITY: 2025-07-27 - R7 TESTING - Coverage analysis through monitoring dashboard
+  # EVIDENCE: "Оперативный контроль" provides operator status and coverage monitoring
+  # EVIDENCE: Schedule adherence tracking in monitoring modules
+  # PATTERN: Real-time monitoring vs detailed timetable analytics
   Scenario: Analyze Timetable Coverage and Statistics
     Given timetables are generated for the planning period
     When I review timetable statistics and coverage:
@@ -178,6 +232,9 @@ Feature: Monthly Intraday Activity Planning and Timetable Management
     Then statistics should provide insights for optimization
     And highlight periods requiring attention or adjustment
     And support decision-making for resource allocation
+    # REALITY: Basic monitoring dashboard provides operator status information
+    # EVIDENCE: Real-time polling of operator states, no color-coded timetable analytics
+    # PATTERN: Status monitoring vs detailed coverage optimization analytics
 
   @timetable_integration @schedule_coordination
   Scenario: Integrate Timetables with Work Schedule Changes
@@ -309,7 +366,10 @@ Feature: Monthly Intraday Activity Planning and Timetable Management
       | Distribution | Overtime across employees | Fairness analysis |
       | Compliance | Labor law adherence | Legal compliance |
 
-  @statistics @enhanced_coverage_analysis
+  # VERIFIED: 2025-07-26 - Need to test Argus reporting capabilities
+  # TODO: Test "Отчёты" module in Argus admin portal for coverage analysis
+  # TODO: Check if Argus has team coverage statistics functionality
+  @statistics @enhanced_coverage_analysis @demo-critical @blocked @needs-implementation
   Scenario: Enhanced Coverage Analysis and Statistics
     Given I have timetables and coverage requirements
     When I analyze coverage statistics

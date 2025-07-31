@@ -1,3 +1,9 @@
+# R4-INTEGRATION-REALITY: SPEC-126 Requests Section Integration
+# Status: ❌ NO EXTERNAL INTEGRATION - Internal requests
+# Evidence: Vue.js SPA with internal API only
+# Reality: Self-contained request management system
+# Architecture: No external ticketing or workflow systems
+# @integration-not-applicable - Internal request handling
 Feature: Requests Section - Step-by-Step Navigation and BDD Specs
   As a system analyst 
   I want to document each step of the Requests functionality
@@ -95,6 +101,12 @@ Feature: Requests Section - Step-by-Step Navigation and BDD Specs
 
   @technical @api_endpoints
   Scenario: Identify API Endpoints for Request Management
+    # R4-INTEGRATION-REALITY: SPEC-031 Request API Testing
+    # Status: ✅ PARTIALLY VERIFIED - API authentication confirmed
+    # Evidence: /gw/signin endpoint functional for employee portal
+    # Context: Request management works through Vue.js portal
+    # API Pattern: JWT-based authentication for request operations
+    # @verified-limited - Basic API pattern confirmed
     Given the requests functionality is operational
     When examining network traffic during request operations
     Then I should identify API endpoints:

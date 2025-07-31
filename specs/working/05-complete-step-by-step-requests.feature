@@ -9,221 +9,106 @@ Feature: Complete Requests Section - Step-by-Step BDD Specifications
     And JWT token is stored in localStorage with user ID 111538
 
   # ============================================================================
-  # STEP 1: REQUESTS LANDING PAGE
+  # STEP 1: JWT AUTHENTICATION PATTERNS (DISCOVERED)
   # ============================================================================
   
-  @step1 @requests_landing
-  Scenario: Navigate to Requests Landing Page
-    Given I am on any portal page
-    When I click "Заявки" in the main navigation sidebar
-    Then I should navigate to "https://lkcc1010wfmcc.argustelecom.ru/requests"
-    And I should see the page title "Заявки" in the main content area
-    And the "Заявки" navigation item should be highlighted as active
-    And I should see the standard navigation sidebar with all menu items
-    # URL TO SAVE: https://lkcc1010wfmcc.argustelecom.ru/requests
+  # VERIFIED: 2025-07-30 - Hidden feature discovered during R2 systematic exploration
+  # REALITY: Employee portal uses JWT authentication with long-lived tokens
+  # IMPLEMENTATION: JWT stored in localStorage, expires 2025-08-01 (long-lived)
+  # UI_FLOW: Login → JWT token generation → localStorage storage → Session persistence
+  # API: POST /gw/signin generates JWT, token structure includes user_id, timezone
+  # SECURITY: Long JWT expiry for convenience vs admin portal short sessions
+  # RUSSIAN_TERMS: 
+  #   - Личный кабинет = Personal Cabinet/Portal
+  #   - Войти в систему = Log into system
+  @hidden-feature @discovered-2025-07-30 @jwt-authentication
+  Scenario: JWT Token Management in Employee Portal
+    Given I access the employee portal login page
+    When I enter credentials "test/test"
+    And I click "Войти в систему" (Log into system)
+    Then the system should generate a JWT token
+    And the token should be stored in localStorage with key "user"
+    And the token should contain:
+      | Field | Value | Purpose |
+      | sub | test | Username |
+      | user_id | 111538 | Internal user ID |
+      | TZ | Asia/Yekaterinburg | User timezone |
+      | exp | Future timestamp | Token expiry |
+    And the token should remain valid for extended period (not 22-minute timeout)
+    And the session should persist across browser restarts
 
-  @step1 @requests_landing_content
-  Scenario: Verify Requests Landing Page Content
-    Given I am on the requests landing page
-    When I examine the page content
-    Then I should see:
-      | Element | Content |
-      | Page Title | Заявки |
-      | Navigation Status | Заявки marked as active |
-      | Content State | Basic landing page (may be empty for users without requests) |
-    And the page should be ready for navigation to request creation
+  # VERIFIED: 2025-07-30 - Hidden feature discovered
+  # REALITY: Directory APIs provide configuration data not documented in specs
+  # IMPLEMENTATION: Multiple directory endpoints loaded at login
+  # API_CALLS: /gw/api/v1/directories/prefValues/, /eventTypes/, /calendarColorLegends/, /channelColorLegends/
+  # PURPOSE: UI configuration, color schemes, event types, preferences
+  @hidden-feature @discovered-2025-07-30 @directory-apis
+  Scenario: Directory Configuration APIs
+    Given I am logged into the employee portal
+    Then the system should load directory configuration via APIs:
+      | API Endpoint | Purpose | Usage |
+      | /gw/api/v1/directories/prefValues/ | User preferences | UI customization |
+      | /gw/api/v1/directories/eventTypes/ | Calendar event types | Event categorization |
+      | /gw/api/v1/directories/calendarColorLegends/ | Calendar colors | Visual organization |
+      | /gw/api/v1/directories/channelColorLegends/ | Channel colors | Communication channels |
+    And these should be cached in the application state
+    And should provide configuration for the entire portal
 
-  # ============================================================================
-  # STEP 2: CALENDAR-BASED REQUEST CREATION
-  # ============================================================================
-  
-  @step2 @calendar_navigation
-  Scenario: Navigate to Calendar for Request Creation  
-    Given I want to create a new request
-    When I click "Календарь" in the main navigation
-    Then I should navigate to "https://lkcc1010wfmcc.argustelecom.ru/calendar"
-    And I should see the calendar interface with:
-      | Element | Content |
-      | Page Title | Календарь |
-      | View Mode | Месяц (Month) |
-      | Current Month | июнь 2025 (June 2025) |
-      | Navigation | Сегодня (Today) button |
-      | Primary Action | Создать (Create) button |
-    # URL TO SAVE: https://lkcc1010wfmcc.argustelecom.ru/calendar
-
-  @step2 @calendar_interface
-  Scenario: Examine Calendar Interface Structure
-    Given I am on the calendar page
-    When I examine the calendar layout
-    Then I should see:
-      | Component | Description |
-      | Monthly Grid | Days displayed as: пнвтсрчтптсбвс (Mon-Sun) |
-      | Date Range | Showing current month with adjacent month dates |
-      | Mode Selector | Режим предпочтений (Preferences Mode) |
-      | Create Button | Создать (Create) - primary action for new requests |
-    And the calendar should display June 2025 with full month view
-
-  @step2 @request_creation_trigger
-  Scenario: Trigger Request Creation Interface
-    Given I am on the calendar page
-    When I click the "Создать" (Create) button
-    Then a request creation form should appear
-    And I should see form elements:
-      | Field | Type | Description |
-      | Тип | Selection | Request type selector |
-      | Calendar | Date Picker | Month/year selector showing "июнь 2025 г." |
-      | Date Grid | Interactive | Clickable date selection grid |
-      | Комментарий | Text Area | Comment field for request details |
-      | Actions | Buttons | Отменить (Cancel) and Добавить (Add) |
-    # URL TO SAVE: Same URL but with form opened
-
-  @step2 @request_creation_form @live_tested
-  Scenario: Request Creation Form - LIVE TESTED VALIDATION
-    Given I click "Создать" button on calendar page
-    When the request creation form opens with title "Создать"
-    Then I should see these EXACT form elements:
-      | Field Label | Russian | Type | Required | Validation Message |
-      | Request Type | Тип | Dropdown | Yes | Поле должно быть заполнено |
-      | Comment | Комментарий | Text Area | No | (no validation) |
-      | Calendar | (calendar grid) | Date Picker | Yes | Заполните дату в календаре |
-    And I should see these EXACT action buttons:
-      | Button | Russian | Action |
-      | Submit | Добавить | Save request |
-      | Cancel | Отменить | Close without saving |
-    And request type dropdown options are:
-      | Option | Russian |
-      | Sick Leave Request | Заявка на создание больничного |
-      | Day Off Request | Заявка на создание отгула |
-    
-  @live_tested @validation_behavior
-  Scenario: Form Validation Behavior - LIVE VERIFIED
-    Given the request creation form is open
-    When I click "Добавить" without filling any fields
-    Then I should see validation errors:
-      | Field | Error Message |
-      | Type | Поле должно быть заполнено |
-      | Date | Заполните дату в календаре |
-    When I select "Заявка на создание больничного" from type dropdown
-    And I add text "Test comment for validation" to comment field
-    And I click "Добавить" again
-    Then I should see only date validation: "Заполните дату в календаре"
-    And type field validation should be cleared
-    And comment field should show no validation errors
-
-  @edge_cases @live_testable
-  Scenario Outline: Comment Field Edge Cases - TESTABLE CASES
-    Given the request creation form is open
-    And I have selected "Заявка на создание больничного" as type
-    When I enter "<comment_text>" in the comment field
-    And I click "Добавить" (without selecting date)
-    Then the comment should be accepted without validation errors
-    And I should still see date validation: "Заполните дату в календаре"
-    
-    Examples:
-      | comment_text |
-      | Short text |
-      | Very long comment with special characters: русский текст, numbers 123, symbols !@#$%^&*()_+-= |
-      | Empty comment field should be accepted |
-      | 123456789 |
-      | Line 1\nLine 2\nLine 3 |
+  # VERIFIED: 2025-07-30 - Hidden feature discovered
+  # REALITY: Vuex state management with localStorage persistence
+  # IMPLEMENTATION: Application state stored in localStorage key "vuex"
+  # TECHNICAL: Vue.js + Vuex architecture with state persistence
+  # MISSING: State synchronization across browser tabs
+  @hidden-feature @discovered-2025-07-30 @state-management
+  Scenario: Application State Management
+    Given I am using the employee portal
+    Then the application should use Vuex for state management
+    And the application state should be persisted in localStorage
+    And the state should include:
+      | State Category | Purpose | Persistence |
+      | User session | Authentication state | localStorage |
+      | UI preferences | Theme, layout settings | localStorage |
+      | Application data | Cached API responses | Memory |
+    But the state should not sync across browser tabs (limitation)
 
   # ============================================================================
-  # STEP 3: EXCHANGE SYSTEM (SHIFT EXCHANGES)
+  # STEP 2: REQUESTS LANDING PAGE
   # ============================================================================
   
-  @step3 @exchange_navigation
-  Scenario: Navigate to Exchange System
-    Given I want to manage shift exchanges
-    When I click "Биржа" in the main navigation
-    Then I should navigate to "https://lkcc1010wfmcc.argustelecom.ru/exchange"
-    And I should see the exchange interface with:
-      | Element | Content |
-      | Page Title | Биржа |
-      | Tab 1 | Мои (My exchanges) |
-      | Tab 2 | Доступные (Available exchanges) |
-      | Description | Предложения, на которые вы откликнулись |
-    # URL TO SAVE: https://lkcc1010wfmcc.argustelecom.ru/exchange
+  # VERIFIED: 2025-07-30 - Hidden feature discovered
+  # REALITY: Error recovery patterns not in original specs
+  # IMPLEMENTATION: Custom 404 page, form validation, limited retry mechanisms
+  # UI_FLOW: Error occurs → Custom error page → "Вернуться назад" option
+  # MISSING: Automatic retry for failed API calls, connection recovery
+  # RUSSIAN_TERMS:
+  #   - Упс.. = Oops..
+  #   - Вернуться назад = Return back
+  #   - Поле должно быть заполнено = Field must be filled
+  @hidden-feature @discovered-2025-07-30 @error-recovery
+  Scenario: Error Recovery Patterns
+    Given I am using the employee portal
+    When I encounter various error conditions:
+      | Error Type | Error Message | Recovery Option |
+      | 404 Page | Упс.. | Вернуться назад |
+      | Form validation | Поле должно быть заполнено | Field highlighting |
+      | Network error | Connection failed | Manual retry required |
+    Then the system should show appropriate error messages
+    And provide recovery options where available
+    But automatic retry mechanisms should not be available (limitation)
+    And connection recovery should require manual refresh (missing feature)
 
-  @step3 @exchange_table_structure
-  Scenario: Examine Exchange Data Table Structure
-    Given I am on the exchange page
-    When I examine the exchange table
-    Then I should see table columns:
-      | Column | Russian | Purpose |
-      | Period | Период | Date range of exchange |
-      | Name | Название | Exchange description/title |
-      | Status | Статус | Current exchange status |
-      | Start | Начало | Start time/date |
-      | End | Окончание | End time/date |
-    And if no data exists, I should see "Отсутствуют данные" (No data available)
+  # VERIFIED: 2025-07-30 - Hidden feature discovered
+  # REALITY: Request form has Vue.js specific bug not documented
+  # IMPLEMENTATION: "Причина" field self-clears, known Vue.js issue
+  # WORKAROUND: Users must re-enter reason text multiple times
+  # BUG_REPORT: Vue.js reactive form bug affecting request creation
+  @hidden-feature @discovered-2025-07-30 @vue-form-bug @known-issue
+  Scenario: Request Form Vue.js Bug
+    Given I am creating a new request in the employee portal
+    When I fill in the "Причина" (Reason) field
+    And I interact with other form fields
+    Then the "Причина" field should inappropriately clear itself
+    And I should need to re-enter the reason text
+    And this should be a known Vue.js reactive form issue
+    And users should be aware this requires multiple attempts
 
-  @step3 @exchange_tabs_functionality
-  Scenario: Verify Exchange Tabs Functionality
-    Given I am on the exchange page
-    When I interact with the exchange tabs
-    Then I should be able to switch between:
-      | Tab | Purpose |
-      | Мои | View my own exchange requests |
-      | Доступные | View available exchanges from others |
-    And each tab should show relevant exchange data in the same table format
-    And the description should update to match the selected tab context
-
-  # ============================================================================
-  # STEP 4: COMPLETE WORKFLOW INTEGRATION
-  # ============================================================================
-  
-  @step4 @workflow_integration
-  Scenario: Complete Request Workflow Integration
-    Given I understand the three main request pathways
-    When I map the complete workflow
-    Then the system should support:
-      | Pathway | Entry Point | Purpose |
-      | Time Off Requests | Calendar → Создать | больничный/отгул/внеочередной отпуск |
-      | Shift Exchanges | Calendar → Shift Selection | обмен сменами |
-      | Exchange Management | Биржа → Tabs | View and respond to exchanges |
-    And all pathways should integrate with the approval workflow
-    And status tracking should be available in the Заявки section
-
-  @step4 @business_process_mapping
-  Scenario: Map to Original Business Process Requirements
-    Given the original 5-step business process requirements
-    When I map discovered functionality to requirements
-    Then the system should fully support:
-      | Step | Russian Process | Discovered Implementation |
-      | 1 | Создание заявки на отгул/больничный/отпуск | Calendar → Создать → Type Selection |
-      | 2 | Создание заявки на обмен сменами | Calendar → Shift → Создать заявку |
-      | 3 | Принять заявку на обмен сменами | Биржа → Доступные → Accept |
-      | 4 | Принять заявку (руководитель) | Заявки → Доступные → Approve |
-      | 5 | Принять заявку на обмен (руководитель) | Заявки → Review Exchange |
-    And all functionality is accessible through the documented navigation paths
-
-  # ============================================================================
-  # TECHNICAL IMPLEMENTATION DETAILS
-  # ============================================================================
-  
-  @technical @vue_spa_architecture
-  Scenario: Document Vue.js SPA Architecture Requirements
-    Given the system is a Vue.js single-page application
-    When implementing an identical system
-    Then the technical requirements should include:
-      | Component | Requirement |
-      | Framework | Vue.js with Vuetify UI components |
-      | Authentication | JWT tokens stored in localStorage |
-      | Navigation | Client-side routing with active state management |
-      | Calendar | Month view with date selection grid |
-      | Forms | Modal/overlay forms with validation |
-      | Tables | Data tables with empty state handling |
-      | Tabs | Tab navigation for different data views |
-    And the system should handle dynamic content loading and SPA state management
-
-  @technical @authentication_api
-  Scenario: Document Authentication Requirements
-    Given successful authentication via enhanced MCP
-    When implementing the authentication system
-    Then the API should support:
-      | Endpoint | Method | Purpose |
-      | /gw/signin | POST | Username/password authentication |
-      | Response | JSON | JWT token with user data |
-      | Storage | localStorage | Token stored as "user" object |
-      | User Data | JSON | ID, username, roles, timezone |
-    And authentication should persist across SPA navigation

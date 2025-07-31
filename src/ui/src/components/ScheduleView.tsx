@@ -203,7 +203,7 @@ export const ScheduleView: React.FC = () => {
         )}
 
         {/* Weekly Schedule Grid */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div data-testid="schedule-data" className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
           <div className="grid grid-cols-7 gap-0">
             {weekDays.map((day, index) => {
               const shift = getShiftForDate(day);

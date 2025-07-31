@@ -6,47 +6,6 @@ interface ProfileManagerProps {
   employeeId: string;
 }
 
-interface EmployeeProfile {
-  id: string;
-  personalInfo: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
-    birthDate: string;
-    address: string;
-    emergencyContact: {
-      name: string;
-      relationship: string;
-      phone: string;
-    };
-  };
-  workInfo: {
-    position: string;
-    department: string;
-    team: string;
-    startDate: string;
-    employeeId: string;
-    skills: string[];
-    certifications: string[];
-  };
-  preferences: {
-    notifications: {
-      email: boolean;
-      sms: boolean;
-      pushNotifications: boolean;
-    };
-    schedule: {
-      preferredShifts: string[];
-      availableDays: string[];
-      timeOff: {
-        preferredMonths: string[];
-        maxConsecutiveDays: number;
-      };
-    };
-  };
-}
-
 const ProfileManager: React.FC<ProfileManagerProps> = ({ employeeId }) => {
   const [activeTab, setActiveTab] = useState<'personal' | 'work' | 'preferences'>('personal');
   const [profile, setProfile] = useState<EmployeeProfile | null>(null);

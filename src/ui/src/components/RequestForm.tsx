@@ -176,6 +176,7 @@ export const RequestForm: React.FC = () => {
               Reason
             </label>
             <textarea
+              name="reason"
               value={formData.reason}
               onChange={(e) => setFormData({...formData, reason: e.target.value})}
               placeholder="Please provide a reason for your request..."

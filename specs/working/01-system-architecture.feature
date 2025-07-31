@@ -9,19 +9,39 @@ Feature: Argus WFM System Architecture
       | Administrative System | https://cc1010wfmcc.argustelecom.ru/ccwfm/ | Backend management and configuration |
       | Employee Portal | https://lkcc1010wfmcc.argustelecom.ru/login | Employee self-service functions |
 
-  Scenario: Access Administrative System
+  # VERIFIED: 2025-07-27 - Real Argus admin portal fully accessed and documented
+  # REALITY: Admin portal at cc1010wfmcc with Konstantin/12345 credentials
+  # REALITY: Dashboard shows 9 main categories with Russian interface
+  # REALITY: Personnel stats display: 513 employees, 19 groups, 9 services
+  Scenario: Access Administrative System with Multi-Language Support
     Given I navigate to "https://cc1010wfmcc.argustelecom.ru/ccwfm/"
-    When I login with credentials "test/test"
+    When I login with credentials "Konstantin/12345"
     Then I should see the dashboard with title "Домашняя страница"
-    And I should see user greeting "Здравствуйте, Юрий Артёмович!"
-    And I should see personal information for user ID "111538"
+    And I should see user greeting format with "K F" (Konstantin)
+    And I should see dashboard statistics:
+      | Metric | Value |
+      | Службы (Services) | 9 |
+      | Группы (Groups) | 19 |
+      | Сотрудники (Employees) | 513 |
+    # VERIFIED: 2025-07-27 - Complete menu structure documented from real Argus
+    # REALITY: 9 main categories with extensive submenus as documented
     And I should see navigation options:
-      | Option |
-      | Домашняя страница |
-      | Мой кабинет |
-      | Мой профиль |
-      | О системе |
-      | Выход из системы |
+      | Option | Key Submenu Items |
+      | Мой кабинет | Personal profile and settings |
+      | Заявки | Employee request management |
+      | Персонал | Сотрудники, Группы, Службы, Структура групп, Подразделения |
+      | Справочники | Правила работы, Роли, Должности, Производственный календарь |
+      | Прогнозирование | Просмотр нагрузки, Спрогнозировать нагрузку, Импорт прогнозов |
+      | Планирование | Актуальное расписание, Создание расписаний, Мультискильное планирование |
+      | Мониторинг | Оперативный контроль, Статусы операторов, Биржа |
+      | Отчёты | Список отчётов, Редактор отчётов, Соблюдение расписания |
+    # ARGUS ACTUAL: Top bar contains notifications, profile, language
+    And the top navigation bar should contain:
+      | Element | Description | Our Status |
+      | Notifications | Shows count of unread | Missing |
+      | Profile dropdown | User name with submenu | Partial |
+      | Language switcher | Russian/English toggle | Missing |
+      | Logout | Выход из системы | Exists |
 
   Scenario: Limited Permissions in Administrative System
     Given I am logged into the administrative system as "test/test"
@@ -48,6 +68,12 @@ Feature: Argus WFM System Architecture
       | Different authentication method |
       | Specific user permissions |
 
+  # R4-INTEGRATION-REALITY: SPEC-081 Multi-Site Management Integration
+  # Status: ⚠️ PARTIALLY VERIFIED - Basic multi-site support found
+  # Evidence: 4 timezones visible in system (UTC+2 to UTC+5)
+  # Reality: Site management exists but no external site sync APIs
+  # Architecture: Internal multi-site configuration only
+  # @verified-limited - Multi-site exists but no integration
   @multi_site_management @location_hierarchy @enterprise_architecture
   Scenario: Configure Multi-Site Location Management with Hierarchy Support
     Given I need to manage multiple site locations with independent operations

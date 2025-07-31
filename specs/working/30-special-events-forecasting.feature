@@ -8,8 +8,19 @@
      Given I am authenticated as planner
      And the special events forecasting system is available
  
-   @unforecastable_events @event_configuration
+   # R4-INTEGRATION-REALITY: SPEC-079 Special Events Integration
+   # Status: ❌ NO EXTERNAL INTEGRATION - Special events are internal
+   # Evidence: Special date analysis is internal forecasting feature
+   # Reality: No external event data sources or APIs
+   # Architecture: Manual event configuration only
+   # @integration-not-applicable - Internal forecasting feature
+   @unforecastable_events @event_configuration @mcp-tested
    Scenario: Unforecastable events configuration
+     # R7-VALIDATION: 2025-07-27 - Special Events Forecasting Module Architecture
+     # INTERFACE IDENTIFIED: SpecialDateAnalysisView.xhtml - "Анализ специальных дат" (Special Date Analysis)
+     # CORE FUNCTIONALITY: Special events interface with date analysis and load impact capabilities
+     # PERMISSION REQUIREMENTS: Advanced configuration features require enhanced administrative privileges
+     # FORECASTING INTEGRATION: Special events system integrated with load forecasting for impact analysis
      Given I need to configure special events for forecasting
      When I create a new special event
      Then the system should support event types:

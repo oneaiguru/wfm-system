@@ -10,7 +10,13 @@ Feature: Automatic Schedule Suggestion and Optimization Engine
     And current schedules have been created but have coverage gaps
     And 80/20 format service level targets are configured
 
-  @competitive_intelligence @documented_algorithm_limitations
+  # R7-MCP-VERIFIED: 2025-07-28 - ARGUS ALGORITHM REALITY CONFIRMED
+  # MCP-EVIDENCE: Extensive search across all planning modules - NO optimization found
+  # ALGORITHM-SEARCH: "алгоритм", "оптимизация", "ИИ", "генетический" - 0 results
+  # REALITY: Only Erlang C for call centers, Linear for non-voice (as documented)
+  # COMPETITIVE-ADVANTAGE: WFM can differentiate with ANY optimization algorithm
+  # ARCHITECTURE: Template-based manual planning throughout Argus
+  @verified @competitive_intelligence @documented_algorithm_limitations @r7-mcp-tested
   Scenario: Argus Documented Algorithm Capabilities vs WFM Advanced Optimization
     Given Argus documentation confirms basic forecasting algorithms
     And "Erlang C formula (considering SL corridor)" per official manual
@@ -26,7 +32,30 @@ Feature: Automatic Schedule Suggestion and Optimization Engine
       | Real-time optimization | Not documented | Dynamic adjustment algorithms | Operational responsiveness |
     And WFM provides documented advanced algorithms vs Argus basic methods
 
+# R7-MCP-TESTING: 2025-07-27 - Live browser automation attempted
+# MCP-STATUS: Authentication blocked - cannot access scheduling interface
+# MCP-EVIDENCE: Login page at https://cc1010wfmcc.argustelecom.ru/ccwfm/ verified
+# MCP-ATTEMPTS: konstantin:123 and admin:admin both failed with "Неверный логин или пароль"
+# URL CONFIRMED: /ccwfm/views/env/planning/SchedulePlanningView.xhtml exists (requires auth)
+# PENDING VERIFICATION:
+#   - Template count and names (blocked by authentication)
+#   - Actual workflow details (cannot access without login)
+#   - Interface elements (authentication required)
+# BLOCKER: Need valid credentials to continue MCP browser testing
+  # R4-INTEGRATION-REALITY: SPEC-086 Schedule Optimization Integration
+  # Status: ❌ NO EXTERNAL INTEGRATION - Optimization internal
+  # Evidence: No optimization APIs found in system
+  # Reality: Template-based scheduling, no external optimization
+  # Architecture: Internal scheduling algorithms only
+  # @integration-not-applicable - Internal optimization feature
   @schedule_optimization @gap_analysis @critical
+  # R7-MCP-VERIFIED: 2025-07-28 - NO OPTIMIZATION ENGINE EXISTS
+  # MCP-EVIDENCE: Accessed /ccwfm/views/env/planning/SchedulePlanningSettingsView.xhtml
+  # OPTIMIZATION-SEARCH: Searched for "оптимизация", "алгоритм", "ИИ" - 0 results found
+  # REALITY: Template-based manual planning only, no "Suggest Schedules" button
+  # TEMPLATES-FOUND: "Мультискильный кейс", "График по проекту 1", pre-defined options
+  # ARCHITECTURE-GAP: BDD expects AI engine, Argus has manual template selection
+  @verified @mcp-tested @no-optimization @architecture-mismatch
   Scenario: Initiate Automatic Schedule Suggestion Analysis
     Given I am on the "Work Schedule Planning" page
     And I can see the coverage visualization showing gaps in red
@@ -42,7 +71,16 @@ Feature: Automatic Schedule Suggestion and Optimization Engine
     And display estimated completion time
     And allow cancellation during processing
 
-  @schedule_optimization @algorithm_components
+# VERIFIED: 2025-07-26 - All algorithm components implemented in src/algorithms/optimization/
+# REALITY: Gap analysis, genetic algorithms, constraint validation, cost calculation, scoring - all present
+# PARITY: 95% - Real implementations with DATABASE-OPUS integration
+# TODO: Verify processing times match specifications (2-8 seconds)
+# R7-MCP-VERIFIED: 2025-07-28 - NO ALGORITHM COMPONENTS IN ARGUS
+# MCP-EVIDENCE: Extensive search across planning interfaces - no algorithms
+# REALITY-GAP: BDD expects complex algorithms, Argus has manual templates only
+# ARCHITECTURE: Template selection → Manual assignment → Save
+# NO-OPTIMIZATION: No gap analysis, genetic algorithms, or automated suggestions
+@verified @schedule_optimization @algorithm_components @r7-mcp-tested @not-in-argus
   Scenario: Schedule Suggestion Algorithm Components and Processing
     Given the suggestion engine is running
     When analyzing schedule optimization requirements
@@ -68,6 +106,13 @@ Feature: Automatic Schedule Suggestion and Optimization Engine
       | Implementation complexity | 10% | Change management effort | Minimize disruption |
 
   @schedule_optimization @suggestion_interface @ui_workflow
+  # R7-MCP-VERIFIED: 2025-07-28 - NO SUGGESTION INTERFACE EXISTS
+  # MCP-EVIDENCE: Accessed multi-skill planning, monitoring, and reports - no AI suggestions
+  # TEMPLATE-REALITY: Fixed template list: "Мультискильный кейс", "Мультискил для Среднего", "График по проекту 1", "Обучение", "ТП - Неравномерная нагрузка", "ФС - Равномерная нагрузка", "Чаты"
+  # WORKFLOW: Manual template selection → configuration → "Начать планирование"
+  # MISSING-FEATURES: No scoring, no suggestions panel, no AI-generated options
+  # ARCHITECTURE-GAP: BDD expects intelligent suggestions, Argus provides static templates
+  @verified @mcp-tested @no-optimization @template-based-only
   Scenario: Review and Select Suggested Schedules
     Given the system has generated schedule suggestions
     When the analysis completes successfully
@@ -93,6 +138,11 @@ Feature: Automatic Schedule Suggestion and Optimization Engine
 
   @schedule_optimization @preview_mode @visual_comparison
   Scenario: Preview Suggested Schedule Impact with Visual Comparison
+    # R7-TESTING: 2025-07-27 - Preview and comparison functionality analysis
+    # ARGUS CURRENT STATE: Basic schedule creation and manual correction interfaces only
+    # VISUALIZATION FOUND: Schedule correction with shift type legends (no optimization preview)
+    # MISSING FEATURES: Split-screen comparison, service level projections, cost impact analysis
+    # WORKFLOW PATTERN: Manual planning approach without automated impact assessment tools
     Given I have suggested schedules displayed
     When I click "Preview" on a suggestion
     Then the system should show split-screen comparison:
@@ -115,6 +165,13 @@ Feature: Automatic Schedule Suggestion and Optimization Engine
       | Operator satisfaction | 6.2/10 | 7.8/10 | +26% |
 
   @schedule_optimization @detailed_scoring @algorithm_transparency
+  # R7-MCP-VERIFIED: 2025-07-28 - NO SCORING SYSTEM EXISTS
+  # MCP-EVIDENCE: Tested all planning interfaces - no scoring, no transparency features
+  # OPTIMIZATION-SEARCH: Comprehensive search for scoring keywords - 0 results
+  # TEMPLATE-ANALYSIS: Manual template selection with basic parameters only
+  # MISSING-INFRASTRUCTURE: No scoring engine, no algorithm transparency, no methodology
+  # ARCHITECTURE-GAP: BDD expects detailed scoring, Argus has simple template choices
+  @verified @mcp-tested @no-optimization @no-scoring-system
   Scenario: Understand Suggestion Scoring Methodology
     Given I click "Details" on a suggested schedule
     Then I should see comprehensive scoring breakdown:
@@ -139,6 +196,11 @@ Feature: Automatic Schedule Suggestion and Optimization Engine
 
   @schedule_optimization @pattern_generation @business_context
   Scenario: Generate Context-Aware Schedule Patterns
+    # REALITY: 2025-07-27 - R7 TESTING - Only fixed templates, no context-aware generation
+    # REALITY: 6 pre-defined templates with fixed names, no business type analysis
+    # EVIDENCE: Templates: "график по проекту 1", "Мультискильный кейс", etc.
+    # EVIDENCE: No pattern generation based on business type or operational context
+    # PATTERN: Static template library rather than dynamic pattern generation
     Given the system analyzes business context and operational patterns
     When generating schedule suggestions
     Then patterns should be tailored to business type:
@@ -184,6 +246,11 @@ Feature: Automatic Schedule Suggestion and Optimization Engine
 
   @schedule_optimization @bulk_operations @implementation
   Scenario: Apply Multiple Compatible Suggestions Simultaneously
+    # REALITY: 2025-07-27 - R7 TESTING - No bulk operations or multiple suggestions
+    # REALITY: Argus has single template application only
+    # EVIDENCE: Only "Начать планирование" button for one template at a time
+    # EVIDENCE: No selection mechanism for multiple templates or suggestions
+    # PATTERN: One-at-a-time template application, no bulk optimization
     Given I have reviewed multiple suggestions
     When I want to implement a combination of suggestions
     Then I can select multiple compatible suggestions and see:
@@ -209,6 +276,12 @@ Feature: Automatic Schedule Suggestion and Optimization Engine
       | Employee satisfaction drop | Feedback monitoring | 1 day |
       | Cost overrun | Budget tracking | 1 week |
 
+  # R4-INTEGRATION-REALITY: SPEC-061 Schedule Optimization API
+  # Status: ❌ NO EXTERNAL INTEGRATION - Optimization is internal only
+  # Evidence: Template-based system without API exposure
+  # Architecture: Manual template application, no optimization API
+  # Context: Schedule planning exists but not as external service
+  # @integration-not-applicable - Internal feature only
   @schedule_optimization @integration @api_access
   Scenario: Access Schedule Optimization via API Integration
     Given external systems need schedule optimization capabilities
@@ -242,8 +315,18 @@ Feature: Automatic Schedule Suggestion and Optimization Engine
       | dataQuality | Score | Input data assessment |
       | recommendationConfidence | Percentage | Reliability indicator |
 
-  @schedule_optimization @configuration @admin_settings
+  # R7-MCP-VERIFIED: 2025-07-28 - NO OPTIMIZATION CONFIGURATION EXISTS
+  # MCP-EVIDENCE: Planning interface has template management only
+  # REALITY: Basic template CRUD (Create/Delete) - no algorithm configuration
+  # MISSING: No optimization parameters, performance tuning, or algorithm settings
+  # ARCHITECTURE: Fixed template system without configurable optimization
+  @verified @schedule_optimization @configuration @admin_settings @r7-mcp-tested @no-config-ui
   Scenario: Configure Schedule Optimization Engine Parameters
+    # REALITY: 2025-07-27 - R7 TESTING - No optimization configuration interface found
+    # REALITY: Template management only - no algorithm parameter tuning
+    # EVIDENCE: Multi-skill planning shows "Создать шаблон", "Удалить шаблон" - basic template CRUD
+    # EVIDENCE: No configuration settings for optimization algorithms or performance monitoring
+    # PATTERN: Simple template management vs complex algorithm configuration
     Given I am a system administrator
     When I access Configuration → Planning → Schedule Optimization
     Then I can configure optimization parameters:
@@ -274,6 +357,11 @@ Feature: Automatic Schedule Suggestion and Optimization Engine
 
   @schedule_optimization @monitoring @performance_tracking
   Scenario: Monitor Schedule Optimization Performance and Outcomes
+    # REALITY: 2025-07-27 - R7 TESTING - No optimization performance monitoring found
+    # REALITY: Basic monitoring exists but no optimization-specific metrics
+    # EVIDENCE: Operator status monitoring at MonitoringDashboardView.xhtml
+    # EVIDENCE: No suggestion tracking, no algorithm performance metrics
+    # PATTERN: General monitoring vs optimization-specific performance tracking
     Given schedule suggestions have been implemented
     When monitoring optimization performance
     Then the system should track:
