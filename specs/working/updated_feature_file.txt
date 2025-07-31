@@ -288,48 +288,4 @@ Feature: Argus WFM Employee Portal - Complete Business Process
   # - End-to-end request submission and approval flow
   # - Complete shift exchange creation and acceptance
   # - Full integration testing between both portals
-
-  # HIDDEN FEATURE: TASK QUEUE SYSTEM - DISCOVERED 2025-07-30
   # ============================================================================
-
-  # VERIFIED: 2025-07-30 - Hidden feature discovered by R5-ManagerOversight
-  # REALITY: Task queue with badge counter, requires elevated privileges
-  # IMPLEMENTATION: JSF-based task management at /bpms/task/TaskPageView.xhtml
-  # ACCESS: Returns 403 Forbidden - role-based access control
-  # RUSSIAN_TERMS:
-  #   - Задачи = Tasks
-  @hidden-feature @discovered-2025-07-30 @task-queue @permission-gated
-  Scenario: Manager Access Task Delegation Queue
-    Given I am logged in as a manager
-    When I click on the task badge showing "2" in the top menu
-    Then I should navigate to "/ccwfm/views/env/bpms/task/TaskPageView.xhtml"
-    But with insufficient privileges I receive 403 Forbidden
-    And with proper admin role I would see:
-      | Feature            | Description                        |
-      | Task Queue         | List of pending delegated tasks    |
-      | Task Assignment    | Ability to reassign tasks          |
-      | Task Filtering     | Filter by type, status, assignee   |
-      | Bulk Operations    | Select multiple tasks for actions  |
-
-  # ============================================================================  
-  # HIDDEN FEATURE: GLOBAL SEARCH - DISCOVERED 2025-07-30
-  # ============================================================================
-
-  # VERIFIED: 2025-07-30 - Common feature across all domains
-  # REALITY: Global search with autocomplete in top menu
-  # IMPLEMENTATION: 3-character minimum, 600ms delay
-  # RUSSIAN_TERMS:
-  #   - Искать везде... = Search everywhere...
-  @hidden-feature @discovered-2025-07-30 @global-search
-  Scenario: Use Global Search Functionality
-    Given I am in any page of the admin portal
-    When I click on the search box in the top menu
-    And I see placeholder text "Искать везде..." (Search everywhere)
-    And I type at least 3 characters
-    Then after 600ms delay autocomplete suggestions appear
-    And suggestions include results from:
-      | Entity Type | Examples                         |
-      | Employees   | Employee names and IDs           |
-      | Groups      | Group names                      |
-      | Services    | Service descriptions             |
-      | Requests    | Request IDs and descriptions     |

@@ -1,0 +1,1 @@
+Optimization strategy to reduce Erlang C response time from 415ms to under 100ms.
