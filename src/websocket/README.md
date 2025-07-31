@@ -1,44 +1,30 @@
-# Websocket
+# WebSocket
 
 ## Overview
-
-Module description to be added.
+Real-time communication layer built on top of FastAPI's WebSocket support. It is
+used by the UI to receive schedule updates and live metrics.
 
 ## Features
-
-- Feature 1
-- Feature 2
-- Feature 3
-
-## Installation
-
-```bash
-# No additional installation required
-```
+- Connection management with authentication
+- Event dispatcher for broadcasting messages
+- Typed message definitions
 
 ## Usage
-
-# Usage examples to be added
-
-## API Reference
-
-# API reference to be added
-
-## Configuration
-
-# Configuration details to be added
+Start the server and connect from the browser:
+```bash
+uvicorn src.api.main:app --reload
+```
+In JavaScript:
+```javascript
+const ws = new WebSocket('ws://localhost:8000/ws');
+ws.onmessage = e => console.log(e.data);
+```
 
 ## Testing
-
 ```bash
 pytest tests/websocket/
 ```
 
-## Contributing
-
-See the main project [Contributing Guidelines](../../CONTRIBUTING.md).
-
 ## Related Documentation
-
-- [Main README](../../README.md)
-- [Technical Documentation](../../TECHNICAL_DOCS.md)
+- [API README](../api/README.md)
+- [Project README](../README.md)

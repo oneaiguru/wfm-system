@@ -1,44 +1,27 @@
 # Procedures
 
 ## Overview
-
-Module description to be added.
+SQL stored procedures and helper functions used by the application. They are
+wrapped by Python utilities for ease of use.
 
 ## Features
-
-- Feature 1
-- Feature 2
-- Feature 3
-
-## Installation
-
-```bash
-# No additional installation required
-```
+- Parameterised SQL scripts
+- Convenience wrappers for calling procedures
+- Version controlled alongside the codebase
 
 ## Usage
+Example of executing a procedure:
+```python
+from src.database.procedures import sync_work_time
 
-# Usage examples to be added
-
-## API Reference
-
-# API reference to be added
-
-## Configuration
-
-# Configuration details to be added
+await sync_work_time(start_date="2024-01-01", end_date="2024-01-31")
+```
 
 ## Testing
-
 ```bash
 pytest tests/procedures/
 ```
 
-## Contributing
-
-See the main project [Contributing Guidelines](../../CONTRIBUTING.md).
-
 ## Related Documentation
-
-- [Main README](../../README.md)
-- [Technical Documentation](../../TECHNICAL_DOCS.md)
+- [Database README](../README.md)
+- [Architecture Docs](../../../docs/architecture/database.md)
