@@ -1,44 +1,29 @@
 # Schemas
 
 ## Overview
-
-Module description to be added.
+Pydantic models describing the data structures stored in the database and
+exchanged by the API.
 
 ## Features
-
-- Feature 1
-- Feature 2
-- Feature 3
-
-## Installation
-
-```bash
-# No additional installation required
-```
+- Typed request and response models
+- Reuse across API and services
+- Validation of incoming data
 
 ## Usage
+Example schema definition:
+```python
+from pydantic import BaseModel
 
-# Usage examples to be added
-
-## API Reference
-
-# API reference to be added
-
-## Configuration
-
-# Configuration details to be added
+class EmployeeCreate(BaseModel):
+    name: str
+    role: str
+```
 
 ## Testing
-
 ```bash
 pytest tests/schemas/
 ```
 
-## Contributing
-
-See the main project [Contributing Guidelines](../../CONTRIBUTING.md).
-
 ## Related Documentation
-
-- [Main README](../../README.md)
-- [Technical Documentation](../../TECHNICAL_DOCS.md)
+- [Database README](../README.md)
+- [API Reference](../../../docs/api/api_reference.md)

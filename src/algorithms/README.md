@@ -1,44 +1,27 @@
 # Algorithms
 
 ## Overview
-
-Algorithm implementation module
+Collection of calculation engines used by the WFM Enterprise platform. Algorithms
+include Erlang C staffing, machine learning forecasting and optimisation routines.
 
 ## Features
-
-- Feature 1
-- Feature 2
-- Feature 3
-
-## Installation
-
-```bash
-# No additional installation required
-```
+- Pure Python implementations with NumPy/SciPy
+- Pluggable architecture for new strategies
+- Shared utilities for benchmarking
 
 ## Usage
+Example Erlang C call:
+```python
+from src.algorithms.core.erlang_c import erlang_c
 
-# Usage examples to be added
-
-## API Reference
-
-# API reference to be added
-
-## Configuration
-
-# Configuration details to be added
-
-## Testing
-
-```bash
-pytest tests/algorithms/algorithms/
+agents = erlang_c(calls=120, aht=300, target_sl=0.8)
 ```
 
-## Contributing
-
-See the main project [Contributing Guidelines](../../CONTRIBUTING.md).
+## Testing
+```bash
+pytest tests/algorithms/
+```
 
 ## Related Documentation
-
-- [Main README](../../README.md)
-- [Technical Documentation](../../TECHNICAL_DOCS.md)
+- [Erlang C Strategy](../../docs/ERLANG_C_OPTIMIZATION_STRATEGY.md)
+- [Project README](../README.md)

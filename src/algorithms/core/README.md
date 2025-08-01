@@ -1,44 +1,26 @@
-# Core
+# Core Algorithms
 
 ## Overview
-
-Algorithm implementation module
+Low-level building blocks for more advanced scheduling and forecasting algorithms.
+Includes Erlang C probability functions and helper utilities.
 
 ## Features
-
-- Feature 1
-- Feature 2
-- Feature 3
-
-## Installation
-
-```bash
-# No additional installation required
-```
+- Optimised numerical routines
+- Shared data structures used across algorithms
+- Unit tested for accuracy
 
 ## Usage
+```python
+from src.algorithms.core.erlang_c import erlang_c_probability
 
-# Usage examples to be added
-
-## API Reference
-
-# API reference to be added
-
-## Configuration
-
-# Configuration details to be added
+p = erlang_c_probability(agents=10, traffic=7.2)
+```
 
 ## Testing
-
 ```bash
 pytest tests/algorithms/core/
 ```
 
-## Contributing
-
-See the main project [Contributing Guidelines](../../CONTRIBUTING.md).
-
 ## Related Documentation
-
-- [Main README](../../README.md)
-- [Technical Documentation](../../TECHNICAL_DOCS.md)
+- [Algorithms README](../README.md)
+- [Project README](../../README.md)

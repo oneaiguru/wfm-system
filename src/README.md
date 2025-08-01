@@ -1,44 +1,30 @@
-# Src
+# Source Package
 
 ## Overview
+The `src` directory contains the Python backend for WFM Enterprise.  Major packages include:
 
-Module description to be added.
+- **`api`** – FastAPI application exposing REST and WebSocket endpoints.
+- **`algorithms`** – Erlang C calculations, ML forecasting and schedule optimisation code.
+- **`database`** – SQLAlchemy models and helpers for PostgreSQL.
+- **`websocket`** – real‑time server used by the UI for live updates.
 
 ## Features
-
-- Feature 1
-- Feature 2
-- Feature 3
-
-## Installation
-
-```bash
-# No additional installation required
-```
+- Modular architecture for easy extension
+- Type hinted codebase with Pydantic models
+- Compatible with the UI and automated test suites
 
 ## Usage
-
-# Usage examples to be added
-
-## API Reference
-
-# API reference to be added
-
-## Configuration
-
-# Configuration details to be added
+Start the development server:
+```bash
+python -m uvicorn src.api.main:app --reload
+```
+See the individual sub‑module READMEs for more details.
 
 ## Testing
-
 ```bash
-pytest tests/src/
+pytest tests/
 ```
 
-## Contributing
-
-See the main project [Contributing Guidelines](../../CONTRIBUTING.md).
-
 ## Related Documentation
-
-- [Main README](../../README.md)
-- [Technical Documentation](../../TECHNICAL_DOCS.md)
+- [Project README](../README.md)
+- [API Documentation](../docs/api/api_reference.md)

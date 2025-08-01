@@ -1,44 +1,27 @@
 # Services
 
 ## Overview
-
-API endpoint implementation
+Business logic layer used by the FastAPI endpoints. Services coordinate database
+access and algorithm execution so handlers remain thin.
 
 ## Features
-
-- Feature 1
-- Feature 2
-- Feature 3
-
-## Installation
-
-```bash
-# No additional installation required
-```
+- Asynchronous database operations via SQLAlchemy
+- Input validation with Pydantic models
+- Integration with the algorithm modules
 
 ## Usage
+Example of calling a service from an endpoint:
+```python
+from src.api.services.schedule_service import create_schedule
 
-# Usage examples to be added
-
-## API Reference
-
-# API reference to be added
-
-## Configuration
-
-# Configuration details to be added
+schedule = await create_schedule(request_data)
+```
 
 ## Testing
-
 ```bash
 pytest tests/api/services/
 ```
 
-## Contributing
-
-See the main project [Contributing Guidelines](../../CONTRIBUTING.md).
-
 ## Related Documentation
-
-- [Main README](../../README.md)
-- [Technical Documentation](../../TECHNICAL_DOCS.md)
+- [API README](../README.md)
+- [Project README](../../README.md)

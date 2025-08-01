@@ -1,44 +1,29 @@
 # Database
 
 ## Overview
-
-Module description to be added.
+Database access layer built with SQLAlchemy. It defines ORM models,
+initialization helpers and migration scripts for PostgreSQL.
 
 ## Features
-
-- Feature 1
-- Feature 2
-- Feature 3
-
-## Installation
-
-```bash
-# No additional installation required
-```
+- Centralised session handling
+- Alembic migrations for schema changes
+- Utility functions for common queries
 
 ## Usage
+Create a session and query models:
+```python
+from src.database.session import SessionLocal
+from src.database import models
 
-# Usage examples to be added
-
-## API Reference
-
-# API reference to be added
-
-## Configuration
-
-# Configuration details to be added
+with SessionLocal() as session:
+    users = session.query(models.Employee).all()
+```
 
 ## Testing
-
 ```bash
 pytest tests/database/
 ```
 
-## Contributing
-
-See the main project [Contributing Guidelines](../../CONTRIBUTING.md).
-
 ## Related Documentation
-
-- [Main README](../../README.md)
-- [Technical Documentation](../../TECHNICAL_DOCS.md)
+- [Database Schema Docs](../../docs/architecture/database.md)
+- [Project README](../../README.md)

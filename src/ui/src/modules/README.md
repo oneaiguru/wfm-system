@@ -1,44 +1,25 @@
 # Modules
 
 ## Overview
-
-User interface module
+Reusable React modules that make up the WFM Enterprise UI. Each module contains
+components, state management and routing for a specific feature area.
 
 ## Features
-
-- Feature 1
-- Feature 2
-- Feature 3
-
-## Installation
-
-```bash
-# No additional installation required
-```
+- Isolated code for features such as reporting or scheduling
+- Written in TypeScript with Tailwind styles
+- Can be lazy loaded to reduce bundle size
 
 ## Usage
-
-# Usage examples to be added
-
-## API Reference
-
-# API reference to be added
-
-## Configuration
-
-# Configuration details to be added
+Import a module in `App.tsx`:
+```tsx
+import { ReportsModule } from './modules/reports-analytics';
+```
 
 ## Testing
-
 ```bash
 npm test
 ```
 
-## Contributing
-
-See the main project [Contributing Guidelines](../../CONTRIBUTING.md).
-
 ## Related Documentation
-
-- [Main README](../../README.md)
-- [Technical Documentation](../../TECHNICAL_DOCS.md)
+- [UI README](../../README.md)
+- [Project README](../../../README.md)

@@ -1,44 +1,24 @@
 # Tests
 
 ## Overview
-
-Module description to be added.
+Contains unit, integration and end-to-end tests for all modules. The test suite
+ensures API compatibility and verifies algorithm performance.
 
 ## Features
-
-- Feature 1
-- Feature 2
-- Feature 3
-
-## Installation
-
-```bash
-# No additional installation required
-```
+- Pytest based unit tests
+- BDD scenarios and SQL fixtures
+- Playwright end-to-end tests under `e2e-tests/`
 
 ## Usage
-
-# Usage examples to be added
-
-## API Reference
-
-# API reference to be added
-
-## Configuration
-
-# Configuration details to be added
-
-## Testing
-
+Run all tests:
 ```bash
-pytest tests/tests/
+pytest tests/
+```
+Run a specific suite:
+```bash
+pytest tests/algorithms/
 ```
 
-## Contributing
-
-See the main project [Contributing Guidelines](../../CONTRIBUTING.md).
-
 ## Related Documentation
-
-- [Main README](../../README.md)
-- [Technical Documentation](../../TECHNICAL_DOCS.md)
+- [Testing Guide](../docs/api/testing_guide.md)
+- [Project README](../README.md)

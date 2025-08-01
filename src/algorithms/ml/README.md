@@ -1,44 +1,26 @@
-# Ml
+# ML Algorithms
 
 ## Overview
-
-Algorithm implementation module
+Machine learning models used for workload forecasting. Implemented with
+scikit‑learn and NumPy.
 
 ## Features
-
-- Feature 1
-- Feature 2
-- Feature 3
-
-## Installation
-
-```bash
-# No additional installation required
-```
+- Support for multiple regression models
+- Tools for time series preprocessing
+- Benchmark utilities for accuracy comparison
 
 ## Usage
+```python
+from src.algorithms.ml.forecast import forecast_demand
 
-# Usage examples to be added
-
-## API Reference
-
-# API reference to be added
-
-## Configuration
-
-# Configuration details to be added
+y = forecast_demand(history)
+```
 
 ## Testing
-
 ```bash
 pytest tests/algorithms/ml/
 ```
 
-## Contributing
-
-See the main project [Contributing Guidelines](../../CONTRIBUTING.md).
-
 ## Related Documentation
-
-- [Main README](../../README.md)
-- [Technical Documentation](../../TECHNICAL_DOCS.md)
+- [Algorithms README](../README.md)
+- [Forecasting API Guide](../../../docs/FORECASTING_API_IMPLEMENTATION_SUMMARY.md)

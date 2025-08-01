@@ -1,44 +1,26 @@
-# Optimization
+# Optimization Algorithms
 
 ## Overview
-
-Algorithm implementation module
+Routines for schedule and resource optimisation. Implemented using linear
+programming and heuristic approaches.
 
 ## Features
-
-- Feature 1
-- Feature 2
-- Feature 3
-
-## Installation
-
-```bash
-# No additional installation required
-```
+- Mixed Integer Programming models
+- Heuristics for large scale problems
+- Interfaces for plugging in custom constraints
 
 ## Usage
+```python
+from src.algorithms.optimization.scheduler import optimize_schedule
 
-# Usage examples to be added
-
-## API Reference
-
-# API reference to be added
-
-## Configuration
-
-# Configuration details to be added
+result = optimize_schedule(data)
+```
 
 ## Testing
-
 ```bash
 pytest tests/algorithms/optimization/
 ```
 
-## Contributing
-
-See the main project [Contributing Guidelines](../../CONTRIBUTING.md).
-
 ## Related Documentation
-
-- [Main README](../../README.md)
-- [Technical Documentation](../../TECHNICAL_DOCS.md)
+- [Algorithms README](../README.md)
+- [Optimization API Summary](../../../docs/INTEGRATED_WORKFORCE_OPTIMIZATION_IMPLEMENTATION_SUMMARY.md)
